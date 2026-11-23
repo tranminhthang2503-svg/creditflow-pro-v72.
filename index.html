@@ -472,6 +472,18 @@
     .num { text-align: right !important; }
     .center { text-align: center !important; }
 
+    /* Tiêu đề phân nhóm Bảng chỉ số tài chính */
+    tr.ratio-group-row td {
+      background-color: #EFF6FF !important;
+      color: #1B365D !important;
+      font-weight: 800;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      border-top: 1.5px solid #93C5FD;
+      border-bottom: 1.5px solid #93C5FD;
+    }
+
     /* Xếp thẻ bảng lọc nhiễu trên Mobile */
     body.mode-mobile table.mobile-cards,
     body.mode-mobile table.mobile-cards thead,
@@ -1100,6 +1112,7 @@
                 <div><label class="field-label">Giá vốn (MS 11)</label><input id="inp-cogs-ytd" data-field="cogsYtd" type="number" inputmode="decimal" step="0.01" /></div>
                 <div><label class="field-label">DTT Kế hoạch T+1</label><input id="inp-dtt-plan" data-field="dttPlan" type="number" inputmode="decimal" step="0.01" /></div>
                 <div><label class="field-label">LNTT (MS 50)</label><input id="inp-lntt" data-field="lntt" type="number" inputmode="decimal" step="0.01" /></div>
+                <div><label class="field-label">Chi phí thuế TNDN (MS 51/52)</label><input id="inp-cit-exp" data-field="citExp" type="number" inputmode="decimal" step="0.01" /></div>
                 <div><label class="field-label">Khấu hao (D&amp;A)</label><input id="inp-da" data-field="da" type="number" inputmode="decimal" step="0.01" /></div>
                 <div><label class="field-label">Chi phí lãi vay (MS 23)</label><input id="inp-int-exp" data-field="intExp" type="number" inputmode="decimal" step="0.01" /></div>
                 <div><label class="field-label">Thuế TNDN đã nộp</label><input id="inp-tax-paid" data-field="taxPaid" type="number" inputmode="decimal" step="0.01" /></div>
@@ -1110,6 +1123,19 @@
                 <div><label class="field-label">Gốc + Lãi đến hạn</label><input id="inp-debt-service" data-field="debtService" type="number" inputmode="decimal" step="0.01" /></div>
                 <div><label class="field-label">Tiền thực về TK 112</label><input id="inp-cash-112" data-field="cash112" type="number" inputmode="decimal" step="0.01" /></div>
                 <div><label class="field-label">DT_VAT (gồm VAT)</label><input id="inp-dt-vat" data-field="dtVat" type="number" inputmode="decimal" step="0.01" /></div>
+              </div>
+
+              <!-- Nhóm chỉ tiêu Bảng Cân đối Kế toán Tổng hợp (MS 110, 100, 270, 310, 300, 400) -->
+              <div style="margin-top:12px; padding-top:10px; border-top:1px solid #E2E8F0;">
+                <div style="font-size:12px; font-weight:700; color:#1B365D; margin-bottom:8px;">Bảng Cân đối Kế toán Tổng hợp (B01-DN – tỷ đồng)</div>
+                <div class="grid-3">
+                  <div><label class="field-label">Tiền &amp; Tương đương tiền (MS 110)</label><input id="inp-cash-eq" data-field="cashEq" type="number" inputmode="decimal" step="0.01" /></div>
+                  <div><label class="field-label">Tổng Tài sản ngắn hạn (MS 100)</label><input id="inp-total-ca" data-field="totalCa" type="number" inputmode="decimal" step="0.01" /></div>
+                  <div><label class="field-label">Tổng Tài sản (MS 270)</label><input id="inp-total-assets" data-field="totalAssets" type="number" inputmode="decimal" step="0.01" /></div>
+                  <div><label class="field-label">Tổng Nợ ngắn hạn (MS 310)</label><input id="inp-total-cl" data-field="totalCl" type="number" inputmode="decimal" step="0.01" /></div>
+                  <div><label class="field-label">Tổng Nợ phải trả (MS 300)</label><input id="inp-total-liab" data-field="totalLiab" type="number" inputmode="decimal" step="0.01" /></div>
+                  <div><label class="field-label">Vốn chủ sở hữu (MS 400)</label><input id="inp-equity" data-field="equity" type="number" inputmode="decimal" step="0.01" /></div>
+                </div>
               </div>
 
               <div style="margin-top:12px; padding-top:10px; border-top:1px solid #E2E8F0;">
@@ -1130,6 +1156,29 @@
 
           <!-- PHÂN KHU 3: KẾT QUẢ PHÂN TÍCH, STRESS TEST & EWS -->
           <section id="sec-analysis" class="hidden" style="display:flex; flex-direction:column; gap:14px;">
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h2 class="card-title">Bảng Toàn diện Chỉ số Tài chính Doanh nghiệp (Chuẩn mực v7.2 – TT200)</h2>
+                  <div style="font-size:11.5px; color:#64748B;">Tự động quy chuẩn hóa kỳ lẻ sang năm (365 / T_ngày) cho toàn bộ chỉ số lưu lượng (Vòng quay, ROA, ROE, OCF/Nợ NH).</div>
+                </div>
+                <span id="ratio-ann-badge" class="badge badge-device mono">Hệ số quy năm: 1.3519x</span>
+              </div>
+              <div class="table-wrap">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th style="width:28%;">Tên Chỉ số &amp; Ký hiệu</th>
+                      <th style="width:36%;">Công thức Chuẩn mực TT200</th>
+                      <th class="num" style="width:14%;">Giá trị Thực tế</th>
+                      <th style="width:22%;">Ngưỡng Tham chiếu &amp; Đánh giá</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tbody-ratios"></tbody>
+                </table>
+              </div>
+            </div>
+
             <div class="card">
               <div class="card-header">
                 <h2 class="card-title">Bảng Kiểm định Sức chịu đựng Stress Test (ST1 – ST4)</h2>
@@ -1368,6 +1417,7 @@
         cogsYtd: 189.00,
         dttPlan: 340.00,
         lntt: 12.60,
+        citExp: 2.52,
         da: 4.50,
         intExp: 3.20,
         taxPaid: 2.10,
@@ -1378,6 +1428,12 @@
         debtService: 12.20,
         cash112: 182.00,
         dtVat: 239.76,
+        cashEq: 18.50,
+        totalCa: 165.00,
+        totalAssets: 245.00,
+        totalCl: 118.00,
+        totalLiab: 152.00,
+        equity: 93.00,
         ewsTc: 5.5,
         ewsVld: 5.0,
         ewsQltn: 7.5,
@@ -1529,6 +1585,7 @@
         cogsYtd: "inp-cogs-ytd",
         dttPlan: "inp-dtt-plan",
         lntt: "inp-lntt",
+        citExp: "inp-cit-exp",
         da: "inp-da",
         intExp: "inp-int-exp",
         taxPaid: "inp-tax-paid",
@@ -1539,6 +1596,12 @@
         debtService: "inp-debt-service",
         cash112: "inp-cash-112",
         dtVat: "inp-dt-vat",
+        cashEq: "inp-cash-eq",
+        totalCa: "inp-total-ca",
+        totalAssets: "inp-total-assets",
+        totalCl: "inp-total-cl",
+        totalLiab: "inp-total-liab",
+        equity: "inp-equity",
         ewsTc: "inp-ews-tc",
         ewsVld: "inp-ews-vld",
         ewsQltn: "inp-ews-qltn",
@@ -1701,6 +1764,11 @@
 
         // 3. Vòng quay & Chu kỳ tiền mặt CCC
         var vqVld = nwcOpAvg > 0 ? safeDiv(dttAnn, nwcOpAvg) : null;
+        var arTurnover = arClean > 0 ? safeDiv(dttAnn, arClean) : null;
+        var invTurnover = invClean > 0 ? safeDiv(cogsAnn, invClean) : null;
+        var apTurnover = apClean > 0 ? safeDiv(cogsAnn, apClean) : null;
+        var assetTurnover = d.totalAssets > 0 ? safeDiv(dttAnn, d.totalAssets) : null;
+
         var dso = dttAnn > 0 ? (arClean / dttAnn) * 365 : null;
         var dio = cogsAnn > 0 ? (invClean / cogsAnn) * 365 : null;
         var dpo = cogsAnn > 0 ? (apClean / cogsAnn) * 365 : null;
@@ -1708,8 +1776,31 @@
 
         // 4. Dòng tiền HĐKD chuẩn VAS 24 (VAR_OCF) & Đối chiếu MS 20
         var ocf = d.lntt + d.da + d.intExp - d.deltaNwcOp - d.taxPaid;
+        var ocfAnn = ocf * annFactor;
         var ms20DiffPct = (Math.abs(ocf - d.ms20) / Math.max(Math.abs(d.ms20), 1)) * 100;
         var ms20Flag = ms20DiffPct > 5.0;
+
+        // 4B. Bộ chỉ số Tài chính 4 Nhóm (Chuẩn mực v7.2 – TT200)
+        var currentRatio = d.totalCl > 0 ? safeDiv(d.totalCa, d.totalCl) : null;
+        var quickRatio = d.totalCl > 0 ? safeDiv(d.totalCa - invClean, d.totalCl) : null;
+        var cashRatio = d.totalCl > 0 ? safeDiv(d.cashEq, d.totalCl) : null;
+        var ocfToClRatio = d.totalCl > 0 ? safeDiv(ocfAnn, d.totalCl) : null;
+
+        var grossProfit = d.dttYtd - d.cogsYtd;
+        var ebit = d.lntt + d.intExp;
+        var lnst = d.lntt - d.citExp;
+        var lnstAnn = lnst * annFactor;
+
+        var grossMarginPct = d.dttYtd > 0 ? (grossProfit / d.dttYtd) * 100 : null;
+        var ebitMarginPct = d.dttYtd > 0 ? (ebit / d.dttYtd) * 100 : null;
+        var netMarginPct = d.dttYtd > 0 ? (lnst / d.dttYtd) * 100 : null;
+        var roaPct = d.totalAssets > 0 ? (lnstAnn / d.totalAssets) * 100 : null;
+        var roePct = d.equity > 0 ? (lnstAnn / d.equity) * 100 : null;
+
+        var debtToAssets = d.totalAssets > 0 ? safeDiv(d.totalLiab, d.totalAssets) : null;
+        var totalBankDebt = d.otherDebt + d.hmtdReq;
+        var debtToEquity = d.equity > 0 ? safeDiv(totalBankDebt, d.equity) : null;
+        var icr = d.intExp > 0 ? safeDiv(ebit, d.intExp) : null;
 
         // Đối soát tiền về TK 112
         var cashRatioPct = d.dtVat > 0 ? (d.cash112 / d.dtVat) * 100 : null;
@@ -1717,6 +1808,162 @@
 
         // 5. DSCR & Trần Hạn mức Tín dụng Tối đa năm T+1
         var dscr = (d.debtService > 0 && ocf > 0) ? (ocf / d.debtService) : (d.debtService > 0 ? ((d.lntt + d.da + d.intExp) * annFactor) / d.debtService : null);
+        var ratioGroups = [
+          {
+            groupTitle: "Nhóm 1. Khả năng Thanh toán (Liquidity)",
+            items: [
+              {
+                name: "Hệ số thanh toán hiện hành (Current Ratio)",
+                formula: "Tổng TSNH (MS 100) ÷ Tổng Nợ ngắn hạn (MS 310)",
+                valStr: currentRatio !== null ? fmt(currentRatio) + "x" : "N/A",
+                status: currentRatio === null ? "neutral" : (currentRatio >= 1.20 ? "ok" : (currentRatio >= 1.00 ? "warn" : "flag")),
+                evalText: currentRatio === null ? "Thiếu số liệu MS 310" : (currentRatio >= 1.20 ? "Đạt chuẩn an toàn (≥ 1.20x)" : (currentRatio >= 1.00 ? "Ngưỡng trung bình (1.00–1.19x)" : "Rủi ro thanh khoản (< 1.00x)"))
+              },
+              {
+                name: "Hệ số thanh toán nhanh (Quick Ratio)",
+                formula: "(Tổng TSNH − HTK sạch) ÷ Tổng Nợ ngắn hạn",
+                valStr: quickRatio !== null ? fmt(quickRatio) + "x" : "N/A",
+                status: quickRatio === null ? "neutral" : (quickRatio >= 0.80 ? "ok" : (quickRatio >= 0.50 ? "warn" : "flag")),
+                evalText: quickRatio === null ? "Thiếu số liệu MS 310" : (quickRatio >= 0.80 ? "Tốt (≥ 0.80x)" : (quickRatio >= 0.50 ? "Phụ thuộc thanh lý HTK (0.50–0.79x)" : "Thấp (< 0.50x)"))
+              },
+              {
+                name: "Hệ số thanh toán tức thời (Cash Ratio)",
+                formula: "Tiền & Tương đương tiền (MS 110) ÷ Tổng Nợ ngắn hạn",
+                valStr: cashRatio !== null ? fmt(cashRatio) + "x" : "N/A",
+                status: cashRatio === null ? "neutral" : (cashRatio >= 0.15 ? "ok" : (cashRatio >= 0.08 ? "warn" : "flag")),
+                evalText: cashRatio === null ? "Thiếu số liệu MS 310" : (cashRatio >= 0.15 ? "Đệm tiền mặt tốt (≥ 0.15x)" : "Tiền mặt mỏng (< 0.15x)")
+              },
+              {
+                name: "Hệ số thanh toán bằng dòng tiền (OCF / Nợ NH)",
+                formula: "(VAR_OCF × [365 ÷ T_ngày]) ÷ Tổng Nợ ngắn hạn",
+                valStr: ocfToClRatio !== null ? fmt(ocfToClRatio) + "x" : "N/A",
+                status: ocfToClRatio === null ? "neutral" : (ocfToClRatio >= 0.20 ? "ok" : (ocfToClRatio >= 0 ? "warn" : "flag")),
+                evalText: ocfToClRatio === null ? "Thiếu số liệu MS 310" : (ocfToClRatio >= 0.20 ? "Tạo tiền tốt (≥ 0.20x)" : (ocfToClRatio >= 0 ? "Dòng tiền dương mỏng" : "OCF âm – thâm hụt tiền"))
+              }
+            ]
+          },
+          {
+            groupTitle: "Nhóm 2. Hiệu quả Hoạt động & Vận hành (Activity)",
+            items: [
+              {
+                name: "Vòng quay Phải thu (AR Turnover) & DSO",
+                formula: "(DTT × [365 ÷ T_ngày]) ÷ Phải thu sạch  |  DSO = 365 ÷ VQ",
+                valStr: arTurnover !== null ? fmt(arTurnover) + " vòng (" + fmt(dso, 1) + "d)" : "N/A",
+                status: dso === null ? "neutral" : (dso <= 60 ? "ok" : (dso <= 90 ? "warn" : "flag")),
+                evalText: dso === null ? "Chưa có dữ liệu" : (dso <= 60 ? "Thu hồi nợ nhanh (DSO ≤ 60d)" : (dso <= 90 ? "Kỳ thu tiền trung bình (60–90d)" : "Chậm thu hồi nợ (> 90d)"))
+              },
+              {
+                name: "Vòng quay Tồn kho (Inventory Turnover) & DIO",
+                formula: "(COGS × [365 ÷ T_ngày]) ÷ Tồn kho sạch  |  DIO = 365 ÷ VQ",
+                valStr: invTurnover !== null ? fmt(invTurnover) + " vòng (" + fmt(dio, 1) + "d)" : "N/A",
+                status: dio === null ? "neutral" : (dio <= 60 ? "ok" : (dio <= 90 ? "warn" : "flag")),
+                evalText: dio === null ? "Chưa có dữ liệu" : (dio <= 60 ? "Luân chuyển kho nhanh (≤ 60d)" : (dio <= 90 ? "Dự trữ kho trung bình (60–90d)" : "Tồn kho chậm luân chuyển (> 90d)"))
+              },
+              {
+                name: "Vòng quay Phải trả (AP Turnover) & DPO",
+                formula: "(COGS × [365 ÷ T_ngày]) ÷ Phải trả NCC sạch  |  DPO = 365 ÷ VQ",
+                valStr: apTurnover !== null ? fmt(apTurnover) + " vòng (" + fmt(dpo, 1) + "d)" : "N/A",
+                status: dpo === null ? "neutral" : (dpo >= 30 ? "ok" : "warn"),
+                evalText: dpo === null ? "Chưa có dữ liệu" : (dpo >= 30 ? "Tận dụng tín dụng NCC tốt (≥ 30d)" : "Chiếm dụng NCC ngắn (< 30d)")
+              },
+              {
+                name: "Chu kỳ Tiền mặt (Cash Conversion Cycle – CCC)",
+                formula: "CCC = DIO + DSO − DPO",
+                valStr: ccc !== null ? fmt(ccc, 1) + " ngày" : "N/A",
+                status: ccc === null ? "neutral" : (ccc <= 75 ? "ok" : (ccc <= 105 ? "warn" : "flag")),
+                evalText: ccc === null ? "Chưa có dữ liệu" : (ccc <= 75 ? "Chu kỳ tiền ngắn, hiệu quả (≤ 75d)" : (ccc <= 105 ? "Chu kỳ tiền trung bình (75–105d)" : "Chu kỳ tiền kéo dài (> 105d)"))
+              },
+              {
+                name: "Vòng quay Vốn lưu động vận hành (VAR_VQ_VLD_T)",
+                formula: "(DTT × [365 ÷ T_ngày]) ÷ NWC_op bình quân",
+                valStr: vqVld !== null ? fmt(vqVld) + " vòng/năm" : "N/A",
+                status: vqVld === null ? "flag" : (vqVld >= 4.5 ? "ok" : (vqVld >= 3.5 ? "warn" : "flag")),
+                evalText: vqVld === null ? "NWC_op bình quân ≤ 0 (N/A)" : (vqVld >= 4.5 ? "Vòng quay VLĐ tốt (≥ 4.5 vòng)" : "Cần cải thiện tốc độ quay vốn")
+              },
+              {
+                name: "Vòng quay Tổng tài sản (Asset Turnover)",
+                formula: "(DTT × [365 ÷ T_ngày]) ÷ Tổng Tài sản (MS 270)",
+                valStr: assetTurnover !== null ? fmt(assetTurnover) + " vòng/năm" : "N/A",
+                status: assetTurnover === null ? "neutral" : (assetTurnover >= 1.20 ? "ok" : (assetTurnover >= 0.80 ? "warn" : "flag")),
+                evalText: assetTurnover === null ? "Thiếu số liệu MS 270" : (assetTurnover >= 1.20 ? "Hiệu suất khai thác TS cao (≥ 1.20x)" : "Hiệu suất sử dụng TS trung bình")
+              }
+            ]
+          },
+          {
+            groupTitle: "Nhóm 3. Khả năng Sinh lời (Profitability)",
+            items: [
+              {
+                name: "Biên Lợi nhuận gộp (Gross Margin)",
+                formula: "(Doanh thu thuần − Giá vốn hàng bán) ÷ Doanh thu thuần",
+                valStr: grossMarginPct !== null ? fmt(grossMarginPct, 1) + "%" : "N/A",
+                status: grossMarginPct === null ? "neutral" : (grossMarginPct >= 15.0 ? "ok" : (grossMarginPct >= 8.0 ? "warn" : "flag")),
+                evalText: grossMarginPct === null ? "Chưa có dữ liệu" : (grossMarginPct >= 15.0 ? "Biên gộp khá/tốt (≥ 15.0%)" : (grossMarginPct >= 8.0 ? "Biên gộp đặc thù TM/Xây lắp (8–15%)" : "Biên gộp mỏng (< 8.0%)"))
+              },
+              {
+                name: "Biên Lợi nhuận hoạt động (EBIT Margin)",
+                formula: "(LNTT + Chi phí lãi vay) ÷ Doanh thu thuần",
+                valStr: ebitMarginPct !== null ? fmt(ebitMarginPct, 1) + "%" : "N/A",
+                status: ebitMarginPct === null ? "neutral" : (ebitMarginPct >= 7.0 ? "ok" : (ebitMarginPct >= 3.0 ? "warn" : "flag")),
+                evalText: ebitMarginPct === null ? "Chưa có dữ liệu" : (ebitMarginPct >= 7.0 ? "Hiệu quả cốt lõi tốt (≥ 7.0%)" : (ebitMarginPct >= 3.0 ? "Mức sinh lời hoạt động trung bình" : "Biên hoạt động thấp (< 3.0%)"))
+              },
+              {
+                name: "Biên Lợi nhuận ròng (Net Profit Margin)",
+                formula: "Lợi nhuận sau thuế (LNST) ÷ Doanh thu thuần",
+                valStr: netMarginPct !== null ? fmt(netMarginPct, 1) + "%" : "N/A",
+                status: netMarginPct === null ? "neutral" : (netMarginPct >= 4.0 ? "ok" : (netMarginPct >= 1.5 ? "warn" : "flag")),
+                evalText: netMarginPct === null ? "Chưa có dữ liệu" : (netMarginPct >= 4.0 ? "Biên ròng tích cực (≥ 4.0%)" : (netMarginPct >= 1.5 ? "Biên ròng chấp nhận được" : "Biên ròng mỏng / thua lỗ"))
+              },
+              {
+                name: "Tỷ suất sinh lời Tổng tài sản (ROA – Quy năm)",
+                formula: "(LNST × [365 ÷ T_ngày]) ÷ Tổng Tài sản (MS 270)",
+                valStr: roaPct !== null ? fmt(roaPct, 1) + "%" : "N/A",
+                status: roaPct === null ? "neutral" : (roaPct >= 5.0 ? "ok" : (roaPct >= 2.0 ? "warn" : "flag")),
+                evalText: roaPct === null ? "Thiếu số liệu MS 270" : (roaPct >= 5.0 ? "Hiệu quả sinh lời TS tốt (≥ 5.0%)" : "ROA ở mức trung bình")
+              },
+              {
+                name: "Tỷ suất sinh lời Vốn chủ sở hữu (ROE – Quy năm)",
+                formula: "(LNST × [365 ÷ T_ngày]) ÷ Vốn chủ sở hữu (MS 400)",
+                valStr: roePct !== null ? fmt(roePct, 1) + "%" : "N/A",
+                status: roePct === null ? "neutral" : (roePct >= 12.0 ? "ok" : (roePct >= 6.0 ? "warn" : "flag")),
+                evalText: roePct === null ? "Thiếu số liệu MS 400" : (roePct >= 12.0 ? "Sinh lời VCSH cao (≥ 12.0%)" : "ROE trung bình (< 12.0%)")
+              }
+            ]
+          },
+          {
+            groupTitle: "Nhóm 4. Đòn bẩy Tài chính & Khả năng Trả nợ (Leverage & Coverage)",
+            items: [
+              {
+                name: "Hệ số Nợ / Tổng tài sản (Debt to Assets)",
+                formula: "Tổng Nợ phải trả (MS 300) ÷ Tổng Tài sản (MS 270)",
+                valStr: debtToAssets !== null ? fmt(debtToAssets * 100, 1) + "% (" + fmt(debtToAssets) + "x)" : "N/A",
+                status: debtToAssets === null ? "neutral" : (debtToAssets <= 0.65 ? "ok" : (debtToAssets <= 0.80 ? "warn" : "flag")),
+                evalText: debtToAssets === null ? "Thiếu số liệu MS 270" : (debtToAssets <= 0.65 ? "Cấu trúc vốn an toàn (≤ 65%)" : (debtToAssets <= 0.80 ? "Đòn bẩy nợ khá cao (65–80%)" : "Rủi ro nợ cao (> 80%)"))
+              },
+              {
+                name: "Đòn bẩy nợ vay TCTD / VCSH (Bank Debt / Equity)",
+                formula: "(Dư nợ NH khác + HMTD đề xuất) ÷ Vốn chủ sở hữu (MS 400)",
+                valStr: debtToEquity !== null ? fmt(debtToEquity) + "x" : "N/A",
+                status: debtToEquity === null ? "neutral" : (debtToEquity <= 1.50 ? "ok" : (debtToEquity <= 2.50 ? "warn" : "flag")),
+                evalText: debtToEquity === null ? "Thiếu số liệu MS 400" : (debtToEquity <= 1.50 ? "Đòn bẩy vay ngân hàng hợp lý (≤ 1.50x)" : "Áp lực nợ vay trên VCSH cao")
+              },
+              {
+                name: "Khả năng trang trải lãi vay (Interest Coverage – ICR)",
+                formula: "EBIT (LNTT + Chi phí lãi vay) ÷ Chi phí lãi vay (MS 23)",
+                valStr: icr !== null ? fmt(icr) + "x" : "N/A",
+                status: icr === null ? "neutral" : (icr >= 3.00 ? "ok" : (icr >= 1.50 ? "warn" : "flag")),
+                evalText: icr === null ? "Không phát sinh lãi vay" : (icr >= 3.00 ? "Trang trải lãi vay vững vàng (≥ 3.00x)" : (icr >= 1.50 ? "Biên an toàn trả lãi trung bình" : "Rủi ro trả lãi vay (< 1.50x)"))
+              },
+              {
+                name: "Hệ số khả năng trả nợ (VAR_DSCR)",
+                formula: "Dòng tiền tạo nợ quy năm ÷ (Nợ gốc đến hạn + Lãi vay)",
+                valStr: dscr !== null ? fmt(dscr) + "x" : "N/A",
+                status: dscr === null ? "neutral" : (dscr >= 1.25 ? "ok" : (dscr >= 1.00 ? "warn" : "flag")),
+                evalText: dscr === null ? "Chưa nhập nghĩa vụ trả nợ" : (dscr >= 1.25 ? "Đạt chuẩn an toàn trả nợ (≥ 1.25x)" : (dscr >= 1.00 ? "Sát ngưỡng tối thiểu (1.00–1.24x)" : "Không đủ nguồn trả nợ (< 1.00x)"))
+              }
+            ]
+          }
+        ];
+
         var nhuCauT1 = (vqVld && vqVld > 0) ? (d.dttPlan / vqVld) : null;
         var vtcMin30 = nhuCauT1 !== null ? nhuCauT1 * 0.30 : null;
         var hmtdDk1 = nhuCauT1 !== null ? nhuCauT1 * 0.70 : null;
@@ -1813,15 +2060,32 @@
           },
           metrics: {
             vqVld: vqVld,
+            arTurnover: arTurnover,
+            invTurnover: invTurnover,
+            apTurnover: apTurnover,
+            assetTurnover: assetTurnover,
             dso: dso,
             dio: dio,
             dpo: dpo,
             ccc: ccc,
             ocf: ocf,
+            ocfAnn: ocfAnn,
             ms20DiffPct: ms20DiffPct,
             ms20Flag: ms20Flag,
             cashRatioPct: cashRatioPct,
             cashFlag: cashFlag,
+            currentRatio: currentRatio,
+            quickRatio: quickRatio,
+            cashRatio: cashRatio,
+            ocfToClRatio: ocfToClRatio,
+            grossMarginPct: grossMarginPct,
+            ebitMarginPct: ebitMarginPct,
+            netMarginPct: netMarginPct,
+            roaPct: roaPct,
+            roePct: roePct,
+            debtToAssets: debtToAssets,
+            debtToEquity: debtToEquity,
+            icr: icr,
             dscr: dscr,
             nhuCauT1: nhuCauT1,
             vtcMin30: vtcMin30,
@@ -1829,6 +2093,7 @@
             hmtdDk2: hmtdDk2,
             hmtdMax: hmtdMax
           },
+          ratioGroups: ratioGroups,
           stressList: stressList,
           ews: {
             w1: ewsW1, w2: ewsW2, w3: ewsW3, w4: ewsW4,
@@ -1907,30 +2172,30 @@
               '<p>Doanh nghiệp hoạt động hợp pháp theo Giấy chứng nhận ĐKDN, ngành nghề đăng ký phù hợp phương án vay vốn. Dư nợ ngắn hạn hiện hữu tại TCTD khác là <strong>' + fmt(d.otherDebt) + ' tỷ đồng</strong>, nghĩa vụ trả nợ gốc và lãi đến hạn là <strong>' + fmt(d.debtService) + ' tỷ đồng</strong>.</p>' +
             '</div>' +
             '<div class="memo-conclusion-box"><div class="memo-box-title">Kết luận / Đánh giá Mục 2</div>Tư cách pháp lý đầy đủ, hợp lệ. Dư nợ vay ngắn hạn tại TCTD khác (' + fmt(d.otherDebt) + ' tỷ) được khấu trừ trực tiếp khi xác định trần hạn mức bổ sung tại Mục 7.</div>' +
+            '<h3>4.3. Các chỉ số Vận hành Quy chuẩn năm (Annualized với T<sub>ngày</sub> = ' + d.tDays + ')</h3>' +
+            '<div class="memo-formula-box"><div class="memo-box-title">Chỉ số Chu kỳ Tiền mặt &amp; Vòng quay VLĐVH Quy chuẩn năm (Hệ số 365 / ' + d.tDays + ' = ' + fmt(c.annFactor, 4) + ')</div>' +
+              '<ul>' +
+                '<li><strong>Chu kỳ tiền mặt:</strong> DSO = <strong>' + fmt(m.dso, 1) + ' ngày</strong> &nbsp;|&nbsp; DIO = <strong>' + fmt(m.dio, 1) + ' ngày</strong> &nbsp;|&nbsp; DPO = <strong>' + fmt(m.dpo, 1) + ' ngày</strong> &nbsp;|&nbsp; <strong>VAR_CCC = ' + (m.ccc !== null ? fmt(m.ccc, 1) + ' ngày' : 'N/A') + '</strong></li>' +
+                '<li><strong>Vòng quay VLĐVH Quy chuẩn năm:</strong> VAR_VQ_VLD_T = ' + fmt(c.dttAnn) + ' ÷ ' + fmt(c.nwcOpAvg) + ' = <strong>' + (m.vqVld !== null ? fmt(m.vqVld) + ' vòng/năm' : 'N/A') + '</strong></li>' +
+              '</ul>' +
+            '</div>' +
 
-            '<h2>3. LỌC NHIỄU BCTC &amp; PHÂN LOẠI ĐỘNG (CHUẨN HÓA MAPPING TT200)</h2>' +
+            '<h3>4.4. Bảng Toàn diện Chỉ số Tài chính Doanh nghiệp (4 Nhóm Chuẩn mực TT200)</h3>' +
             '<table class="memo-table">' +
-              '<thead><tr><th>Biến số Hệ thống</th><th>Chỉ tiêu BCTC / Mã số TT200</th><th class="num">Số dư Gộp</th><th class="num">Loại trừ / DP</th><th class="num">Giá trị Sạch</th></tr></thead>' +
+              '<thead><tr><th style="width:30%;">Tên Chỉ số &amp; Ký hiệu</th><th style="width:36%;">Công thức Chuẩn mực TT200</th><th class="num" style="width:14%;">Giá trị</th><th style="width:20%;">Đánh giá</th></tr></thead>' +
               '<tbody>' +
-                '<tr class="memo-row-hi"><td>VAR_AR_CLEAN</td><td>Phải thu KH ngắn hạn (MS 131 / TK 2293)</td><td class="num">' + fmt(d.arGop) + '</td><td class="num">' + fmt(Math.max(d.arTreo, d.dpNoXau)) + '</td><td class="num">' + fmt(c.arClean) + '</td></tr>' +
-                '<tr class="memo-row-hi"><td>VAR_INV_CLEAN</td><td>Hàng tồn kho (MS 141 / TK 2294; TK 152–156: ' + fmt(d.tk152 + d.tk153 + d.tk155 + d.tk156) + ')</td><td class="num">' + fmt(d.invGop) + '</td><td class="num">' + fmt(Math.max(d.invUDong, d.dpGiamGia)) + '</td><td class="num">' + fmt(c.invClean) + '</td></tr>' +
-                '<tr class="memo-row-hi"><td>VAR_AP_CLEAN</td><td>Phải trả người bán ngắn hạn (MS 311 / TK 331)</td><td class="num">' + fmt(d.tong331) + '</td><td class="num">' + fmt(d.apTreo + d.apCapEx) + '</td><td class="num">' + fmt(c.apClean) + '</td></tr>' +
-                '<tr><td>TSNH_VH_Khac / No_VH_Khac</td><td>TSNH vận hành khác / Nợ NH vận hành khác</td><td class="num">' + fmt(d.tsnhKhac) + '</td><td class="num">' + fmt(d.noKhac) + '</td><td class="num">' + fmt(d.tsnhKhac - d.noKhac) + '</td></tr>' +
+                res.ratioGroups.map(function (grp) {
+                  var grpHeader = '<tr class="memo-row-hi"><td colspan="4" style="color:#1B365D; font-weight:800;">' + esc(grp.groupTitle) + '</td></tr>';
+                  var rows = grp.items.map(function (it) {
+                    var cls = it.status === "ok" ? "st-ok" : (it.status === "flag" ? "st-flag" : (it.status === "warn" ? "st-warn" : ""));
+                    return '<tr><td>' + esc(it.name) + '</td><td>' + esc(it.formula) + '</td><td class="num ' + cls + '">' + esc(it.valStr) + '</td><td class="' + cls + '">' + esc(it.evalText) + '</td></tr>';
+                  }).join("");
+                  return grpHeader + rows;
+                }).join("") +
               '</tbody>' +
             '</table>' +
-            '<div class="memo-conclusion-box"><div class="memo-box-title">Kết luận / Đánh giá Mục 3</div>Đã thực hiện bóc tách chống trừ trùng theo quy tắc max(Treo, Dự phòng) chuẩn TT200. Vốn lưu động vận hành sạch cuối kỳ đạt <strong>' + fmt(c.nwcOpEnd) + ' tỷ đồng</strong>.</div>' +
 
-            '<h2>4. PHÂN TÍCH TÀI CHÍNH, BÌNH QUÂN VỐN LƯU ĐỘNG &amp; TÁCH LỚP</h2>' +
-            '<table class="memo-table">' +
-              '<thead><tr><th>Chỉ tiêu Tài chính &amp; Dòng tiền (tỷ đồng)</th><th class="num">Giá trị Kỳ T</th><th class="num">Quy chuẩn Năm</th><th>Nhận xét Đối soát</th></tr></thead>' +
-              '<tbody>' +
-                '<tr class="memo-row-total"><td>Vốn lưu động vận hành (NWC_op cuối kỳ / bình quân)</td><td class="num">' + fmt(c.nwcOpEnd) + '</td><td class="num">' + fmt(c.nwcOpAvg) + '</td><td>Biến động ΔNWC_op = ' + fmt(d.deltaNwcOp) + ' tỷ</td></tr>' +
-                '<tr><td>Doanh thu thuần (MS 10) / Giá vốn hàng bán (MS 11)</td><td class="num">' + fmt(d.dttYtd) + ' / ' + fmt(d.cogsYtd) + '</td><td class="num">' + fmt(c.dttAnn) + ' / ' + fmt(c.cogsAnn) + '</td><td>Hệ số quy năm: ' + fmt(c.annFactor, 4) + '</td></tr>' +
-                '<tr><td>Dòng tiền hoạt động kinh doanh chuẩn (VAR_OCF)</td><td class="num">' + fmt(m.ocf) + '</td><td class="num">—</td><td>Đối chiếu MS_20 = ' + fmt(d.ms20) + ' (Lệch ' + fmt(m.ms20DiffPct, 1) + '%)</td></tr>' +
-                '<tr class="memo-row-hi"><td>Chu kỳ tiền mặt (CCC) &amp; Vòng quay VLĐVH</td><td class="num">' + (m.ccc !== null ? fmt(m.ccc, 1) + " ngày" : "N/A") + '</td><td class="num">' + (m.vqVld !== null ? fmt(m.vqVld) + " vòng" : "N/A") + '</td><td>DSO: ' + fmt(m.dso, 1) + 'd | DIO: ' + fmt(m.dio, 1) + 'd | DPO: ' + fmt(m.dpo, 1) + 'd</td></tr>' +
-              '</tbody>' +
-            '</table>' +
-            '<div class="memo-conclusion-box"><div class="memo-box-title">Kết luận / Đánh giá Mục 4</div>Vòng quay VLĐVH quy chuẩn năm đạt <strong>' + (m.vqVld !== null ? fmt(m.vqVld) + " vòng/năm" : "N/A") + '</strong>, chu kỳ tiền mặt CCC ở mức <strong>' + (m.ccc !== null ? fmt(m.ccc, 1) + " ngày" : "N/A") + '</strong>, dòng tiền thuần HĐKD đạt <strong>' + fmt(m.ocf) + ' tỷ</strong>, hệ số DSCR đạt <strong>' + (m.dscr !== null ? fmt(m.dscr) + "x" : "N/A") + '</strong>.</div>' +
+            '<div class="memo-conclusion-box"><div class="memo-box-title">Kết luận / Đánh giá Mục 4</div>Vòng quay VLĐVH quy chuẩn năm đạt <strong>' + (m.vqVld !== null ? fmt(m.vqVld) + " vòng/năm" : "N/A") + '</strong>, chu kỳ tiền mặt CCC ở mức <strong>' + (m.ccc !== null ? fmt(m.ccc, 1) + " ngày" : "N/A") + '</strong>, dòng tiền thuần HĐKD đạt <strong>' + fmt(m.ocf) + ' tỷ</strong>, hệ số thanh toán hiện hành đạt <strong>' + (m.currentRatio !== null ? fmt(m.currentRatio) + 'x' : 'N/A') + '</strong>, ROA/ROE quy năm đạt <strong>' + (m.roaPct !== null ? fmt(m.roaPct, 1) + '%' : 'N/A') + ' / ' + (m.roePct !== null ? fmt(m.roePct, 1) + '%' : 'N/A') + '</strong> và hệ số DSCR đạt <strong>' + (m.dscr !== null ? fmt(m.dscr) + "x" : "N/A") + '</strong>.</div>' +
 
             '<h2>5. ĐỐI SOÁT DOANH THU &amp; DÒNG TIỀN VẬN HÀNH</h2>' +
             '<div class="memo-formula-box"><div class="memo-box-title">Đối soát Chéo Doanh thu Kế toán, VAT &amp; Tiền về TK 112</div>' +
@@ -2038,28 +2303,28 @@
           $("sum-dscr").textContent = res.metrics.dscr !== null ? fmt(res.metrics.dscr) + "x" : "N/A";
           $("sum-cash").textContent = "Tiền về: " + (res.metrics.cashRatioPct !== null ? fmt(res.metrics.cashRatioPct, 1) + "%" : "N/A");
           $("sum-vq").textContent = res.metrics.vqVld !== null ? fmt(res.metrics.vqVld) + " vòng" : "N/A";
-          $("sum-nwc").textContent = "NWC_op: " + fmt(res.clean.nwcOpAvg) + " tỷ";
-          $("sum-hmtd-max").textContent = res.metrics.hmtdMax !== null ? fmt(res.metrics.hmtdMax) + " tỷ" : "N/A";
-          $("sum-ews").textContent = "EWS: " + fmt(res.ews.total) + " / 10";
+          // Bảng Toàn diện Chỉ số Tài chính 4 Nhóm
+          var annBadge = $("ratio-ann-badge");
+          if (annBadge) annBadge.textContent = "Hệ số quy năm: " + fmt(res.clean.annFactor, 4) + "x";
 
-          var flagsHtml = res.verdict.flags.length
-            ? res.verdict.flags.map(function (f) { return "<div>• " + esc(f) + "</div>"; }).join("")
-            : "<div style='color:#15803D;'>• Không ghi nhận ngoại lệ trọng yếu.</div>";
-          $("sum-flags").innerHTML = flagsHtml;
-
-          $("sum-covenants").innerHTML = res.verdict.covenants.map(function (cv) {
-            return "<div>• " + esc(cv) + "</div>";
-          }).join("");
-
-          // Mobile Sticky Summary
-          $("mob-rank").textContent = res.ews.rank;
-          $("mob-decision").textContent = res.verdict.decision;
-          $("mob-limit").textContent = fmt(res.verdict.approvedLimit) + " tỷ";
-          $("mob-ocf").textContent = fmt(res.metrics.ocf) + " tỷ";
-          $("mob-dscr").textContent = res.metrics.dscr !== null ? fmt(res.metrics.dscr) + "x" : "N/A";
-          $("mob-vq").textContent = res.metrics.vqVld !== null ? fmt(res.metrics.vqVld) + " vòng" : "N/A";
-          $("mob-hmtd-max").textContent = res.metrics.hmtdMax !== null ? fmt(res.metrics.hmtdMax) + " tỷ" : "N/A";
-          $("mob-flags").innerHTML = flagsHtml;
+          var tbodyRatios = $("tbody-ratios");
+          if (tbodyRatios) {
+            tbodyRatios.innerHTML = res.ratioGroups.map(function (grp) {
+              var gRow = '<tr class="ratio-group-row"><td colspan="4">' + esc(grp.groupTitle) + '</td></tr>';
+              var itemRows = grp.items.map(function (it) {
+                var cls = it.status === "ok" ? "st-ok" : (it.status === "flag" ? "st-flag" : (it.status === "warn" ? "st-warn" : ""));
+                return (
+                  "<tr>" +
+                    "<td><strong>" + esc(it.name) + "</strong></td>" +
+                    "<td style='color:#475569; font-size:12px;'>" + esc(it.formula) + "</td>" +
+                    "<td class='num mono " + cls + "'>" + esc(it.valStr) + "</td>" +
+                    "<td class='" + cls + "' style='font-size:12px;'>" + esc(it.evalText) + "</td>" +
+                  "</tr>"
+                );
+              }).join("");
+              return gRow + itemRows;
+            }).join("");
+          }
 
           // Bảng Stress Test & EWS
           $("tbody-stress").innerHTML = res.stressList.map(function (s) {
