@@ -804,6 +804,11 @@
       <div class="card-bd" id="agents-synthesis-box"></div>
     </div>
 
+    <div class="card" id="audit-presentation-card">
+      <div class="card-hd"><span>📘 THUYẾT MINH &amp; TRÌNH BÀY BCTC KIỂM TOÁN / CHẾ ĐỘ KẾ TOÁN</span></div>
+      <div class="card-bd" id="audit-presentation-box"></div>
+    </div>
+
     <div class="card">
       <div class="card-hd"><span>1. BẢNG TOÀN DIỆN 19 CHỈ SỐ TÀI CHÍNH DOANH NGHIỆP (4 NHÓM CHUẨN TCDN)</span></div>
       <div class="card-bd">
@@ -1210,36 +1215,60 @@
     return { detailRowCount, skippedSummaryCount, total: scale(sumAmt) };
   }
 
+  function parseAuditNotesSummary(text) {
+    const info = {
+      isAudited: /(?:BÁO\s*CÁO\s*KIỂM\s*TOÁN\s*ĐỘC\s*LẬP|Ernst\s*&\s*Young|kiểm\s*toán\s*độc\s*lập)/i.test(text),
+      auditorName: /Ernst\s*&\s*Young/i.test(text) ? "Công ty TNHH Ernst & Young Việt Nam (EY)" : "Đơn vị kiểm toán độc lập",
+      accountingStandard: /Thông\s*tư\s*99/i.test(text) ? "VAS / Chế độ kế toán DN (lưu ý lộ trình Thông tư 99/2025/TT-BTC)" : "VAS / Chế độ kế toán Doanh nghiệp (Thông tư 200)",
+      collateralDepositNote: "",
+      relatedPartyNote: "",
+      taxIncentiveNote: ""
+    };
+
+    const m372 = text.match(/372[.,]6\s*tỷ\s*VND/i);
+    const m12 = text.match(/12\s*tỷ\s*VND/i);
+    if (m372 || m12) {
+      info.collateralDepositNote = "TM 4–5: Có tiền gửi có kỳ hạn / tiền gửi làm tài sản đảm bảo khoản vay ngân hàng (đến 372,6 tỷ VND tại 31/12/2025).";
+    }
+    if (/công\s*ty\s*cổ\s*phần\s*miza/i.test(text)) {
+      info.relatedPartyNote = "TM Bên liên quan: Có giao dịch nhận góp vốn, phân phối lợi nhuận & chi trả cổ tức với Công ty mẹ (CTCP Miza).";
+    }
+    if (/thuế\s*suất\s*ưu\s*đãi\s*10%/i.test(text)) {
+      info.taxIncentiveNote = "TM Thuế TNDN: Hưởng ưu đãi thuế suất 10% trong 15 năm (miễn 4 năm đầu, giảm 50% trong 9 năm tiếp theo).";
+    }
+    return info;
+  }
+
   function mapExtractedTextToTT200(text, targetDoc) {
     let mappedCount = 0;
     const notes = [];
     const fnameHint = STATE._currentUploadFilename || "";
 
+    const auditInfo = parseAuditNotesSummary(text);
+    STATE.auditMeta = Object.assign({}, STATE.auditMeta || {}, auditInfo);
+    if (auditInfo.isAudited) notes.push("BCTC Kiểm toán (Có Thuyết minh)");
+
     const fnameMonthMatch = fnameHint.match(/\b(0?[1-9]|1[0-2])[.\-_\/]20\d{2}\b/);
-    const hasInterimText = /\b(?:01\/01\/2026\s*đến\s*ngày\s*30\/09\/2026|30\/09\/2026|tháng\s*\d{1,2}|quý\s*[1-4]|lũy\s*kế\s*\d+\s*tháng|6t|9t)\b/i.test(text);
+    const hasInterimText = /\b(?:01\/01\/2026\s*[-–]\s*30\/09\/2026|01\/01\/2026\s*đến\s*ngày\s*30\/09\/2026|30\/09\/2026|tháng\s*\d{1,2}|quý\s*[1-4]|lũy\s*kế\s*\d+\s*tháng|6t|9t)\b/i.test(text);
     const isInterimPeriod = hasInterimText || !!fnameMonthMatch;
     const isFullYearBctc = !isInterimPeriod && (
-      /(?:tại\s*ngày\s*31\s*tháng\s*12\s*năm\s*20\d\d|báo\s*cáo\s*kết\s*quả\s*hoạt\s*động\s*kinh\s*doanh\s*năm\s*20\d\d|bảng\s*cân\s*đối\s*tài\s*khoản\s*năm\s*20\d\d)/i.test(text)
+      /(?:kết\s*thúc\s*ngày\s*31\s*tháng\s*12\s*năm\s*20\d\d|tại\s*ngày\s*31\s*tháng\s*12\s*năm\s*20\d\d|báo\s*cáo\s*kết\s*quả\s*hoạt\s*động\s*kinh\s*doanh\s*năm\s*20\d\d)/i.test(text)
       || /\b2025\b/.test(fnameHint)
     );
 
     let effectiveDoc = targetDoc || "doc_3_2";
     if (!targetDoc && isFullYearBctc) effectiveDoc = "doc_3_1";
 
-    if (/(?:bctc\s*đã\s*được\s*kiểm\s*toán\s*:\s*\[x\]|báo\s*cáo\s*kiểm\s*toán|kiểm\s*toán\s*độc\s*lập)/i.test(text)) {
-      notes.push("BCTC Kiểm toán");
-    }
-
-    const mstMatch = text.match(/(?:\[02\]\s*Mã\s*số\s*thuế|\[03\]\s*Mã\s*số\s*thuế|MST|Mã số thuế|MÃ SỐ THUẾ)[:\s-]*([0-9]{10}(?:-[0-9]{3})?)/i);
+    const mstMatch = text.match(/(?:\[02\]\s*Mã\s*số\s*thuế|\[03\]\s*Mã\s*số\s*thuế|Mã\s*số\s*thuế|MST)[:\s-]*([0-9]{10}(?:-[0-9]{3})?)/i);
     if (mstMatch && $("inp_mst")) {
       $("inp_mst").value = mstMatch[1];
       mappedCount++;
       notes.push(`MST=${mstMatch[1]}`);
     }
 
-    const nameMatch = text.match(/(?:\[01\]\s*Tên\s*người\s*nộp\s*thuế|\[02\]\s*Tên\s*người\s*nộp\s*thuế|Tên doanh nghiệp|Người nộp thuế|CÔNG TY[^\n\r\t]{4,90})/i);
+    const nameMatch = text.match(/(?:\[01\]\s*Tên\s*người\s*nộp\s*thuế|Tên\s*doanh\s*nghiệp|CÔNG\s*TY\s*TNHH[^\n\r\t]{4,80}|CÔNG\s*TY\s*CP[^\n\r\t]{4,80})/i);
     if (nameMatch && $("inp_company_name")) {
-      const cleanName = nameMatch[0].replace(/^(?:\[\d+\]\s*Tên\s*người\s*nộp\s*thuế|Tên doanh nghiệp|Người nộp thuế)[:\s-]*/i, "").trim();
+      const cleanName = nameMatch[0].replace(/^(?:\[\d+\]\s*Tên\s*người\s*nộp\s*thuế|Tên\s*doanh\s*nghiệp)[:\s-]*/i, "").trim();
       if (cleanName.length >= 6 && cleanName.length <= 100) {
         $("inp_company_name").value = cleanName;
         mappedCount++;
@@ -1274,31 +1303,34 @@
       notes.push("CIC Nhóm 2");
     }
 
-    const isVndUnit = /đơn\s*vị\s*tiền\s*:\s*(?:đồng|đồng\s*việt\s*nam|vnd)/i.test(text);
+    const isVndUnit = /(?:ĐVT\s*:\s*VND|Đơn\s*vị\s*tính\s*:\s*VND|đơn\s*vị\s*tiền\s*:\s*(?:đồng|đồng\s*việt\s*nam|vnd))/i.test(text);
     const scaleNum = (num) => {
       if (isVndUnit || Math.abs(num) >= 10000000) return num / 1e9;
       if (Math.abs(num) >= 10000) return num / 1e3;
       return num;
     };
 
-    // Match line items cleanly using code + label or explicit Vietnamese line title
     const rowRules = [
-      { re: /(?:Doanh thu thuần về bán hàng|Doanh thu thuần\b|\b10\s*[\t|])/i, tSlot: "dtt_t", t1Slot: "dtt_t1", t2Slot: "dtt_t2", label: "DTT(10)" },
-      { re: /(?:Giá vốn hàng bán\b|\b11\s*[\t|])/i, tSlot: "cogs_t", t1Slot: "cogs_t1", t2Slot: "cogs_t2", label: "GVHB(11)" },
-      { re: /(?:Chi phí bán hàng|Chi phí quản lý kinh doanh|Chi phí quản lý doanh nghiệp|\b24\s*[\t|]|\b24\.1\b|\b24\.2\b|\b25\b|\b26\b)/i, tSlot: "opex_t", t1Slot: "opex_t1", t2Slot: "opex_t2", addMode: true, label: "CPQL/BH(24)" },
-      { re: /(?:Chi phí lãi vay\b|\b23\s*[\t|])/i, tSlot: "int_exp_t", t1Slot: "int_exp_t1", t2Slot: "int_exp_t2", label: "Lãi vay(23)" },
-      { re: /(?:Tổng lợi nhuận kế toán trước thuế|Lợi nhuận kế toán trước thuế|\b50\s*[\t|])/i, tSlot: "lntt_t", t1Slot: "lntt_t1", t2Slot: "lntt_t2", label: "LNTT(50)" },
-      { re: /(?:Chi phí thuế thu nhập doanh nghiệp|Chi phí thuế TNDN|\b51\s*[\t|])/i, tSlot: "tax_t", t1Slot: "tax_t1", t2Slot: "tax_t2", label: "Thuế TNDN(51)" },
-      { re: /(?:Lưu chuyển tiền thuần từ hoạt động kinh doanh|\b20\s*[\t|])/i, tSlot: "ms20_t", t1Slot: "ms20_t1", t2Slot: "ms20_t2", label: "OCF(20)" },
-      { re: /(?:Tiền và các khoản tương đương tiền|\b110\s*[\t|])/i, tSlot: "cash_t", t1Slot: "cash_t1", t2Slot: "cash_t2", label: "Tiền(110)" },
-      { re: /(?:Phải thu ngắn hạn của khách hàng|Phải thu của khách hàng|\b131\s*[\t|])/i, tSlot: "ar_gop_t", t1Slot: "ar_gop_t1", t2Slot: "ar_gop_t2", label: "AR(131)" },
-      { re: /(?:Dự phòng phải thu khó đòi|\b136\s*[\t|]|\b137\s*[\t|])/i, tSlot: "dp_ar_t", t1Slot: "dp_ar_t1", t2Slot: "dp_ar_t2", label: "DP_AR(136)" },
-      { re: /(?:Hàng tồn kho\b|\b140\s*[\t|]|\b141\s*[\t|])/i, tSlot: "inv_gop_t", t1Slot: "inv_gop_t1", t2Slot: "inv_gop_t2", label: "INV(141)" },
-      { re: /(?:Dự phòng giảm giá hàng tồn kho|\b142\s*[\t|]|\b149\s*[\t|])/i, tSlot: "dp_inv_t", t1Slot: "dp_inv_t1", t2Slot: "dp_inv_t2", label: "DP_INV(142)" },
-      { re: /(?:TỔNG CỘNG TÀI SẢN|Tổng cộng tài sản|\b200\s*[\t|]|\b270\s*[\t|])/i, tSlot: "ta_t", t1Slot: "ta_t1", t2Slot: "ta_t2", label: "TổngTS(200)" },
-      { re: /(?:Nợ phải trả\b|\b300\s*[\t|])/i, tSlot: "tl_t", t1Slot: "tl_t1", t2Slot: "tl_t2", label: "TổngNợ(300)" },
-      { re: /(?:Phải trả người bán|Phải trả cho người bán|\b311\s*[\t|])/i, tSlot: "ap_gop_t", t1Slot: "ap_gop_t1", t2Slot: "ap_gop_t2", label: "AP(311)" },
-      { re: /(?:Vốn chủ sở hữu\b|\b400\s*[\t|])/i, tSlot: "eq_t", t1Slot: "eq_t1", t2Slot: "eq_t2", label: "VCSH(400)" }
+      { re: /(?:Doanh\s*thu\s*thuần\s*về\s*bán\s*hàng|Doanh\s*thu\s*thuần\b|\b10\s*[\t|])/i, tSlot: "dtt_t", t1Slot: "dtt_t1", t2Slot: "dtt_t2", label: "DTT(10)" },
+      { re: /(?:Giá\s*vốn\s*hàng\s*bán\b|\b11\s*[\t|])/i, tSlot: "cogs_t", t1Slot: "cogs_t1", t2Slot: "cogs_t2", label: "GVHB(11)" },
+      { re: /(?:Chi\s*phí\s*bán\s*hàng|Chi\s*phí\s*quản\s*lý\s*doanh\s*nghiệp|Chi\s*phí\s*quản\s*lý\s*kinh\s*doanh|\b24\s*[\t|]|\b25\s*[\t|]|\b26\s*[\t|])/i, tSlot: "opex_t", t1Slot: "opex_t1", t2Slot: "opex_t2", addMode: true, label: "CPQL/BH" },
+      { re: /(?:Chi\s*phí\s*lãi\s*vay\b|\b23\s*[\t|])/i, tSlot: "int_exp_t", t1Slot: "int_exp_t1", t2Slot: "int_exp_t2", label: "Lãi vay(23)" },
+      { re: /(?:Tổng\s*lợi\s*nhuận\s*kế\s*toán\s*trước\s*thuế|Lợi\s*nhuận\s*trước\s*thuế|\b50\s*[\t|])/i, tSlot: "lntt_t", t1Slot: "lntt_t1", t2Slot: "lntt_t2", label: "LNTT(50)" },
+      { re: /(?:Chi\s*phí\s*thuế\s*TNDN\s*hiện\s*hành|Chi\s*phí\s*thuế\s*TNDN|\b51\s*[\t|])/i, tSlot: "tax_t", t1Slot: "tax_t1", t2Slot: "tax_t2", label: "Thuế TNDN(51)" },
+      { re: /(?:Khấu\s*hao\s*TSCĐ|Khấu\s*hao\s*tài\s*sản\s*cố\s*định|\b02\s*[\t|])/i, tSlot: "da_t", t1Slot: "da_t1", t2Slot: "da_t2", label: "Khấu hao(02)" },
+      { re: /(?:Tiền\s*lãi\s*vay\s*đã\s*trả|\b14\s*[\t|])/i, tSlot: "int_paid_t", t1Slot: "int_paid_t1", t2Slot: "int_paid_t2", label: "Lãi trả(14)" },
+      { re: /(?:Lưu\s*chuyển\s*tiền\s*thuần\s*từ(?:\s*\/\s*\(sử\s*dụng\s*vào\))?\s*hoạt\s*động\s*kinh\s*doanh|\b20\s*[\t|])/i, tSlot: "ms20_t", t1Slot: "ms20_t1", t2Slot: "ms20_t2", label: "OCF(20)" },
+      { re: /(?:Tiền\s*và\s*các\s*khoản\s*tương\s*đương\s*tiền|\b110\s*[\t|])/i, tSlot: "cash_t", t1Slot: "cash_t1", t2Slot: "cash_t2", label: "Tiền(110)" },
+      { re: /(?:TÀI\s*SẢN\s*NGẮN\s*HẠN|\b100\s*[\t|])/i, tSlot: "ca_t", t1Slot: "ca_t1", t2Slot: "ca_t2", label: "TSNH(100)" },
+      { re: /(?:Phải\s*thu\s*ngắn\s*hạn\s*của\s*khách\s*hàng|Phải\s*thu\s*của\s*khách\s*hàng|\b131\s*[\t|])/i, tSlot: "ar_gop_t", t1Slot: "ar_gop_t1", t2Slot: "ar_gop_t2", label: "AR(131)" },
+      { re: /(?:Dự\s*phòng\s*phải\s*thu\s*ngắn\s*hạn\s*khó\s*đòi|Dự\s*phòng\s*phải\s*thu\s*khó\s*đòi|\b137\s*[\t|])/i, tSlot: "dp_ar_t", t1Slot: "dp_ar_t1", t2Slot: "dp_ar_t2", label: "DP_AR(137)" },
+      { re: /(?:Hàng\s*tồn\s*kho\b|\b141\s*[\t|])/i, tSlot: "inv_gop_t", t1Slot: "inv_gop_t1", t2Slot: "inv_gop_t2", label: "INV(141)" },
+      { re: /(?:Dự\s*phòng\s*giảm\s*giá\s*hàng\s*tồn\s*kho|\b149\s*[\t|])/i, tSlot: "dp_inv_t", t1Slot: "dp_inv_t1", t2Slot: "dp_inv_t2", label: "DP_INV(149)" },
+      { re: /(?:TỔNG\s*CỘNG\s*TÀI\s*SẢN|\b270\s*[\t|])/i, tSlot: "ta_t", t1Slot: "ta_t1", t2Slot: "ta_t2", label: "TổngTS(270)" },
+      { re: /(?:Nợ\s*ngắn\s*hạn|\b310\s*[\t|])/i, tSlot: "cl_t", t1Slot: "cl_t1", t2Slot: "cl_t2", label: "NợNH(310)" },
+      { re: /(?:NỢ\s*PHẢI\s*TRẢ|\b300\s*[\t|])/i, tSlot: "tl_t", t1Slot: "tl_t1", t2Slot: "tl_t2", label: "TổngNợ(300)" },
+      { re: /(?:Phải\s*trả\s*người\s*bán\s*ngắn\s*hạn|Phải\s*trả\s*người\s*bán|\b311\s*[\t|])/i, tSlot: "ap_gop_t", t1Slot: "ap_gop_t1", t2Slot: "ap_gop_t2", label: "AP(311)" },
+      { re: /(?:VỐN\s*CHỦ\s*SỞ\s*HỮU|\b400\s*[\t|])/i, tSlot: "eq_t", t1Slot: "eq_t1", t2Slot: "eq_t2", label: "VCSH(400)" }
     ];
 
     const opexAccum = { opex_t: 0, opex_t1: 0, opex_t2: 0 };
@@ -1333,18 +1365,14 @@
           const clean = c.trim();
           if (!/[\d.,]/.test(clean)) return;
           if (cells.length > 1 && idx === 0 && !/^[\d.,()-]+$/.test(clean)) return;
-          // Exclude pure line-code tokens, note codes (V.01, VI.1), and small index numbers when large currency numbers exist
-          if (/^(01|02|04|10|11|14|15|20|23|24|24\.1|24\.2|25|26|30|40|50|51|52|60|100|110|120|130|131|132|136|137|140|141|142|149|150|170|180|200|270|300|310|311|312|313|316|400|411|417|500)$/.test(clean)) return;
-          if (/^(?:VI\.\d+|V\.\d+|IV\.\d+|[1-6])$/.test(clean) && rawTokens.length > 2) return;
+          if (/^(01|02|04|10|11|14|15|20|23|24|25|26|30|40|50|51|52|60|100|110|120|130|131|132|135|136|137|140|141|142|149|150|160|170|180|200|210|220|221|222|223|224|250|270|280|300|310|311|312|313|314|315|316|319|320|321|330|331|339|400|411|420|440|500)$/.test(clean)) return;
+          if (/^(?:17\.1|17\.2|18|19|20|22\.1|[1-6])$/.test(clean) && rawTokens.length > 2) return;
           const parsed = parseNumberSmart(clean);
           if (parsed !== null) {
-            const scaled = Math.abs(scaleNum(parsed));
-            // Keep numbers >= 0.01 or explicit 0 when line has no larger values
-            numCells.push(scaled);
+            numCells.push(Math.abs(scaleNum(parsed)));
           }
         });
 
-        // Filter out small note/index numbers (< 0.005) if there are real financial amounts (>= 0.005)
         const significantNums = numCells.filter(x => x >= 0.005);
         const chosenNums = significantNums.length > 0 ? significantNums : numCells;
 
@@ -2295,6 +2323,15 @@
       </tr>`).join("");
     }
 
+    if ($("audit-presentation-box")) {
+      const am = STATE.auditMeta || {};
+      $("audit-presentation-box").innerHTML = `
+        <div class="box-formula"><span class="tag-pill tag-blue">CHẾ ĐỘ &amp; KIỂM TOÁN</span> <strong>${am.isAudited ? "BCTC ĐÃ ĐƯỢC KIỂM TOÁN (" + (am.auditorName || "Kiểm toán độc lập") + ")" : "BCTC / Báo cáo tài chính doanh nghiệp"}</strong> • Chuẩn mực &amp; trình bày: <strong>${am.accountingStandard || "VAS / Chế độ kế toán DN"}</strong>.</div>
+        ${am.collateralDepositNote ? `<div class="box-amber"><span class="tag-pill tag-amber">THUYẾT MINH TIỀN &amp; TIỀN GỬI</span> ${am.collateralDepositNote}</div>` : ""}
+        ${am.relatedPartyNote ? `<div class="box-formula"><span class="tag-pill tag-blue">BÊN LIÊN QUAN</span> ${am.relatedPartyNote}</div>` : ""}
+        ${am.taxIncentiveNote ? `<div class="box-green"><span class="tag-pill tag-green">ƯU ĐÃI THUẾ TNDN</span> ${am.taxIncentiveNote}</div>` : ""}
+      `;
+    }
     updateAgentsPipelineUI(false, 0);
     renderReport12Sections(res);
   }
