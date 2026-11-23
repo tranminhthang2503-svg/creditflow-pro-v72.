@@ -1206,13 +1206,80 @@
     return { mappedCount, notes };
   }
 
+  function isSummaryTotalRowText(rowText) {
+    if (!rowText) return false;
+    const norm = String(rowText).trim().toLowerCase().replace(/\s+/g, " ");
+    // Exclude summary / total rows at the bottom of Excel ledgers/statements to prevent 2x double-counting
+    return /^(tổng\s*cộng|tổng\s*số|tổng\s*phát\s*sinh|tổng\s*tiền|tổng\s*doanh\s*thu|cộng\s*phát\s*sinh|cộng\s*lũy\s*kế|lũy\s*kế\s*cuối\s*kỳ|tổng\s*hợp|total|grand\s*total|sub\s*total)\b/i.test(norm)
+      || /\b(tổng\s*cộng\s*phát\s*sinh|cộng\s*số\s*phát\s*sinh|tổng\s*cộng\s*cuối\s*kỳ|tổng\s*cộng\s*sổ)\b/i.test(norm);
+  }
+
+  function filterSummaryRowsFromCsvOrLines(rawText) {
+    return String(rawText || "")
+      .split(/\r?\n/)
+      .filter(ln => !isSummaryTotalRowText(ln.replace(/[,;\t|]/g, " ")))
+      .join("\n");
+  }
+
+  function sumLedgerDetailRows(rawText, docBucket) {
+    // When user uploads a bank statement (doc_5 / doc_10) or sales ledger (doc_4) in Excel/CSV,
+    // sum ONLY detail transaction rows and strictly skip summary/total rows at the bottom to prevent 2x double-counting!
+    const lines = String(rawText || "").split(/\r?\n/).filter(l => l.trim().length > 0);
+    if (lines.length < 3) return null;
+
+    let sumCredit112 = 0;
+    let sumSales511 = 0;
+    let detailRowCount = 0;
+    let skippedSummaryCount = 0;
+
+    for (let i = 0; i < lines.length; i++) {
+      const ln = lines[i];
+      if (isSummaryTotalRowText(ln.replace(/[,;\t|]/g, " "))) {
+        skippedSummaryCount++;
+        continue;
+      }
+      // Split columns by tab or comma/semicolon
+      const cols = ln.includes("\t") ? ln.split("\t") : ln.split(/[;,]/);
+      if (cols.length < 2) continue;
+      // Extract numeric values in the row (ignore date/account code columns)
+      const nums = [];
+      for (const c of cols) {
+        const clean = c.trim();
+        if (/^\d{1,2}[\/-]\d{1,2}[\/-]\d{2,4}$/.test(clean)) continue;
+        if (/^(111|112|131|141|151|152|153|154|155|156|331|333|511|632|641|642)$/.test(clean)) continue;
+        const v = parseNumberSmart(clean);
+        if (v !== null && Math.abs(v) > 0) nums.push(v);
+      }
+      if (nums.length > 0) {
+        detailRowCount++;
+        // Take largest positive transaction amount in the detail row (or credit column)
+        const posVals = nums.filter(x => x > 0);
+        if (posVals.length > 0) {
+          const rowAmt = posVals[posVals.length - 1];
+          sumCredit112 += rowAmt;
+          sumSales511 += rowAmt;
+        }
+      }
+    }
+
+    if (detailRowCount < 2) return null;
+    // Scale raw VND to Tỷ đồng if needed
+    const scale = (v) => (Math.abs(v) >= 1000000 ? v / 1e9 : (Math.abs(v) >= 10000 ? v / 1e3 : v));
+    return {
+      detailRowCount,
+      skippedSummaryCount,
+      sum112: scale(sumCredit112),
+      sum511: scale(sumSales511)
+    };
+  }
+
   async function extractTextFromXlsx(arrayBuffer) {
     if (typeof DecompressionStream === "undefined") return "";
     const u8 = new Uint8Array(arrayBuffer);
     const view = new DataView(arrayBuffer);
     const decoder = new TextDecoder("utf-8", { fatal: false });
     let offset = 0;
-    const xmlTexts = [];
+    const xmlFiles = {};
 
     while (offset + 30 < u8.length) {
       const sig = view.getUint32(offset, true);
@@ -1229,19 +1296,72 @@
       if (fname.endsWith(".xml") && (fname.includes("sharedStrings") || fname.includes("sheet"))) {
         try {
           if (method === 0) {
-            xmlTexts.push(decoder.decode(compData));
+            xmlFiles[fname] = decoder.decode(compData);
           } else if (method === 8) {
             const ds = new DecompressionStream("deflate-raw");
             const writer = ds.writable.getWriter();
             writer.write(compData);
             writer.close();
             const buf = await new Response(ds.readable).arrayBuffer();
-            xmlTexts.push(decoder.decode(buf));
+            xmlFiles[fname] = decoder.decode(buf);
           }
         } catch (err) {}
       }
     }
-    return xmlTexts.join("\n").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
+
+    // Parse sharedStrings.xml so cell text labels ("Tổng cộng", "Cộng phát sinh", "Mã số 10"...) are resolved accurately!
+    const sharedStrings = [];
+    const ssKey = Object.keys(xmlFiles).find(k => k.includes("sharedStrings"));
+    if (ssKey) {
+      const siMatches = xmlFiles[ssKey].match(/<si\b[^>]*>[\s\S]*?<\/si>/g) || [];
+      siMatches.forEach(si => {
+        const tParts = si.match(/<t\b[^>]*>([\s\S]*?)<\/t>/g) || [];
+        const joined = tParts.map(tp => tp.replace(/<[^>]+>/g, "")).join("");
+        sharedStrings.push(joined);
+      });
+    }
+
+    // Parse rows (<row>...</row>) per worksheet and SKIP any summary/total row at the bottom (Tổng cộng, Cộng phát sinh, Total...)
+    const sheetKeys = Object.keys(xmlFiles).filter(k => k.includes("worksheets/sheet")).sort();
+    const cleanRowLines = [];
+    let skippedTotalRows = 0;
+
+    sheetKeys.forEach(sk => {
+      const rowMatches = xmlFiles[sk].match(/<row\b[^>]*>[\s\S]*?<\/row>/g) || [];
+      rowMatches.forEach(rowXml => {
+        const cells = [];
+        const cellMatches = rowXml.match(/<c\b[^>]*>[\s\S]*?<\/c>/g) || [];
+        cellMatches.forEach(cXml => {
+          const typeMatch = cXml.match(/\bt="([^"]+)"/);
+          const cType = typeMatch ? typeMatch[1] : "";
+          const vMatch = cXml.match(/<v\b[^>]*>([\s\S]*?)<\/v>/);
+          const isMatch = cXml.match(/<is\b[^>]*>[\s\S]*?<\/is>/);
+          let val = "";
+          if (cType === "s" && vMatch) {
+            const idx = parseInt(vMatch[1], 10);
+            val = sharedStrings[idx] !== undefined ? sharedStrings[idx] : "";
+          } else if (cType === "inlineStr" && isMatch) {
+            val = isMatch[0].replace(/<[^>]+>/g, "");
+          } else if (vMatch) {
+            val = vMatch[1];
+          }
+          val = val.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").trim();
+          if (val !== "") cells.push(val);
+        });
+
+        if (cells.length === 0) return;
+        const rowJoined = cells.join("\t");
+        // Strictly exclude bottom summary/total rows (Tổng cộng, Tổng phát sinh, Cộng lũy kế, Total...) so numbers are NEVER doubled (x2)!
+        if (isSummaryTotalRowText(cells.join(" "))) {
+          skippedTotalRows++;
+          return;
+        }
+        cleanRowLines.push(rowJoined);
+      });
+    });
+
+    STATE._lastXlsxSkippedTotalRows = skippedTotalRows;
+    return cleanRowLines.join("\n");
   }
 
   function extractTextFromPdfBytes(arrayBuffer) {
@@ -1292,11 +1412,15 @@
           summaryLogs.push(`📄 <strong>${f.name}</strong> → Nạp chuẩn JSON v7.2 (${cnt} trường dữ liệu).`);
           continue;
         } else if (ext === "csv" || ext === "txt" || ext === "xml") {
-          extractedText = await f.text();
+          STATE._lastXlsxSkippedTotalRows = 0;
+          const rawCsv = await f.text();
+          extractedText = filterSummaryRowsFromCsvOrLines(rawCsv);
         } else if (ext === "xlsx") {
+          STATE._lastXlsxSkippedTotalRows = 0;
           const buf = await f.arrayBuffer();
           extractedText = await extractTextFromXlsx(buf);
         } else if (ext === "pdf") {
+          STATE._lastXlsxSkippedTotalRows = 0;
           const buf = await f.arrayBuffer();
           extractedText = extractTextFromPdfBytes(buf);
         }
@@ -1306,13 +1430,31 @@
 
       if (extractedText && extractedText.length > 5) {
         const res = mapExtractedTextToTT200(extractedText);
+        // If file is a bank statement (doc_5 / doc_10) or sales ledger (doc_4) and didn't match BCTC line codes, sum detail rows (excluding bottom total rows)
+        if (res.mappedCount === 0 && (targetDoc === "doc_5" || targetDoc === "doc_10" || targetDoc === "doc_4")) {
+          const ledgerSum = sumLedgerDetailRows(extractedText, targetDoc);
+          if (ledgerSum) {
+            if (targetDoc === "doc_5" || targetDoc === "doc_10") {
+              $("cash_in_112").value = ledgerSum.sum112.toFixed(2);
+              res.mappedCount++;
+              res.notes.push(`Tiền về TK 112=${ledgerSum.sum112.toFixed(2)} (đã loại ${ledgerSum.skippedSummaryCount} dòng tổng)`);
+            } else if (targetDoc === "doc_4") {
+              $("dtt_t").value = ledgerSum.sum511.toFixed(2);
+              res.mappedCount++;
+              res.notes.push(`Sổ 511=${ledgerSum.sum511.toFixed(2)} (đã loại ${ledgerSum.skippedSummaryCount} dòng tổng)`);
+            }
+          }
+        }
+        const skippedInfo = (STATE._lastXlsxSkippedTotalRows || 0) > 0
+          ? ` [Đã loại ${STATE._lastXlsxSkippedTotalRows} dòng Tổng cộng cuối bảng chống x2]`
+          : "";
         totalExtracted += res.mappedCount;
         if (res.mappedCount > 0) {
-          STATE.checklist[targetDoc].note = `AI Agent 2 đã trích ${res.mappedCount} chỉ tiêu (${res.notes.slice(0, 3).join(", ")})`;
-          summaryLogs.push(`✅ <strong>${f.name}</strong> → AI Agent 1 kiểm hợp lệ &amp; AI Agent 2 tự điền <strong>${res.mappedCount}</strong> chỉ tiêu (${res.notes.slice(0, 4).join(", ")}).`);
+          STATE.checklist[targetDoc].note = `AI Agent 2 trích ${res.mappedCount} chỉ tiêu (${res.notes.slice(0, 3).join(", ")})${skippedInfo}`;
+          summaryLogs.push(`✅ <strong>${f.name}</strong> → AI Agent 1 kiểm hợp lệ &amp; AI Agent 2 tự điền <strong>${res.mappedCount}</strong> chỉ tiêu (${res.notes.slice(0, 4).join(", ")})${skippedInfo}.`);
         } else {
-          STATE.checklist[targetDoc].note = "AI Agent 1: Chứng từ hợp lệ (PDF scan/biểu mẫu tùy chỉnh)";
-          summaryLogs.push(`📎 <strong>${f.name}</strong> → Đã đính kèm vào Mục ${targetDoc.replace("doc_", "").replace("_", ".")} (Hợp lệ).`);
+          STATE.checklist[targetDoc].note = `AI Agent 1: Chứng từ hợp lệ${skippedInfo}`;
+          summaryLogs.push(`📎 <strong>${f.name}</strong> → Đã đính kèm vào Mục ${targetDoc.replace("doc_", "").replace("_", ".")} (Hợp lệ)${skippedInfo}.`);
         }
       } else {
         STATE.checklist[targetDoc].note = "AI Agent 1: Đã tiếp nhận chứng từ đính kèm";
@@ -1599,9 +1741,11 @@
 
     const prinDue = numVal("inp_principal_due");
     const curInt = numVal("inp_current_interest");
-    const varDscr = safeDiv(metrics.t.varOcf, prinDue + curInt);
-    metrics.t2.dscr = safeDiv(metrics.t2.varOcf, prinDue + curInt);
-    metrics.t1.dscr = safeDiv(metrics.t1.varOcf, prinDue + curInt);
+    const debtService = prinDue + curInt;
+    const ocfTAnn = metrics.t.varOcf * annFactor;
+    const varDscr = safeDiv(ocfTAnn, debtService);
+    metrics.t2.dscr = safeDiv(metrics.t2.varOcf, debtService);
+    metrics.t1.dscr = safeDiv(metrics.t1.varOcf, debtService);
     metrics.t.dscr = varDscr;
 
     const dttPlanT1 = numVal("dtt_plan_t1");
@@ -1632,7 +1776,7 @@
       if (st.sf === null) return { ...st, deltaI: null, dscrS: null, pass: false };
       const sfClean = Math.max(0, st.sf);
       const deltaI = sfClean * rate;
-      const dscrS = safeDiv(metrics.t.varOcf - deltaI, prinDue + curInt + deltaI);
+      const dscrS = safeDiv(ocfTAnn - deltaI, prinDue + curInt + deltaI);
       const pass = dscrS !== null && dscrS >= st.minDscr;
       return { ...st, sf: sfClean, deltaI, dscrS, pass };
     });
@@ -2658,8 +2802,8 @@
     }
   });
 
-  document.addEventListener("input", function(e) {
-    const target = e.target;
+  function handleFieldSyncAndRecalc(target) {
+    if (!target) return;
     if (target.hasAttribute("data-sync-target")) {
       const dest = $(target.getAttribute("data-sync-target"));
       if (dest) dest.value = target.value;
@@ -2669,6 +2813,16 @@
       return;
     }
     renderAll();
+  }
+
+  document.addEventListener("input", function(e) {
+    handleFieldSyncAndRecalc(e.target);
+  });
+
+  document.addEventListener("focusout", function(e) {
+    if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "SELECT" || e.target.tagName === "TEXTAREA")) {
+      handleFieldSyncAndRecalc(e.target);
+    }
   });
 
   document.addEventListener("change", async function(e) {
@@ -2676,12 +2830,22 @@
     if (target.id === "bulk-file-input") {
       await processUploadedFiles(target.files, null);
       target.value = "";
+      return;
     } else if (target.hasAttribute("data-upload-doc")) {
       const docId = target.getAttribute("data-upload-doc");
       await processUploadedFiles(target.files, docId);
       target.value = "";
+      return;
     }
+    handleFieldSyncAndRecalc(target);
   });
+
+  // Safety heartbeat so KPI banner (#kpi-nwcop, #kpi-ocf-dscr) always reflects live DOM inputs
+  setInterval(function() {
+    if (typeof computeModel === "function") {
+      computeModel();
+    }
+  }, 400);
 
   // Boot with Mobile-First default
   setDeviceMode("mobile");
