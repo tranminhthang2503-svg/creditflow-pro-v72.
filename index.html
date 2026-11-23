@@ -1,0 +1,2358 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CreditFlow Pro v7.2 – Hệ thống Thẩm định Tín dụng KHDN 4 AI Agent (Production-Ready)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+    .font-mono-code {
+      font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+    .custom-scroll::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scroll::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.35);
+      border-radius: 9999px;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb:hover {
+      background: rgba(100, 116, 139, 0.55);
+    }
+    input[type="number"]::-webkit-inner-spin-button {
+      opacity: 0.6;
+    }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-900 dark:bg-slate-950 dark:text-slate-100 min-h-screen antialiased selection:bg-blue-600/20 selection:text-blue-700 dark:selection:text-blue-300">
+  <!-- Toast thông báo -->
+  <div id="toast" class="fixed bottom-5 right-5 z-50 hidden max-w-md rounded-2xl border border-slate-300 bg-white/95 px-4 py-3 text-sm text-slate-800 shadow-2xl backdrop-blur dark:border-slate-700 dark:bg-slate-900/95 dark:text-slate-100">
+    <div class="flex items-center gap-3">
+      <span id="toast-indicator" class="h-2.5 w-2.5 shrink-0 rounded-full bg-emerald-500"></span>
+      <span id="toast-text" class="font-medium leading-snug"></span>
+    </div>
+  </div>
+
+  <!-- Khung Desktop Workstation -->
+  <div class="flex min-h-screen flex-col lg:flex-row">
+    <!-- SIDEBAR TRÁI: ĐIỀU HƯỚNG 5 BƯỚC, NẠP HỒ SƠ & KỊCH BẢN MẪU -->
+    <aside class="w-full shrink-0 border-b border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 lg:w-76 lg:border-b-0 lg:border-r flex flex-col justify-between">
+      <div class="p-4 space-y-5 overflow-y-auto custom-scroll">
+        <!-- Thương hiệu -->
+        <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
+          <div class="flex items-center gap-3">
+            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-700 text-white font-bold shadow-md shadow-blue-700/20">
+              CF
+            </div>
+            <div>
+              <div class="text-sm font-extrabold tracking-tight text-slate-900 dark:text-white">
+                CreditFlow Pro <span class="text-blue-600 dark:text-blue-400">v7.2</span>
+              </div>
+              <div class="text-[11px] font-medium text-slate-500 dark:text-slate-400">
+                Thẩm định KHDN • TT200 / VAS 24
+              </div>
+            </div>
+          </div>
+          <span class="rounded-lg bg-emerald-500/15 px-2 py-0.5 text-[10px] font-bold text-emerald-700 dark:text-emerald-300">
+            5 BƯỚC
+          </span>
+        </div>
+
+        <!-- Menu Điều hướng 5 bước -->
+        <nav class="space-y-1" aria-label="Điều hướng phân hệ">
+          <div class="px-2 pb-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+            Quy trình Vận hành 5 Bước
+          </div>
+          <button type="button" data-view="intake" class="nav-btn w-full flex items-center justify-between rounded-xl bg-blue-50 px-3 py-2.5 text-left text-xs font-semibold text-blue-700 dark:bg-blue-500/15 dark:text-blue-300">
+            <span>0. Nạp dữ liệu - Người dùng</span>
+            <span id="nav-readiness-badge" class="rounded-md bg-emerald-600/15 px-1.5 py-0.5 font-mono-code text-[10px] font-bold text-emerald-700 dark:text-emerald-300">100%</span>
+          </button>
+          <button type="button" data-view="workspace" class="nav-btn w-full flex items-center justify-between rounded-xl px-3 py-2.5 text-left text-xs font-semibold text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800/70">
+            <span>1. Lọc nhiễu VLĐ &amp; Chu kỳ CCC</span>
+            <span class="rounded-md bg-slate-200/70 px-1.5 py-0.5 text-[10px] dark:bg-slate-800">Agent 1–2</span>
+          </button>
+          <button type="button" data-view="analysis" class="nav-btn w-full flex items-center justify-between rounded-xl px-3 py-2.5 text-left text-xs font-semibold text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800/70">
+            <span>2. Dòng tiền, Stress Test &amp; EWS</span>
+            <span class="rounded-md bg-slate-200/70 px-1.5 py-0.5 text-[10px] dark:bg-slate-800">Agent 3</span>
+          </button>
+          <button type="button" data-view="report" class="nav-btn w-full flex items-center justify-between rounded-xl px-3 py-2.5 text-left text-xs font-semibold text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800/70">
+            <span>3. Tờ trình 12 Mục &amp; Phê duyệt</span>
+            <span class="rounded-md bg-slate-200/70 px-1.5 py-0.5 text-[10px] dark:bg-slate-800">Agent 4</span>
+          </button>
+          <button type="button" data-view="audit" class="nav-btn w-full flex items-center justify-between rounded-xl px-3 py-2.5 text-left text-xs font-semibold text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800/70">
+            <span>4. Audit Log &amp; Dữ liệu JSON</span>
+            <span class="rounded-md bg-slate-200/70 px-1.5 py-0.5 text-[10px] dark:bg-slate-800">API</span>
+          </button>
+        </nav>
+
+        <!-- Nạp tệp nhanh ở Sidebar -->
+        <div class="rounded-2xl border border-slate-200 bg-slate-50/80 p-3.5 space-y-2.5 dark:border-slate-800 dark:bg-slate-950/60">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+              Nạp Nhanh Toàn Bộ Hồ Sơ
+            </span>
+            <button id="btn-dl-template" type="button" class="text-[11px] font-semibold text-blue-600 hover:underline dark:text-blue-400">
+              ⬇ Excel mẫu
+            </button>
+          </div>
+          <label id="dropzone" for="file-input" class="flex cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 bg-white px-3 py-2.5 text-center transition hover:border-blue-500 hover:bg-blue-50/40 dark:border-slate-700 dark:bg-slate-900 dark:hover:border-blue-400">
+            <span class="text-xs font-semibold text-slate-700 dark:text-slate-200">Chọn tệp PDF / Excel / JSON</span>
+            <span class="mt-0.5 text-[10px] text-slate-400">Tự động nhận diện mã số TT200</span>
+            <input id="file-input" type="file" accept=".pdf,.xlsx,.xls,.csv,.json" multiple class="hidden" />
+          </label>
+          <div class="flex items-center justify-between gap-2 text-[11px]">
+            <span class="text-slate-500 dark:text-slate-400">Đơn vị gốc:</span>
+            <select id="unit-scale" class="rounded-lg border border-slate-300 bg-white px-2 py-1 text-[11px] font-medium text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
+              <option value="1">Tỷ đồng (1:1)</option>
+              <option value="1000">Triệu đồng (÷ 1.000)</option>
+              <option value="1000000000">VNĐ (÷ 1 tỷ)</option>
+            </select>
+          </div>
+          <div id="file-status" class="truncate font-mono-code text-[10px] text-slate-500 dark:text-slate-400">
+            Chưa nạp tệp ngoài
+          </div>
+        </div>
+
+        <!-- Bộ kịch bản mẫu kiểm thử nhanh -->
+        <div class="space-y-2">
+          <div class="px-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+            Hồ sơ Mẫu &amp; Kiểm thử Biên (Unit Test)
+          </div>
+          <div class="grid grid-cols-1 gap-1.5">
+            <button type="button" data-preset="standard_9m" class="preset-item flex items-center justify-between rounded-xl border border-blue-200 bg-blue-50/70 px-3 py-2 text-left text-xs font-semibold text-blue-800 hover:bg-blue-100/80 dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-200">
+              <span>Unit Test ABC 9T (T=270)</span>
+              <span class="font-mono-code text-[10px]">82.74 tỷ</span>
+            </button>
+            <button type="button" data-preset="edge_kb2_hot" class="preset-item flex items-center justify-between rounded-xl border border-slate-200 bg-white px-3 py-2 text-left text-xs font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800">
+              <span>KB2: Tăng trưởng nóng (DVF)</span>
+              <span class="font-mono-code text-[10px] text-amber-500">OCF &lt; 0</span>
+            </button>
+            <button type="button" data-preset="edge_kb5_divert" class="preset-item flex items-center justify-between rounded-xl border border-slate-200 bg-white px-3 py-2 text-left text-xs font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800">
+              <span>KB5: Đảo vốn sai kỳ hạn</span>
+              <span class="font-mono-code text-[10px] text-rose-500">CapEx</span>
+            </button>
+            <button type="button" data-preset="edge_nwc_neg" class="preset-item flex items-center justify-between rounded-xl border border-slate-200 bg-white px-3 py-2 text-left text-xs font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800">
+              <span>Biên: NWC_op_avg ≤ 0</span>
+              <span class="font-mono-code text-[10px] text-slate-400">N/A</span>
+            </button>
+            <button type="button" data-preset="edge_knockout" class="preset-item flex items-center justify-between rounded-xl border border-slate-200 bg-white px-3 py-2 text-left text-xs font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800">
+              <span>Biên: Vi phạm Knock-out</span>
+              <span class="font-mono-code text-[10px] text-rose-500">Từ chối</span>
+            </button>
+          </div>
+          <div class="flex gap-1.5 pt-1">
+            <button id="btn-save-local" type="button" class="flex-1 rounded-xl border border-slate-300 bg-white px-2.5 py-1.5 text-[11px] font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
+              💾 Lưu hồ sơ
+            </button>
+            <button id="btn-load-local" type="button" class="hidden flex-1 rounded-xl border border-amber-400/50 bg-amber-50 px-2.5 py-1.5 text-[11px] font-semibold text-amber-800 hover:bg-amber-100 dark:bg-amber-500/15 dark:text-amber-300">
+              ★ Mở bản lưu
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chân Sidebar -->
+      <div class="border-t border-slate-200 p-3.5 text-[11px] text-slate-500 dark:border-slate-800 dark:text-slate-400">
+        <div class="flex items-center justify-between">
+          <span>AI-Ready Master v7.2</span>
+          <span class="rounded-md bg-emerald-500/15 px-2 py-0.5 font-semibold text-emerald-600 dark:text-emerald-400">Zero-Hallucination</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- KHU VỰC TRUNG TÂM: THANH CÔNG CỤ TOPBAR + NỘI DUNG CHÍNH -->
+    <div class="flex-1 flex flex-col min-w-0">
+      <!-- Topbar Hành động -->
+      <header class="sticky top-0 z-20 border-b border-slate-200 bg-white/95 px-5 py-3 backdrop-blur dark:border-slate-800 dark:bg-slate-900/95">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div class="min-w-0">
+            <div class="flex flex-wrap items-center gap-2">
+              <span id="badge-scenario" class="rounded-lg bg-blue-600/10 px-2.5 py-0.5 text-xs font-bold text-blue-700 dark:bg-blue-500/20 dark:text-blue-300">
+                Unit Test ABC 9T (T=270)
+              </span>
+              <span id="badge-kb" class="rounded-lg bg-emerald-500/15 px-2.5 py-0.5 text-xs font-bold text-emerald-700 dark:text-emerald-300">
+                KB1: Tăng trưởng bền vững
+              </span>
+              <span id="badge-progress" class="font-mono-code text-xs text-slate-500 dark:text-slate-400">
+                4/4 Agent sẵn sàng
+              </span>
+            </div>
+            <h1 id="header-company-title" class="mt-0.5 truncate text-base font-bold text-slate-900 dark:text-white">
+              CTCP Sản xuất Thương mại ABC
+            </h1>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2">
+            <label class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-700 cursor-pointer dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200" title="Tự động chạy lại 4 AI Agent mỗi khi bạn chỉnh sửa số liệu">
+              <input id="chk-autorun" type="checkbox" checked class="h-3.5 w-3.5 rounded border-slate-300 text-blue-600" />
+              <span>⚡ Tự động chạy</span>
+            </label>
+            <button id="btn-run-pipeline" type="button" class="inline-flex items-center gap-2 rounded-xl bg-blue-700 px-4 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-blue-600 active:scale-[0.99]">
+              <span>▶ Chạy 4 AI Agent</span>
+            </button>
+            <button id="btn-step-pipeline" type="button" class="inline-flex items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
+              <span>⏭ Từng Agent</span>
+            </button>
+            <button id="btn-export-md" type="button" class="inline-flex items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
+              <span>⬇ Tờ trình (.MD)</span>
+            </button>
+            <button id="btn-export-json" type="button" class="inline-flex items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
+              <span>⬇ JSON</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Thanh trạng thái 5 bước (Bước 0 Nạp dữ liệu + 4 AI Agent) -->
+        <div class="mt-3 grid grid-cols-2 gap-2 lg:grid-cols-5">
+          <button type="button" data-goto="intake" class="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-left transition hover:border-blue-400 dark:border-slate-800 dark:bg-slate-950/70">
+            <span class="text-xs font-semibold text-slate-700 dark:text-slate-200">0. Dữ liệu nạp</span>
+            <span id="pill-0" class="font-mono-code text-[11px] font-bold text-emerald-600 dark:text-emerald-400">100%</span>
+          </button>
+          <button type="button" data-agent="1" id="pill-box-1" class="agent-pill flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-left transition hover:border-blue-400 dark:border-slate-800 dark:bg-slate-950/70">
+            <span class="text-xs font-semibold text-slate-700 dark:text-slate-200">Agent 1: Tổng hợp</span>
+            <span id="pill-1" class="font-mono-code text-[11px] font-semibold text-slate-400">Chờ</span>
+          </button>
+          <button type="button" data-agent="2" id="pill-box-2" class="agent-pill flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-left transition hover:border-blue-400 dark:border-slate-800 dark:bg-slate-950/70">
+            <span class="text-xs font-semibold text-slate-700 dark:text-slate-200">Agent 2: Lọc &amp; CCC</span>
+            <span id="pill-2" class="font-mono-code text-[11px] font-semibold text-slate-400">Chờ</span>
+          </button>
+          <button type="button" data-agent="3" id="pill-box-3" class="agent-pill flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-left transition hover:border-blue-400 dark:border-slate-800 dark:bg-slate-950/70">
+            <span class="text-xs font-semibold text-slate-700 dark:text-slate-200">Agent 3: Thẩm định</span>
+            <span id="pill-3" class="font-mono-code text-[11px] font-semibold text-slate-400">Chờ</span>
+          </button>
+          <button type="button" data-agent="4" id="pill-box-4" class="agent-pill flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-left transition hover:border-blue-400 dark:border-slate-800 dark:bg-slate-950/70">
+            <span class="text-xs font-semibold text-slate-700 dark:text-slate-200">Agent 4: Phê duyệt</span>
+            <span id="pill-4" class="font-mono-code text-[11px] font-semibold text-slate-400">Chờ</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Lưới 2 cột trong khu vực chính: Nội dung View (trái) + Bảng Tóm tắt KPI & Phán quyết (phải) -->
+      <div class="flex-1 grid grid-cols-1 xl:grid-cols-12">
+        <!-- CỘT NỘI DUNG CHÍNH (8/12) -->
+        <main class="xl:col-span-8 p-5 space-y-5 overflow-y-auto custom-scroll">
+          <!-- Cảnh báo dữ liệu & Kết quả bóc tách file -->
+          <div id="alert-validation" class="hidden rounded-2xl border border-rose-300 bg-rose-50 p-3.5 text-xs text-rose-800 dark:border-rose-500/40 dark:bg-rose-950/40 dark:text-rose-200">
+            <div class="font-bold">Lưu ý kiểm tra dữ liệu đầu vào:</div>
+            <ul id="alert-validation-list" class="mt-1 list-disc pl-5 space-y-0.5"></ul>
+          </div>
+
+          <div id="file-extract-banner" class="hidden rounded-2xl border border-emerald-300 bg-emerald-50 p-3.5 text-xs text-emerald-900 dark:border-emerald-500/40 dark:bg-emerald-950/30 dark:text-emerald-200">
+            <div class="flex items-center justify-between">
+              <span class="font-bold">Kết quả bóc tách tự động từ tệp tải lên:</span>
+              <button id="btn-toggle-raw" type="button" class="font-semibold underline">Xem/Ẩn văn bản gốc</button>
+            </div>
+            <div id="file-extract-summary" class="mt-1"></div>
+            <pre id="file-raw-text" class="hidden mt-2 max-h-32 overflow-y-auto rounded-xl bg-white/80 p-2.5 font-mono-code text-[11px] text-slate-700 dark:bg-slate-900 dark:text-slate-300 whitespace-pre-wrap custom-scroll"></pre>
+          </div>
+
+          <!-- VIEW 0: NẠP DỮ LIỆU - NGƯỜI DÙNG & KHUNG TẢI FILE THEO TỪNG MỤC CHECKLIST -->
+          <div id="view-intake" class="view-section space-y-5">
+            <!-- Thanh tiến độ sẵn sàng dữ liệu tổng hợp -->
+            <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 space-y-4">
+              <div class="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <span class="rounded-lg bg-blue-600/10 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider text-blue-700 dark:bg-blue-500/20 dark:text-blue-300">
+                    Bước 0 • Nạp Dữ liệu Theo Từng Mục Hồ sơ (Checklist Chuẩn TT200)
+                  </span>
+                  <h2 class="mt-1 text-base font-bold text-slate-900 dark:text-white">
+                    Bảng Kiểm soát &amp; Tải Tệp BCTC Theo Từng Nhóm Chỉ Tiêu
+                  </h2>
+                </div>
+                <div class="text-right">
+                  <div id="intake-score-big" class="font-mono-code text-2xl font-extrabold text-emerald-600 dark:text-emerald-400">
+                    100%
+                  </div>
+                  <div id="intake-count-label" class="text-[11px] text-slate-500">
+                    16/16 chỉ tiêu cốt lõi đã sẵn sàng
+                  </div>
+                </div>
+              </div>
+
+              <!-- Progress Bar -->
+              <div class="space-y-1.5">
+                <div class="h-3 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
+                  <div id="intake-progress-bar" class="h-full rounded-full bg-emerald-500 transition-all duration-300" style="width: 100%"></div>
+                </div>
+                <div class="flex flex-wrap items-center justify-between gap-2 text-xs">
+                  <span id="intake-gate-status" class="font-semibold text-emerald-700 dark:text-emerald-300">
+                    ✓ Đủ điều kiện tiêu chuẩn để khởi chạy chuỗi 4 AI Agent.
+                  </span>
+                  <div class="flex flex-wrap items-center gap-2">
+                    <button type="button" onclick="exportExcelSample()" class="rounded-xl border border-blue-300 bg-blue-50/70 px-3 py-1.5 text-xs font-semibold text-blue-700 hover:bg-blue-100 dark:border-blue-500/40 dark:bg-blue-500/10 dark:text-blue-300">
+                      ⬇ Tải Excel mẫu TT200
+                    </button>
+                    <button id="btn-clear-blank" type="button" class="rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
+                      🧹 Tạo hồ sơ trắng mới
+                    </button>
+                    <button id="btn-intake-start" type="button" class="rounded-xl bg-blue-700 px-4 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-blue-600">
+                      ▶ Xác nhận &amp; Chạy 4 AI Agent
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Checklist 4 nhóm dữ liệu đầu vào kèm khung Tải file riêng từng mục -->
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-2" id="intake-checklist-grid"></div>
+          </div>
+
+          <!-- VIEW 1: LỌC NHIỄU VLĐ & CHU KỲ CCC -->
+          <div id="view-workspace" class="view-section hidden space-y-5">
+            <!-- Bảng 1: Thông tin chung -->
+            <div class="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+              <h2 class="text-sm font-bold text-slate-900 dark:text-white mb-3.5">
+                A. Thông tin Khách hàng &amp; Quy chuẩn Kỳ Báo cáo (Dynamic Timeline)
+              </h2>
+              <div class="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4 text-xs">
+                <div class="sm:col-span-2">
+                  <label class="block font-medium text-slate-600 dark:text-slate-400 mb-1">Tên doanh nghiệp</label>
+                  <input id="inp-company" type="text" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 font-medium text-slate-900 focus:border-blue-600 focus:bg-white focus:outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-white" />
+                </div>
+                <div class="sm:col-span-2">
+                  <label class="block font-medium text-slate-600 dark:text-slate-400 mb-1">Nhóm ngành trọng điểm (8 ngành chuẩn v7.2)</label>
+                  <select id="inp-industry" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 font-medium text-slate-900 focus:border-blue-600 focus:bg-white focus:outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-white">
+                    <option value="Sản xuất & Thương mại công nghiệp">Sản xuất &amp; Thương mại công nghiệp (Chuẩn VQ &gt; 4 vòng)</option>
+                    <option value="SX Thức ăn Chăn nuôi">1. SX Thức ăn Chăn nuôi (Chuẩn VQ &gt; 4 vòng)</option>
+                    <option value="Xây lắp Công trình">2. Xây lắp Công trình (Chuẩn CCC &lt; 90d)</option>
+                    <option value="Thương mại FMCG">3. Thương mại FMCG (Chuẩn CCC &lt; 45d, VQ &gt; 6 vòng)</option>
+                    <option value="Sản xuất Giấy & TM">4. Sản xuất Giấy &amp; TM (Chuẩn VQ &gt; 4 vòng)</option>
+                    <option value="Dịch vụ / Logistics / Tech">5. Dịch vụ / Logistics / Tech</option>
+                    <option value="Dược phẩm & Thiết bị Y tế">6. Dược phẩm &amp; Thiết bị Y tế (Chuẩn VQ &gt; 3.5 vòng)</option>
+                    <option value="Bất động sản (Phát triển Dự án)">7. Bất động sản – Phát triển Dự án (DSCR ≥ 1.25x)</option>
+                    <option value="Xuất nhập khẩu Thủy sản">8. Xuất nhập khẩu Thủy sản (Chuẩn CCC &lt; 75d, VQ &gt; 4.5 vòng)</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block font-medium text-slate-600 dark:text-slate-400 mb-1">Số ngày kỳ lũy kế (T_ngày)</label>
+                  <input id="inp-tdays" type="number" step="1" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 font-mono-code font-semibold text-slate-900 focus:border-blue-600 focus:bg-white focus:outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-white" />
+                </div>
+                <div>
+                  <label class="block font-medium text-slate-600 dark:text-slate-400 mb-1">HMTD đề xuất (tỷ đồng)</label>
+                  <input id="inp-hmtd-req" type="number" step="0.01" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 font-mono-code font-semibold text-slate-900 focus:border-blue-600 focus:bg-white focus:outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-white" />
+                </div>
+                <div>
+                  <label class="block font-medium text-slate-600 dark:text-slate-400 mb-1">Lãi suất Stress Test r (%)</label>
+                  <input id="inp-stress-rate" type="number" step="0.1" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 font-mono-code font-semibold text-slate-900 focus:border-blue-600 focus:bg-white focus:outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-white" />
+                </div>
+                <div>
+                  <label class="block font-medium text-slate-600 dark:text-slate-400 mb-1">NWC_op bình quân 4QMA (tỷ)</label>
+                  <input id="inp-nwcop-avg" type="number" step="0.01" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 font-mono-code font-semibold text-blue-700 focus:border-blue-600 focus:bg-white focus:outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-blue-300" />
+                </div>
+              </div>
+              <div class="mt-3.5 flex flex-wrap gap-4 pt-3 border-t border-slate-100 dark:border-slate-800 text-xs">
+                <label class="inline-flex items-center gap-2 cursor-pointer font-medium text-slate-700 dark:text-slate-300">
+                  <input id="inp-ismfg" type="checkbox" class="h-4 w-4 rounded border-slate-300 text-blue-600" />
+                  <span>Doanh nghiệp Sản xuất</span>
+                </label>
+                <label class="inline-flex items-center gap-2 cursor-pointer font-medium text-slate-700 dark:text-slate-300">
+                  <input id="inp-breakdown" type="checkbox" class="h-4 w-4 rounded border-slate-300 text-blue-600" />
+                  <span>Đủ thuyết minh bóc tách giá vốn (TK 622/632 cho Purchases)</span>
+                </label>
+                <label class="inline-flex items-center gap-2 cursor-pointer font-medium text-slate-700 dark:text-slate-300">
+                  <input id="inp-notes" type="checkbox" class="h-4 w-4 rounded border-slate-300 text-blue-600" />
+                  <span>Đủ thuyết minh lọc nợ treo / hàng ứ đọng / CapEx</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Bảng 2: Lọc nhiễu BCTC theo TT200 -->
+            <div class="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+              <div class="flex flex-wrap items-center justify-between gap-2 mb-3.5">
+                <h2 class="text-sm font-bold text-slate-900 dark:text-white">
+                  B. Bóc tách &amp; Lọc Nhiễu Vốn Lưu Động Vận Hành (tỷ đồng)
+                </h2>
+                <span class="font-mono-code text-[11px] text-slate-500">Chống trừ trùng: max(Treo, Dự phòng)</span>
+              </div>
+              <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
+                <table class="w-full text-left text-xs">
+                  <thead class="bg-slate-50 text-slate-600 dark:bg-slate-950 dark:text-slate-300">
+                    <tr>
+                      <th class="px-3 py-2.5">Khoản mục BCTC (TT200)</th>
+                      <th class="px-3 py-2.5 text-right">Số dư Gộp</th>
+                      <th class="px-3 py-2.5 text-right">Khoản Treo / Ứ đọng</th>
+                      <th class="px-3 py-2.5 text-right">Dự phòng / CapEx</th>
+                      <th class="px-3 py-2.5 text-right">Giá trị Sạch (Live)</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-200 dark:divide-slate-800">
+                    <tr>
+                      <td class="px-3 py-2.5 font-semibold">Phải thu KH (Mã 131 / TK 2293)</td>
+                      <td class="px-3 py-2 text-right"><input id="inp-ar-gop" type="number" step="0.01" class="w-24 rounded-lg border border-slate-300 bg-slate-50 px-2 py-1 text-right font-mono-code dark:border-slate-700 dark:bg-slate-950" /></td>
+                      <td class="px-3 py-2 text-right"><input id="inp-ar-treo" type="number" step="0.01" class="w-24 rounded-lg border border-slate-300 bg-slate-50 px-2 py-1 text-right font-mono-code dark:border-slate-700 dark:bg-slate-950" /></td>
+                      <td class="px-3 py-2 text-right"><input id="inp-dp-noxau" type="number" step="0.01" class="w-24 rounded-lg border border-slate-300 bg-slate-50 px-2 py-1 text-right font-mono-code dark:border-slate-700 dark:bg-slate-950" /></td>
+                      <td id="live-ar" class="px-3 py-2.5 text-right font-mono-code font-bold text-blue-700 dark:text-blue-300">—</td>
+                    </tr>
+                    <tr>
+                      <td class="px-3 py-2.5 font-semibold">Hàng tồn kho (Mã 141 / TK 2294)</td>
+                      <td class="px-3 py-2 text-right"><input id="inp-inv-gop" type="number" step="0.01" class="w-24 rounded-lg border border-slate-300 bg-slate-50 px-2 py-1 text-right font-mono-code dark:border-slate-700 dark:bg-slate-950" /></td>
+                      <td class="px-3 py-2 text-right"><input id="inp-inv-udong" type="number" step="0.01" class="w-24 rounded-lg border border-slate-300 bg-slate-50 px-2 py-1 text-right font-mono-code dark:border-slate-700 dark:bg-slate-950" /></td>
+                      <td class="px-3 py-2 text-right"><input id="inp-dp-giamgia" type="number" step="0.01" class="w-24 rounded-lg border border-slate-300 bg-slate-50 px-2 py-1 text-right font-mono-code dark:border-slate-700 dark:bg-slate-950" /></td>
+                      <td id="live-inv" class="px-3 py-2.5 text-right font-mono-code font-bold text-blue-700 dark:text-blue-300">—</td>
+                    </tr>
+                    <tr>
+                      <td class="px-3 py-2.5 font-semibold">Phải trả NCC (Mã 311 / CapEx)</td>
+                      <td class="px-3 py-2 text-right"><input id="inp-tong-331" type="number" step="0.01" class="w-24 rounded-lg border border-slate-300 bg-slate-50 px-2 py-1 text-right font-mono-code dark:border-slate-700 dark:bg-slate-950" /></td>
+                      <td class="px-3 py-2 text-right"><input id="inp-ap-treo" type="number" step="0.01" class="w-24 rounded-lg border border-slate-300 bg-slate-50 px-2 py-1 text-right font-mono-code dark:border-slate-700 dark:bg-slate-950" /></td>
+                      <td class="px-3 py-2 text-right"><input id="inp-ap-capex" type="number" step="0.01" class="w-24 rounded-lg border border-slate-300 bg-slate-50 px-2 py-1 text-right font-mono-code dark:border-slate-700 dark:bg-slate-950" /></td>
+                      <td id="live-ap" class="px-3 py-2.5 text-right font-mono-code font-bold text-blue-700 dark:text-blue-300">—</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="mt-3.5 grid grid-cols-1 gap-3 sm:grid-cols-3 text-xs">
+                <div>
+                  <label class="block font-medium text-slate-600 dark:text-slate-400 mb-1">TSNH vận hành khác (Mã 132, 151–153)</label>
+                  <input id="inp-tsnh-khac" type="number" step="0.01" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 font-mono-code dark:border-slate-700 dark:bg-slate-950" />
+                </div>
+                <div>
+                  <label class="block font-medium text-slate-600 dark:text-slate-400 mb-1">Nợ NH vận hành khác (Mã 312–315, 318)</label>
+                  <input id="inp-no-khac" type="number" step="0.01" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 font-mono-code dark:border-slate-700 dark:bg-slate-950" />
+                </div>
+                <div class="rounded-xl border border-blue-200 bg-blue-50/70 px-3 py-2 flex flex-col justify-center dark:border-blue-500/30 dark:bg-blue-500/10">
+                  <span class="text-[11px] font-medium text-blue-700 dark:text-blue-300">NWC_op cuối kỳ (tính tự động)</span>
+                  <span id="live-nwcop-curr" class="font-mono-code text-base font-extrabold text-blue-800 dark:text-white">—</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bảng 3: KQKD, Lưu chuyển tiền tệ, DPO Purchases & EWS -->
+            <div class="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 space-y-4">
+              <h2 class="text-sm font-bold text-slate-900 dark:text-white">
+                C. Kết quả Kinh doanh, Dòng tiền VAS 24, Purchases &amp; Điểm EWS
+              </h2>
+              <div class="grid grid-cols-2 gap-3 sm:grid-cols-4 text-xs">
+                <div>
+                  <label class="block text-slate-500 mb-1">DTT lũy kế (Mã 10)</label>
+                  <input id="inp-dtt-ytd" type="number" step="0.01" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-1.5 font-mono-code dark:border-slate-700 dark:bg-slate-950" />
+                </div>
+                <div>
+                  <label class="block text-slate-500 mb-1">Giá vốn (Mã 11)</label>
+                  <input id="inp-cogs-ytd" type="number" step="0.01" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-1.5 font-mono-code dark:border-slate-700 dark:bg-slate-950" />
+                </div>
+                <div>
+                  <label class="block text-slate-500 mb-1">DTT Kế hoạch T+1</label>
+                  <input id="inp-dtt-plan" type="number" step="0.01" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-1.5 font-mono-code dark:border-slate-700 dark:bg-slate-950" />
+                </div>
+                <div>
+                  <label class="block text-slate-500 mb-1">LNTT (Mã 50)</label>
+                  <input id="inp-lntt" type="number" step="0.01" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-1.5 font-mono-code dark:border-slate-700 dark:bg-slate-950" />
+                </div>
+                <div>
+                  <label class="block text-slate-500 mb-1">Khấu hao (D&amp;A - Mã 02)</label>
+                  <input id="inp-da" type="number" step="0.01" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-1.5 font-mono-code dark:border-slate-700 dark:bg-slate-950" />
+                </div>
+                <div>
+                  <label class="block text-slate-500 mb-1">Chi phí lãi vay (Mã 23)</label>
+                  <input id="inp-int-exp" type="number" step="0.01" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-1.5 font-mono-code dark:border-slate-700 dark:bg-slate-950" />
+                </div>
+                <div>
+                  <label class="block text-slate-500 mb-1">Thuế TNDN nộp (Mã 15)</label>
+                  <input id="inp-tax-paid" type="number" step="0.01" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-1.5 font-mono-code dark:border-slate-700 dark:bg-slate-950" />
+                </div>
+                <div>
+                  <label class="block text-slate-500 mb-1">Biến động ΔNWC_op</label>
+                  <input id="inp-delta-nwcop" type="number" step="0.01" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-1.5 font-mono-code dark:border-slate-700 dark:bg-slate-950" />
+                </div>
+                <div>
+                  <label class="block text-slate-500 mb-1">Lãi vay đã trả (Mã 14)</label>
+                  <input id="inp-int-paid" type="number" step="0.01" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-1.5 font-mono-code dark:border-slate-700 dark:bg-slate-950" />
+                </div>
+                <div>
+                  <label class="block text-slate-500 mb-1">MS_20 (B03-DN)</label>
+                  <input id="inp-ms20" type="number" step="0.01" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-1.5 font-mono-code dark:border-slate-700 dark:bg-slate-950" />
+                </div>
+                <div>
+                  <label class="block text-slate-500 mb-1">Dư nợ TCTD khác</label>
+                  <input id="inp-other-debt" type="number" step="0.01" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-1.5 font-mono-code dark:border-slate-700 dark:bg-slate-950" />
+                </div>
+                <div>
+                  <label class="block text-slate-500 mb-1">Gốc + Lãi đến hạn</label>
+                  <input id="inp-debt-service" type="number" step="0.01" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-1.5 font-mono-code dark:border-slate-700 dark:bg-slate-950" />
+                </div>
+                <div>
+                  <label class="block text-slate-500 mb-1">Tiền về TK 112</label>
+                  <input id="inp-cash-112" type="number" step="0.01" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-1.5 font-mono-code dark:border-slate-700 dark:bg-slate-950" />
+                </div>
+                <div>
+                  <label class="block text-slate-500 mb-1">DT_VAT (gồm VAT)</label>
+                  <input id="inp-dt-vat" type="number" step="0.01" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-1.5 font-mono-code dark:border-slate-700 dark:bg-slate-950" />
+                </div>
+                <div>
+                  <label class="block text-slate-500 mb-1" title="Lưu chuyển tiền thuần HĐ Đầu tư (B03-DN) hoặc chi CapEx ngắn hạn để nhận diện KB5">VAR_ICF / CapEx kỳ (tỷ)</label>
+                  <input id="inp-icf" type="number" step="0.01" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-1.5 font-mono-code dark:border-slate-700 dark:bg-slate-950" />
+                </div>
+                <div>
+                  <label class="block text-slate-500 mb-1" title="Chi phí bán hàng & QLDN bằng tiền năm T+1 dùng cho đối chiếu HMTD truyền thống">CP BH &amp; QLDN T+1 (tỷ)</label>
+                  <input id="inp-opex-t1" type="number" step="0.01" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-1.5 font-mono-code dark:border-slate-700 dark:bg-slate-950" />
+                </div>
+                <div>
+                  <label class="block text-slate-500 mb-1" title="Dùng tính Purchases = COGS + ΔHTK - KH trong COGS - Nhân công TT">KH &amp; Nhân công trong COGS</label>
+                  <input id="inp-cogs-nonmat" type="number" step="0.01" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-1.5 font-mono-code dark:border-slate-700 dark:bg-slate-950" />
+                </div>
+                <div>
+                  <label class="block text-slate-500 mb-1" title="Chênh lệch HTK cuối kỳ - đầu kỳ để tính Purchases">Biến động HTK (ΔINV)</label>
+                  <input id="inp-delta-inv" type="number" step="0.01" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-1.5 font-mono-code dark:border-slate-700 dark:bg-slate-950" />
+                </div>
+              </div>
+
+              <!-- Điểm EWS -->
+              <div class="pt-3 border-t border-slate-100 dark:border-slate-800">
+                <div class="text-xs font-bold text-slate-700 dark:text-slate-300 mb-2">
+                  Chấm điểm EWS 4 Trụ cột (Thang 0–10) &amp; Điều kiện Knock-out
+                </div>
+                <div class="grid grid-cols-2 gap-3 sm:grid-cols-4 text-xs">
+                  <div>
+                    <label class="block text-slate-500 mb-1">1. TC &amp; Dòng tiền (30%)</label>
+                    <input id="inp-ews-tc" type="number" step="0.1" min="0" max="10" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-1.5 font-mono-code dark:border-slate-700 dark:bg-slate-950" />
+                  </div>
+                  <div>
+                    <label class="block text-slate-500 mb-1">2. Quản trị VLĐ (20%)</label>
+                    <input id="inp-ews-vld" type="number" step="0.1" min="0" max="10" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-1.5 font-mono-code dark:border-slate-700 dark:bg-slate-950" />
+                  </div>
+                  <div>
+                    <label class="block text-slate-500 mb-1">3. Quản trị &amp; Uy tín (25%)</label>
+                    <input id="inp-ews-qltn" type="number" step="0.1" min="0" max="10" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-1.5 font-mono-code dark:border-slate-700 dark:bg-slate-950" />
+                  </div>
+                  <div>
+                    <label class="block text-slate-500 mb-1">4. Ngành &amp; TSBĐ (25%)</label>
+                    <input id="inp-ews-vtsb" type="number" step="0.1" min="0" max="10" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-1.5 font-mono-code dark:border-slate-700 dark:bg-slate-950" />
+                  </div>
+                </div>
+                <label class="mt-3 flex items-center gap-2.5 rounded-xl border border-rose-200 bg-rose-50/70 px-3 py-2 text-xs font-semibold text-rose-800 cursor-pointer dark:border-rose-500/30 dark:bg-rose-950/30 dark:text-rose-200">
+                  <input id="inp-knockout" type="checkbox" class="h-4 w-4 rounded border-rose-400 text-rose-600" />
+                  <span>Kích hoạt Knock-out (Nợ xấu nhóm 3–5 CIC / Gian lận hóa đơn / Rút vốn / Ngừng SX)</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- VIEW 2: DÒNG TIỀN, CHU KỲ CCC, STRESS TEST & EWS -->
+          <div id="view-analysis" class="view-section hidden space-y-5">
+            <!-- Chu kỳ chuyển đổi tiền mặt CCC (DIO, DSO, DPO) & Chẩn đoán KB1-KB5 -->
+            <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 space-y-4">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <h2 class="text-sm font-bold text-slate-900 dark:text-white">
+                  Chu kỳ Tiền mặt (CCC = DIO + DSO − DPO) &amp; Chẩn đoán Kịch bản (KB1–KB5)
+                </h2>
+                <span id="dpo-mode-badge" class="rounded-lg bg-slate-100 px-2.5 py-0.5 font-mono-code text-[11px] font-semibold text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                  DPO Mode: —
+                </span>
+              </div>
+
+              <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                <div class="rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-950/60">
+                  <div class="text-[11px] text-slate-500">DIO (Ngày Tồn kho)</div>
+                  <div id="kpi-dio" class="mt-1 font-mono-code text-lg font-bold text-slate-900 dark:text-white">—</div>
+                </div>
+                <div class="rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-950/60">
+                  <div class="text-[11px] text-slate-500">DSO (Ngày Phải thu)</div>
+                  <div id="kpi-dso" class="mt-1 font-mono-code text-lg font-bold text-slate-900 dark:text-white">—</div>
+                </div>
+                <div class="rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-950/60">
+                  <div class="text-[11px] text-slate-500">DPO (Ngày Phải trả)</div>
+                  <div id="kpi-dpo" class="mt-1 font-mono-code text-lg font-bold text-slate-900 dark:text-white">—</div>
+                </div>
+                <div class="rounded-xl border border-blue-200 bg-blue-50/70 p-3 dark:border-blue-500/30 dark:bg-blue-500/10">
+                  <div class="text-[11px] text-blue-700 dark:text-blue-300">Chu kỳ Tiền mặt (CCC)</div>
+                  <div id="kpi-ccc" class="mt-1 font-mono-code text-lg font-extrabold text-blue-800 dark:text-white">—</div>
+                </div>
+              </div>
+
+              <div id="kb-diagnosis-box" class="rounded-xl border border-emerald-200 bg-emerald-50/60 p-3.5 text-xs text-slate-700 dark:border-emerald-500/30 dark:bg-emerald-950/20 dark:text-slate-200 space-y-1">
+                <div class="font-bold text-emerald-800 dark:text-emerald-300" id="kb-title">Chẩn đoán Kịch bản: —</div>
+                <div id="kb-desc">—</div>
+                <div id="kb-action" class="font-semibold text-blue-700 dark:text-blue-300">—</div>
+              </div>
+            </div>
+
+            <!-- Trực quan hóa Chart.js -->
+            <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
+              <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-3">
+                  Biểu đồ Lọc Nhiễu VLĐ (Số dư Gộp vs Giá trị Sạch)
+                </h3>
+                <div class="h-56">
+                  <canvas id="chart-nwc"></canvas>
+                </div>
+              </div>
+              <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-3">
+                  Đối chiếu Hạn mức &amp; Trần Tối đa (tỷ đồng)
+                </h3>
+                <div class="h-56">
+                  <canvas id="chart-limit"></canvas>
+                </div>
+              </div>
+            </div>
+
+            <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+              <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                <h2 class="text-sm font-bold text-slate-900 dark:text-white">
+                  Bảng Giả Lập Căng Thẳng Đa Biến (Stress Test ST1 – ST4)
+                </h2>
+                <span id="trad-limit-note" class="font-mono-code text-[11px] text-slate-500">
+                  HMTD Đối chiếu Truyền thống: —
+                </span>
+              </div>
+              <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
+                <table class="w-full text-left text-xs">
+                  <thead class="bg-slate-50 text-slate-600 dark:bg-slate-950 dark:text-slate-300">
+                    <tr>
+                      <th class="px-3.5 py-2.5">Kịch bản Stress Test</th>
+                      <th class="px-3.5 py-2.5 text-right">Thiếu hụt vốn (tỷ)</th>
+                      <th class="px-3.5 py-2.5 text-right">Lãi vay tăng ΔI (tỷ)</th>
+                      <th class="px-3.5 py-2.5 text-right">DSCR Stress</th>
+                      <th class="px-3.5 py-2.5 text-center">Đối chiếu Ngưỡng</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tbl-stress" class="divide-y divide-slate-200 font-mono-code dark:divide-slate-800"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+              <h2 class="text-sm font-bold text-slate-900 dark:text-white mb-3">
+                Bảng Tổng Hợp Điểm EWS Quy Đổi (Thang 10 – Rubric 4 Hạng A-B-C-D)
+              </h2>
+              <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
+                <table class="w-full text-left text-xs">
+                  <thead class="bg-slate-50 text-slate-600 dark:bg-slate-950 dark:text-slate-300">
+                    <tr>
+                      <th class="px-3.5 py-2.5">Trụ cột Đánh giá</th>
+                      <th class="px-3.5 py-2.5 text-right">Trọng số</th>
+                      <th class="px-3.5 py-2.5 text-right">Điểm gốc (0–10)</th>
+                      <th class="px-3.5 py-2.5 text-right">Điểm quy đổi</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tbl-ews" class="divide-y divide-slate-200 font-mono-code dark:divide-slate-800"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- VIEW 3: TỜ TRÌNH 12 MỤC & NGHỊ QUYẾT -->
+          <div id="view-report" class="view-section hidden space-y-5">
+            <div id="report-container" class="space-y-4"></div>
+          </div>
+
+          <!-- VIEW 4: AUDIT LOG & JSON -->
+          <div id="view-audit" class="view-section hidden space-y-4">
+            <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+              <div class="flex items-center justify-between mb-2">
+                <h2 class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">Nhật ký Vận hành 4 Agent</h2>
+              </div>
+              <div id="audit-log-box" class="max-h-40 overflow-y-auto rounded-xl bg-slate-950 p-3 font-mono-code text-[11px] text-slate-300 space-y-1 custom-scroll"></div>
+            </div>
+
+            <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+              <div class="flex items-center justify-between mb-2">
+                <h2 class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">Payload JSON Trung Gian (Agent 1 → Agent 4)</h2>
+                <button id="btn-copy-json" type="button" class="rounded-lg bg-blue-600/10 px-2.5 py-1 text-xs font-semibold text-blue-700 hover:bg-blue-600/20 dark:text-blue-300">
+                  📋 Sao chép JSON
+                </button>
+              </div>
+              <pre id="json-box" class="max-h-96 overflow-auto rounded-xl bg-slate-950 p-3.5 font-mono-code text-[11px] text-emerald-300 custom-scroll">{}</pre>
+            </div>
+          </div>
+        </main>
+
+        <!-- CỘT TÓM TẮT ĐIỀU HÀNH BÊN PHẢI (4/12 - LUÔN HIỂN THỊ TRÊN DESKTOP) -->
+        <aside class="xl:col-span-4 border-t border-slate-200 bg-slate-50/70 p-5 space-y-4 dark:border-slate-800 dark:bg-slate-950/50 xl:border-t-0 xl:border-l">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+            Bảng Tổng Hợp Phán Quyết (Live Summary)
+          </div>
+
+          <!-- Thẻ Quyết nghị cuối cùng -->
+          <div id="decision-card" class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Nghị quyết Agent 4</span>
+              <span id="sum-rank" class="rounded-lg bg-amber-500/15 px-2.5 py-0.5 text-xs font-bold text-amber-700 dark:text-amber-300">—</span>
+            </div>
+            <div id="sum-decision" class="text-sm font-extrabold text-slate-900 dark:text-white">
+              Chờ chạy thẩm định
+            </div>
+            <div class="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-baseline justify-between">
+              <span class="text-xs text-slate-500">Hạn mức được duyệt:</span>
+              <span id="sum-approved-limit" class="font-mono-code text-xl font-extrabold text-blue-700 dark:text-blue-400">—</span>
+            </div>
+          </div>
+
+          <!-- 4 Chỉ số Định lượng Cốt lõi -->
+          <div class="grid grid-cols-2 gap-2.5">
+            <div class="rounded-2xl border border-slate-200 bg-white p-3.5 dark:border-slate-800 dark:bg-slate-900">
+              <div class="text-[11px] font-medium text-slate-500">VAR_OCF (VAS 24)</div>
+              <div id="sum-ocf" class="mt-1 font-mono-code text-lg font-bold text-emerald-600 dark:text-emerald-400">—</div>
+              <div id="sum-ms20" class="mt-0.5 text-[10px] text-slate-400">Lệch MS_20: —</div>
+            </div>
+            <div class="rounded-2xl border border-slate-200 bg-white p-3.5 dark:border-slate-800 dark:bg-slate-900">
+              <div class="text-[11px] font-medium text-slate-500">Hệ số DSCR</div>
+              <div id="sum-dscr" class="mt-1 font-mono-code text-lg font-bold text-slate-900 dark:text-white">—</div>
+              <div id="sum-cash-ratio" class="mt-0.5 text-[10px] text-slate-400">Tiền về/VAT: —</div>
+            </div>
+            <div class="rounded-2xl border border-slate-200 bg-white p-3.5 dark:border-slate-800 dark:bg-slate-900">
+              <div class="text-[11px] font-medium text-slate-500">Vòng quay &amp; CCC</div>
+              <div id="sum-vq" class="mt-1 font-mono-code text-lg font-bold text-cyan-700 dark:text-cyan-300">—</div>
+              <div id="sum-ccc" class="mt-0.5 text-[10px] text-slate-400">CCC: —</div>
+            </div>
+            <div class="rounded-2xl border border-slate-200 bg-white p-3.5 dark:border-slate-800 dark:bg-slate-900">
+              <div class="text-[11px] font-medium text-slate-500">Trần VAR_HMTD_MAX</div>
+              <div id="sum-hmtd-max" class="mt-1 font-mono-code text-lg font-bold text-blue-700 dark:text-blue-300">—</div>
+              <div id="sum-ews" class="mt-0.5 text-[10px] text-slate-400">Điểm EWS: —</div>
+            </div>
+          </div>
+
+          <!-- Cờ cảnh báo & Điều kiện Covenants -->
+          <div class="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900 space-y-2.5">
+            <div class="text-xs font-bold text-slate-800 dark:text-slate-200">
+              Cảnh báo Rủi ro &amp; Điểm Phản biện
+            </div>
+            <div id="sum-flags" class="text-xs text-slate-600 dark:text-slate-300 space-y-1">
+              <p class="text-slate-400">Chưa phát hiện cảnh báo.</p>
+            </div>
+          </div>
+
+          <div class="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900 space-y-2.5">
+            <div class="text-xs font-bold text-slate-800 dark:text-slate-200">
+              Điều kiện Cấp tín dụng (Covenants)
+            </div>
+            <div id="sum-covenants" class="text-xs text-slate-600 dark:text-slate-300 space-y-1">
+              <p class="text-slate-400">Sẽ hiển thị sau khi Agent 4 phê duyệt.</p>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const LOCAL_KEY = "creditflow_pro_v72_saved_case_v3";
+
+    const PRESETS = {
+      standard_9m: {
+        label: "Unit Test ABC 9T (T=270)",
+        companyName: "CTCP Sản xuất Thương mại ABC",
+        industry: "Sản xuất & Thương mại công nghiệp",
+        tDays: 270,
+        hmtdReq: 85.0,
+        isMfg: true,
+        hasBreakdown: false,
+        hasNotes: true,
+        arGop: 85.0,
+        arTreo: 7.0,
+        dpNoXau: 5.0,
+        invGop: 110.0,
+        invUDong: 8.0,
+        dpGiamGia: 10.0,
+        tong331: 62.0,
+        apTreo: 2.0,
+        apCapEx: 10.0,
+        tsnhKhac: 12.0,
+        noKhac: 15.0,
+        nwcOpAvg: 125.0,
+        dttYtd: 450.0,
+        cogsYtd: 360.0,
+        dttPlan: 680.0,
+        lntt: 32.0,
+        da: 8.0,
+        intExp: 9.0,
+        taxPaid: 6.0,
+        deltaNwcOp: 12.0,
+        intPaid: 9.0,
+        ms20: 22.0,
+        otherDebt: 15.0,
+        debtService: 16.5,
+        cash112: 410.0,
+        dtVat: 495.0,
+        icfVal: -4.0,
+        opexT1: 42.0,
+        cogsNonMat: 35.0,
+        deltaInv: 10.0,
+        stressRate: 8.0,
+        ewsTc: 7.5,
+        ewsVld: 7.5,
+        ewsQltn: 7.5,
+        ewsVtsb: 7.0,
+        knockOut: false
+      },
+      edge_kb2_hot: {
+        label: "KB2: Tăng trưởng nóng (DVF)",
+        companyName: "CTCP Dinh dưỡng & Chăn nuôi Đại Việt (DVF)",
+        industry: "SX Thức ăn Chăn nuôi",
+        tDays: 365,
+        hmtdReq: 220.0,
+        isMfg: true,
+        hasBreakdown: true,
+        hasNotes: true,
+        arGop: 165.0,
+        arTreo: 15.0,
+        dpNoXau: 8.0,
+        invGop: 185.0,
+        invUDong: 12.0,
+        dpGiamGia: 5.0,
+        tong331: 115.0,
+        apTreo: 5.0,
+        apCapEx: 0.0,
+        tsnhKhac: 20.0,
+        noKhac: 18.0,
+        nwcOpAvg: 265.0,
+        dttYtd: 1200.0,
+        cogsYtd: 1020.0,
+        dttPlan: 1440.0,
+        lntt: 48.0,
+        da: 14.0,
+        intExp: 22.0,
+        taxPaid: 8.0,
+        deltaNwcOp: 95.0,
+        intPaid: 21.0,
+        ms20: -29.4,
+        otherDebt: 40.0,
+        debtService: 38.0,
+        cash112: 910.0,
+        dtVat: 1320.0,
+        icfVal: -8.0,
+        opexT1: 75.0,
+        cogsNonMat: 95.0,
+        deltaInv: 30.0,
+        stressRate: 8.0,
+        ewsTc: 5.2,
+        ewsVld: 5.5,
+        ewsQltn: 6.5,
+        ewsVtsb: 6.2,
+        knockOut: false
+      },
+      edge_kb5_divert: {
+        label: "KB5: Đảo vốn sai kỳ hạn",
+        companyName: "CTCP Xây dựng Trường Thịnh",
+        industry: "Xây lắp Công trình",
+        tDays: 365,
+        hmtdReq: 90.0,
+        isMfg: false,
+        hasBreakdown: false,
+        hasNotes: true,
+        arGop: 92.0,
+        arTreo: 10.0,
+        dpNoXau: 4.0,
+        invGop: 68.0,
+        invUDong: 4.0,
+        dpGiamGia: 2.0,
+        tong331: 54.0,
+        apTreo: 2.0,
+        apCapEx: 8.0,
+        tsnhKhac: 12.0,
+        noKhac: 14.0,
+        nwcOpAvg: 98.0,
+        dttYtd: 500.0,
+        cogsYtd: 410.0,
+        dttPlan: 540.0,
+        lntt: 35.0,
+        da: 6.0,
+        intExp: 11.0,
+        taxPaid: 7.0,
+        deltaNwcOp: 6.0,
+        intPaid: 11.0,
+        ms20: 28.0,
+        otherDebt: 20.0,
+        debtService: 24.0,
+        cash112: 470.0,
+        dtVat: 550.0,
+        icfVal: -50.0,
+        opexT1: 35.0,
+        cogsNonMat: 0.0,
+        deltaInv: 5.0,
+        stressRate: 8.0,
+        ewsTc: 5.0,
+        ewsVld: 6.0,
+        ewsQltn: 4.5,
+        ewsVtsb: 5.5,
+        knockOut: false
+      },
+      edge_nwc_neg: {
+        label: "Biên: NWC_op_avg ≤ 0",
+        companyName: "CTCP Dịch vụ & Logistics Vạn Phát",
+        industry: "Dịch vụ / Logistics / Tech",
+        tDays: 270,
+        hmtdReq: 50.0,
+        isMfg: false,
+        hasBreakdown: false,
+        hasNotes: true,
+        arGop: 35.0,
+        arTreo: 2.0,
+        dpNoXau: 1.0,
+        invGop: 5.0,
+        invUDong: 0.0,
+        dpGiamGia: 0.0,
+        tong331: 42.0,
+        apTreo: 0.0,
+        apCapEx: 0.0,
+        tsnhKhac: 4.0,
+        noKhac: 25.0,
+        nwcOpAvg: -12.0,
+        dttYtd: 300.0,
+        cogsYtd: 210.0,
+        dttPlan: 360.0,
+        lntt: 24.0,
+        da: 4.0,
+        intExp: 3.0,
+        taxPaid: 4.0,
+        deltaNwcOp: -5.0,
+        intPaid: 3.0,
+        ms20: 29.0,
+        otherDebt: 5.0,
+        debtService: 10.0,
+        cash112: 280.0,
+        dtVat: 324.0,
+        icfVal: -2.0,
+        opexT1: 45.0,
+        cogsNonMat: 0.0,
+        deltaInv: 0.0,
+        stressRate: 8.0,
+        ewsTc: 7.0,
+        ewsVld: 6.0,
+        ewsQltn: 7.5,
+        ewsVtsb: 7.0,
+        knockOut: false
+      },
+      edge_knockout: {
+        label: "Biên: Vi phạm Knock-out",
+        companyName: "Công ty TNHH TM & Đầu tư An Khang",
+        industry: "Thương mại FMCG",
+        tDays: 270,
+        hmtdReq: 60.0,
+        isMfg: false,
+        hasBreakdown: false,
+        hasNotes: false,
+        arGop: 90.0,
+        arTreo: 30.0,
+        dpNoXau: 10.0,
+        invGop: 75.0,
+        invUDong: 25.0,
+        dpGiamGia: 12.0,
+        tong331: 48.0,
+        apTreo: 10.0,
+        apCapEx: 0.0,
+        tsnhKhac: 5.0,
+        noKhac: 10.0,
+        nwcOpAvg: 75.0,
+        dttYtd: 320.0,
+        cogsYtd: 270.0,
+        dttPlan: 350.0,
+        lntt: 5.0,
+        da: 3.0,
+        intExp: 8.0,
+        taxPaid: 1.0,
+        deltaNwcOp: 20.0,
+        intPaid: 8.0,
+        ms20: -13.0,
+        otherDebt: 20.0,
+        debtService: 18.0,
+        cash112: 150.0,
+        dtVat: 352.0,
+        icfVal: -15.0,
+        opexT1: 30.0,
+        cogsNonMat: 0.0,
+        deltaInv: 12.0,
+        stressRate: 9.0,
+        ewsTc: 4.0,
+        ewsVld: 4.5,
+        ewsQltn: 3.0,
+        ewsVtsb: 5.0,
+        knockOut: true
+      }
+    };
+
+    const BLANK_CASE = {
+      label: "Hồ sơ mới (Chưa nhập liệu)",
+      companyName: "",
+      industry: "Sản xuất & Thương mại công nghiệp",
+      tDays: 270,
+      hmtdReq: 0,
+      isMfg: true,
+      hasBreakdown: false,
+      hasNotes: false,
+      arGop: 0,
+      arTreo: 0,
+      dpNoXau: 0,
+      invGop: 0,
+      invUDong: 0,
+      dpGiamGia: 0,
+      tong331: 0,
+      apTreo: 0,
+      apCapEx: 0,
+      tsnhKhac: 0,
+      noKhac: 0,
+      nwcOpAvg: 0,
+      dttYtd: 0,
+      cogsYtd: 0,
+      dttPlan: 0,
+      lntt: 0,
+      da: 0,
+      intExp: 0,
+      taxPaid: 0,
+      deltaNwcOp: 0,
+      intPaid: 0,
+      ms20: 0,
+      otherDebt: 0,
+      debtService: 0,
+      cash112: 0,
+      dtVat: 0,
+      icfVal: 0,
+      opexT1: 0,
+      cogsNonMat: 0,
+      deltaInv: 0,
+      stressRate: 8.0,
+      ewsTc: 6.5,
+      ewsVld: 6.5,
+      ewsQltn: 6.5,
+      ewsVtsb: 6.5,
+      knockOut: false
+    };
+
+    // Định nghĩa 4 nhóm checklist kèm khung Tải file riêng cho từng nhóm và từng mục
+    const INTAKE_GROUPS = [
+      {
+        id: "grp_legal",
+        title: "1. Hồ sơ Pháp lý, CIC & Đề xuất Cấp tín dụng",
+        docHint: "Đơn đề nghị cấp HMTD, ĐKKD, Báo cáo CIC, Phương án SXKD T+1",
+        accept: ".pdf,.xlsx,.xls,.csv,.json",
+        targetView: "workspace",
+        items: [
+          { key: "company_name", label: "Tên doanh nghiệp (Hồ sơ pháp lý)", docType: "Giấy chứng nhận ĐKKD / Tờ trình", check: (d) => d.companyName.trim().length > 2 && d.companyName !== "Doanh nghiệp KHDN" },
+          { key: "industry", label: "Nhóm ngành hoạt động chính (8 ngành v7.2)", docType: "Điều lệ / Giấy phép kinh doanh", check: (d) => d.industry.trim().length > 2 },
+          { key: "tdays", label: "Số ngày kỳ lũy kế T_ngày (1 – 365 ngày)", docType: "BCTC Quý / Năm TT200", check: (d) => d.tDays >= 1 && d.tDays <= 365 },
+          { key: "hmtd_req", label: "Hạn mức tín dụng đề xuất (VAR_HMTD_REQ > 0)", docType: "Đơn đề nghị cấp HMTD / Phương án vay", check: (d) => d.hmtdReq > 0 }
+        ]
+      },
+      {
+        id: "grp_b01",
+        title: "2. Bảng Cân đối Kế toán B01-DN & Thuyết minh Công nợ/Kho",
+        docHint: "B01-DN (Mã 131, 137, 141, 149, 311), Bảng tổng hợp NXT & Tuổi nợ",
+        accept: ".pdf,.xlsx,.xls,.csv,.json",
+        targetView: "workspace",
+        items: [
+          { key: "ar_131", label: "Phải thu KH gộp – Mã 131 (AR_Gop > 0)", docType: "B01-DN (Mã 131) & Sổ chi tiết TK 131", check: (d) => d.arGop > 0 },
+          { key: "inv_141", label: "Hàng tồn kho gộp – Mã 141 (INV_Gop ≥ 0)", docType: "B01-DN (Mã 141) & Báo cáo NXT", check: (d) => d.invGop > 0 || !d.isMfg },
+          { key: "ap_311", label: "Phải trả người bán – Mã 311 (Tong_TK331 > 0)", docType: "B01-DN (Mã 311) & Thuyết minh TK 331", check: (d) => d.tong331 > 0 },
+          { key: "nwc_4qma", label: "NWC_op bình quân 4QMA (Khác 0)", docType: "BCTC 4 quý gần nhất / Thuyết minh VLĐ", check: (d) => d.nwcOpAvg !== 0 }
+        ]
+      },
+      {
+        id: "grp_b02",
+        title: "3. Kết quả Kinh doanh B02-DN & Kế hoạch Năm T+1",
+        docHint: "B02-DN (Mã 10, 11, 23, 50), Kế hoạch doanh thu T+1, Lịch trả nợ",
+        accept: ".pdf,.xlsx,.xls,.csv,.json",
+        targetView: "workspace",
+        items: [
+          { key: "dtt_10", label: "Doanh thu thuần lũy kế – Mã 10 (DTT > 0)", docType: "B02-DN (Mã 10) / Sổ cái TK 511", check: (d) => d.dttYtd > 0 },
+          { key: "cogs_11", label: "Giá vốn hàng bán lũy kế – Mã 11 (COGS > 0)", docType: "B02-DN (Mã 11) / Thuyết minh TK 632", check: (d) => d.cogsYtd > 0 },
+          { key: "dtt_plan", label: "Doanh thu thuần kế hoạch năm T+1 (> 0)", docType: "Kế hoạch Kinh doanh năm T+1", check: (d) => d.dttPlan > 0 },
+          { key: "debt_srv", label: "Nghĩa vụ trả nợ gốc + lãi đến hạn (> 0)", docType: "Khế ước nhận nợ / Lịch trả nợ TCTD", check: (d) => d.debtService > 0 }
+        ]
+      },
+      {
+        id: "grp_b03",
+        title: "4. Lưu chuyển Tiền tệ VAS 24, Tờ khai GTGT & Sao kê TK 112",
+        docHint: "B03-DN (Mã 02, 14, 15, 20), Tờ khai thuế GTGT & Sao kê ngân hàng",
+        accept: ".pdf,.xlsx,.xls,.csv,.json",
+        targetView: "workspace",
+        items: [
+          { key: "da_02", label: "Khấu hao TSCĐ – Mã 02 B03-DN (D&A ≥ 0)", docType: "B03-DN (Mã 02) / Thuyết minh TK 214", check: (d) => d.da > 0 },
+          { key: "ms_20", label: "Lưu chuyển tiền thuần HĐKD – Mã 20 B03-DN", docType: "B03-DN (Mã 20)", check: (d) => d.ms20 !== 0 },
+          { key: "cash_112", label: "Tiền thực thu qua TK 112 (Cash_112 > 0)", docType: "Sao kê tài khoản ngân hàng (TK 112)", check: (d) => d.cash112 > 0 },
+          { key: "dt_vat", label: "Doanh thu kê khai thuế GTGT (DT_VAT > 0)", docType: "Tờ khai thuế GTGT (Mẫu 01/GTGT)", check: (d) => d.dtVat > 0 }
+        ]
+      }
+    ];
+
+    const state = {
+      step: 0,
+      a1: null,
+      a2: null,
+      a3: null,
+      a4: null,
+      markdown: "",
+      logs: [],
+      uploadedDocs: {}, // Lưu tên file đã tải lên theo từng mục/nhóm checklist
+      charts: { nwc: null, limit: null }
+    };
+
+    function safeDiv(num, den) {
+      if (num === null || num === undefined || Number.isNaN(num)) return null;
+      if (den === null || den === undefined || Number.isNaN(den) || den === 0) return null;
+      return Number(num) / Number(den);
+    }
+
+    function fmt(val, dec = 2) {
+      if (val === null || val === undefined || val === "N/A" || Number.isNaN(val)) return "N/A";
+      return Number(val).toFixed(dec);
+    }
+
+    function esc(str) {
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+    }
+
+    function switchView(viewName) {
+      document.querySelectorAll(".nav-btn").forEach((b) => {
+        const active = b.getAttribute("data-view") === viewName;
+        b.className = active
+          ? "nav-btn w-full flex items-center justify-between rounded-xl bg-blue-50 px-3 py-2.5 text-left text-xs font-semibold text-blue-700 dark:bg-blue-500/15 dark:text-blue-300"
+          : "nav-btn w-full flex items-center justify-between rounded-xl px-3 py-2.5 text-left text-xs font-semibold text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800/70";
+      });
+      document.querySelectorAll(".view-section").forEach((s) => s.classList.add("hidden"));
+      const target = document.getElementById(`view-${viewName}`);
+      if (target) target.classList.remove("hidden");
+      if (viewName === "analysis") {
+        setTimeout(renderCharts, 30);
+      }
+    }
+
+    function notify(msg, tone = "ok") {
+      const box = document.getElementById("toast");
+      const dot = document.getElementById("toast-indicator");
+      document.getElementById("toast-text").textContent = msg;
+      dot.className = "h-2.5 w-2.5 shrink-0 rounded-full " + (
+        tone === "warn" ? "bg-amber-500" : tone === "err" ? "bg-rose-500" : "bg-emerald-500"
+      );
+      box.classList.remove("hidden");
+      clearTimeout(window.__toastId);
+      window.__toastId = setTimeout(() => box.classList.add("hidden"), 3000);
+    }
+
+    function logEvent(text) {
+      const ts = new Date().toLocaleTimeString("vi-VN", { hour12: false });
+      state.logs.push(`[${ts}] ${text}`);
+      const el = document.getElementById("audit-log-box");
+      el.innerHTML = state.logs.map((l) => `<div>${esc(l)}</div>`).join("");
+      el.scrollTop = el.scrollHeight;
+    }
+
+    function getInputs() {
+      const num = (id) => {
+        const v = parseFloat(document.getElementById(id).value);
+        return Number.isNaN(v) ? 0 : v;
+      };
+      return {
+        companyName: document.getElementById("inp-company").value.trim() || "Doanh nghiệp KHDN",
+        industry: document.getElementById("inp-industry").value.trim() || "Sản xuất & Thương mại công nghiệp",
+        tDays: num("inp-tdays"),
+        hmtdReq: num("inp-hmtd-req"),
+        stressRate: num("inp-stress-rate") / 100.0,
+        nwcOpAvg: num("inp-nwcop-avg"),
+        isMfg: document.getElementById("inp-ismfg").checked,
+        hasBreakdown: document.getElementById("inp-breakdown").checked,
+        hasNotes: document.getElementById("inp-notes").checked,
+        arGop: num("inp-ar-gop"),
+        arTreo: num("inp-ar-treo"),
+        dpNoXau: num("inp-dp-noxau"),
+        invGop: num("inp-inv-gop"),
+        invUDong: num("inp-inv-udong"),
+        dpGiamGia: num("inp-dp-giamgia"),
+        tong331: num("inp-tong-331"),
+        apTreo: num("inp-ap-treo"),
+        apCapEx: num("inp-ap-capex"),
+        tsnhKhac: num("inp-tsnh-khac"),
+        noKhac: num("inp-no-khac"),
+        dttYtd: num("inp-dtt-ytd"),
+        cogsYtd: num("inp-cogs-ytd"),
+        dttPlan: num("inp-dtt-plan"),
+        lntt: num("inp-lntt"),
+        da: num("inp-da"),
+        intExp: num("inp-int-exp"),
+        taxPaid: num("inp-tax-paid"),
+        deltaNwcOp: num("inp-delta-nwcop"),
+        intPaid: num("inp-int-paid"),
+        ms20: num("inp-ms20"),
+        otherDebt: num("inp-other-debt"),
+        debtService: num("inp-debt-service"),
+        cash112: num("inp-cash-112"),
+        dtVat: num("inp-dt-vat"),
+        icfVal: num("inp-icf"),
+        opexT1: num("inp-opex-t1"),
+        cogsNonMat: num("inp-cogs-nonmat"),
+        deltaInv: num("inp-delta-inv"),
+        ewsTc: num("inp-ews-tc"),
+        ewsVld: num("inp-ews-vld"),
+        ewsQltn: num("inp-ews-qltn"),
+        ewsVtsb: num("inp-ews-vtsb"),
+        knockOut: document.getElementById("inp-knockout").checked
+      };
+    }
+
+    // Xử lý tải file theo từng mục hoặc từng nhóm trong Checklist Bước 0
+    function handleSlotFileUpload(slotKey, slotLabel, fileList) {
+      if (!fileList || !fileList.length) return;
+      const fileNames = Array.from(fileList).map((f) => f.name);
+      state.uploadedDocs[slotKey] = fileNames.join(", ");
+      processFiles(fileList, `${slotLabel}`);
+    }
+
+    function updateIntakeChecklist(d) {
+      let totalItems = 0;
+      let passedItems = 0;
+
+      const html = INTAKE_GROUPS.map((grp) => {
+        const grpFile = state.uploadedDocs[grp.id];
+        const rows = grp.items.map((it) => {
+          totalItems++;
+          const itemFile = state.uploadedDocs[it.key];
+          const ok = Boolean(it.check(d)) || Boolean(itemFile);
+          if (ok) passedItems++;
+          const inputId = `slot-file-${it.key}`;
+
+          return `
+            <div class="py-2.5 space-y-1.5">
+              <div class="flex items-start justify-between gap-2 text-xs">
+                <div class="flex items-start gap-2 min-w-0">
+                  <span class="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[10px] font-bold ${
+                    ok
+                      ? "bg-emerald-500/15 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300"
+                      : "bg-amber-500/15 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300"
+                  }">${ok ? "✓" : "!"}</span>
+                  <div class="min-w-0">
+                    <div class="${ok ? "font-medium text-slate-800 dark:text-slate-200" : "font-semibold text-amber-800 dark:text-amber-300"} leading-snug">
+                      ${esc(it.label)}
+                    </div>
+                    <div class="text-[10px] text-slate-400 truncate">
+                      Chứng từ: ${esc(it.docType)}
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Khung Tải file & Nhập tay riêng cho từng mục -->
+                <div class="flex items-center gap-1.5 shrink-0">
+                  <label for="${inputId}" class="cursor-pointer inline-flex items-center gap-1 rounded-lg border border-dashed ${
+                    itemFile
+                      ? "border-emerald-400 bg-emerald-50 text-emerald-700 dark:border-emerald-500/40 dark:bg-emerald-950/30 dark:text-emerald-300"
+                      : "border-blue-300 bg-blue-50/70 text-blue-700 hover:bg-blue-100 dark:border-blue-500/40 dark:bg-blue-500/10 dark:text-blue-300"
+                  } px-2 py-1 text-[10px] font-semibold transition" title="Tải tệp PDF/Excel/JSON cho mục này">
+                    <span>${itemFile ? "📎 Đổi file" : "⬆ Tải file"}</span>
+                    <input id="${inputId}" type="file" accept="${grp.accept}" multiple class="hidden" onchange="handleSlotFileUpload('${it.key}', '${esc(it.label)}', this.files)" />
+                  </label>
+                  <button type="button" onclick="switchView('${grp.targetView}')" class="rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-[10px] font-semibold text-slate-600 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                    ${ok ? "Sửa" : "Nhập"}
+                  </button>
+                </div>
+              </div>
+              ${
+                itemFile
+                  ? `<div class="pl-6 font-mono-code text-[10px] text-emerald-700 dark:text-emerald-300 truncate">✓ Tệp đã nạp: ${esc(itemFile)}</div>`
+                  : ""
+              }
+            </div>
+          `;
+        }).join("");
+
+        const grpInputId = `grp-file-${grp.id}`;
+        return `
+          <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 flex flex-col justify-between space-y-3">
+            <div>
+              <div class="flex items-start justify-between gap-2 pb-2.5 border-b border-slate-100 dark:border-slate-800">
+                <div>
+                  <div class="text-xs font-bold text-slate-900 dark:text-white">
+                    ${esc(grp.title)}
+                  </div>
+                  <div class="mt-0.5 text-[10px] text-slate-400">
+                    ${esc(grp.docHint)}
+                  </div>
+                </div>
+                <label for="${grpInputId}" class="shrink-0 cursor-pointer rounded-xl border border-dashed border-slate-300 bg-slate-50 px-2.5 py-1.5 text-[10px] font-bold text-slate-700 hover:border-blue-500 hover:bg-blue-50/60 hover:text-blue-700 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300" title="Tải trọn bộ tệp cho cả nhóm này">
+                  <span>📂 Nạp cả nhóm</span>
+                  <input id="${grpInputId}" type="file" accept="${grp.accept}" multiple class="hidden" onchange="handleSlotFileUpload('${grp.id}', '${esc(grp.title)}', this.files)" />
+                </label>
+              </div>
+              ${
+                grpFile
+                  ? `<div class="mt-2 rounded-lg bg-emerald-50/80 px-2.5 py-1 font-mono-code text-[10px] text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-300 truncate">✓ Hồ sơ nhóm: ${esc(grpFile)}</div>`
+                  : ""
+              }
+              <div class="divide-y divide-slate-100 dark:divide-slate-800/70 mt-1">
+                ${rows}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      document.getElementById("intake-checklist-grid").innerHTML = html;
+
+      const pct = Math.round((passedItems / totalItems) * 100);
+      document.getElementById("intake-score-big").textContent = `${pct}%`;
+      document.getElementById("intake-count-label").textContent = `${passedItems}/${totalItems} chỉ tiêu cốt lõi đã sẵn sàng`;
+      document.getElementById("nav-readiness-badge").textContent = `${pct}%`;
+      document.getElementById("pill-0").textContent = `${pct}%`;
+
+      const bar = document.getElementById("intake-progress-bar");
+      bar.style.width = `${pct}%`;
+
+      const gate = document.getElementById("intake-gate-status");
+      if (pct === 100) {
+        bar.className = "h-full rounded-full bg-emerald-500 transition-all duration-300";
+        gate.className = "font-semibold text-emerald-700 dark:text-emerald-300";
+        gate.textContent = "✓ Đủ 100% dữ liệu tiêu chuẩn để khởi chạy chuỗi 4 AI Agent.";
+      } else if (pct >= 70) {
+        bar.className = "h-full rounded-full bg-blue-600 transition-all duration-300";
+        gate.className = "font-semibold text-blue-700 dark:text-blue-300";
+        gate.textContent = `⚠ Đạt ${pct}% dữ liệu — Có thể khởi chạy ngay hoặc tải file bổ sung ở các mục đánh dấu (!).`;
+      } else {
+        bar.className = "h-full rounded-full bg-amber-500 transition-all duration-300";
+        gate.className = "font-semibold text-amber-700 dark:text-amber-300";
+        gate.textContent = `⚠ Mới đạt ${pct}% dữ liệu — Vui lòng tải file BCTC theo từng mục checklist bên dưới.`;
+      }
+      return pct;
+    }
+
+    function updateLiveCalculations() {
+      const d = getInputs();
+      document.getElementById("header-company-title").textContent = d.companyName;
+      updateIntakeChecklist(d);
+
+      const warns = [];
+      if (d.tDays < 1 || d.tDays > 365) warns.push("Số ngày kỳ lũy kế T_ngày phải nằm trong khoảng 1–365.");
+      if (d.debtService <= 0) warns.push("Nghĩa vụ trả nợ gốc + lãi bằng 0 sẽ khiến DSCR không xác định (N/A).");
+      if ([d.ewsTc, d.ewsVld, d.ewsQltn, d.ewsVtsb].some((s) => s < 0 || s > 10)) {
+        warns.push("Điểm thành phần EWS phải thuộc thang 0 đến 10.");
+      }
+
+      const alertBox = document.getElementById("alert-validation");
+      if (warns.length) {
+        document.getElementById("alert-validation-list").innerHTML = warns.map((w) => `<li>${esc(w)}</li>`).join("");
+        alertBox.classList.remove("hidden");
+      } else {
+        alertBox.classList.add("hidden");
+      }
+
+      const arTreo = d.hasNotes ? d.arTreo : 0;
+      const invUDong = d.hasNotes ? d.invUDong : 0;
+      const apTreo = d.hasNotes ? d.apTreo : 0;
+      const apCapEx = d.hasNotes ? d.apCapEx : 0;
+
+      const arClean = Math.max(0, d.arGop - Math.max(arTreo, d.dpNoXau));
+      const invClean = Math.max(0, d.invGop - Math.max(invUDong, d.dpGiamGia));
+      const apClean = Math.max(0, d.tong331 - apTreo - apCapEx);
+      const nwcCurr = (invClean + arClean + d.tsnhKhac) - (apClean + d.noKhac);
+
+      document.getElementById("live-ar").textContent = `${fmt(arClean)} tỷ`;
+      document.getElementById("live-inv").textContent = `${fmt(invClean)} tỷ`;
+      document.getElementById("live-ap").textContent = `${fmt(apClean)} tỷ`;
+      document.getElementById("live-nwcop-curr").textContent = `${fmt(nwcCurr)} tỷ`;
+    }
+
+    function setFormValues(d, badgeText) {
+      document.getElementById("badge-scenario").textContent = badgeText || d.label || "Hồ sơ tùy chỉnh";
+      document.getElementById("inp-company").value = d.companyName;
+      document.getElementById("inp-industry").value = d.industry;
+      document.getElementById("inp-tdays").value = d.tDays;
+      document.getElementById("inp-hmtd-req").value = d.hmtdReq;
+      document.getElementById("inp-stress-rate").value = (d.stressRate * 100).toFixed(1);
+      document.getElementById("inp-nwcop-avg").value = d.nwcOpAvg;
+      document.getElementById("inp-ismfg").checked = d.isMfg;
+      document.getElementById("inp-breakdown").checked = d.hasBreakdown;
+      document.getElementById("inp-notes").checked = d.hasNotes;
+      document.getElementById("inp-ar-gop").value = d.arGop;
+      document.getElementById("inp-ar-treo").value = d.arTreo;
+      document.getElementById("inp-dp-noxau").value = d.dpNoXau;
+      document.getElementById("inp-inv-gop").value = d.invGop;
+      document.getElementById("inp-inv-udong").value = d.invUDong;
+      document.getElementById("inp-dp-giamgia").value = d.dpGiamGia;
+      document.getElementById("inp-tong-331").value = d.tong331;
+      document.getElementById("inp-ap-treo").value = d.apTreo;
+      document.getElementById("inp-ap-capex").value = d.apCapEx;
+      document.getElementById("inp-tsnh-khac").value = d.tsnhKhac;
+      document.getElementById("inp-no-khac").value = d.noKhac;
+      document.getElementById("inp-dtt-ytd").value = d.dttYtd;
+      document.getElementById("inp-cogs-ytd").value = d.cogsYtd;
+      document.getElementById("inp-dtt-plan").value = d.dttPlan;
+      document.getElementById("inp-lntt").value = d.lntt;
+      document.getElementById("inp-da").value = d.da;
+      document.getElementById("inp-int-exp").value = d.intExp;
+      document.getElementById("inp-tax-paid").value = d.taxPaid;
+      document.getElementById("inp-delta-nwcop").value = d.deltaNwcOp;
+      document.getElementById("inp-int-paid").value = d.intPaid;
+      document.getElementById("inp-ms20").value = d.ms20;
+      document.getElementById("inp-other-debt").value = d.otherDebt;
+      document.getElementById("inp-debt-service").value = d.debtService;
+      document.getElementById("inp-cash-112").value = d.cash112;
+      document.getElementById("inp-dt-vat").value = d.dtVat;
+      document.getElementById("inp-icf").value = d.icfVal ?? 0;
+      document.getElementById("inp-opex-t1").value = d.opexT1 ?? 0;
+      document.getElementById("inp-cogs-nonmat").value = d.cogsNonMat ?? 0;
+      document.getElementById("inp-delta-inv").value = d.deltaInv ?? 0;
+      document.getElementById("inp-ews-tc").value = d.ewsTc;
+      document.getElementById("inp-ews-vld").value = d.ewsVld;
+      document.getElementById("inp-ews-qltn").value = d.ewsQltn;
+      document.getElementById("inp-ews-vtsb").value = d.ewsVtsb;
+      document.getElementById("inp-knockout").checked = d.knockOut;
+
+      updateLiveCalculations();
+    }
+
+    function resetAgents() {
+      state.step = 0;
+      state.a1 = null;
+      state.a2 = null;
+      state.a3 = null;
+      state.a4 = null;
+      state.markdown = "";
+      for (let i = 1; i <= 4; i++) {
+        const pill = document.getElementById(`pill-${i}`);
+        pill.textContent = "Chờ";
+        pill.className = "font-mono-code text-[11px] font-semibold text-slate-400";
+      }
+      document.getElementById("badge-progress").textContent = "0/4 Agent hoàn tất";
+    }
+
+    function executeAgent1() {
+      const d = getInputs();
+      const tSafe = Math.max(1, Math.min(365, d.tDays || 270));
+      const missing = [];
+      if (!d.hasNotes) missing.push("Thuyết minh bóc tách nợ treo / tồn kho ứ đọng / CapEx");
+      if (d.isMfg && !d.hasBreakdown) missing.push("Thuyết minh bóc tách Khấu hao & Nhân công trong COGS (TK 622/632)");
+
+      state.a1 = {
+        agent: "Agent 1 – Tổng hợp & Bóc tách Dữ liệu (TT200)",
+        company: { name: d.companyName, industry: d.industry, is_mfg: d.isMfg, hmtd_req: d.hmtdReq },
+        period: { t_days_ytd: tSafe, ann_factor: Number((365 / tSafe).toFixed(6)) },
+        raw: {
+          ar_gop: d.arGop,
+          ar_treo: d.hasNotes ? d.arTreo : 0,
+          dp_noxau: d.dpNoXau,
+          inv_gop: d.invGop,
+          inv_udong: d.hasNotes ? d.invUDong : 0,
+          dp_giamgia: d.dpGiamGia,
+          tong_331: d.tong331,
+          ap_treo: d.hasNotes ? d.apTreo : 0,
+          ap_capex: d.hasNotes ? d.apCapEx : 0,
+          tsnh_khac: d.tsnhKhac,
+          no_khac: d.noKhac,
+          nwc_op_avg: d.nwcOpAvg,
+          dtt_ytd: d.dttYtd,
+          cogs_ytd: d.cogsYtd,
+          dtt_plan: d.dttPlan,
+          lntt: d.lntt,
+          da: d.da,
+          int_exp: d.intExp,
+          tax_paid: d.taxPaid,
+          delta_nwcop: d.deltaNwcOp,
+          int_paid: d.intPaid,
+          ms_20: d.ms20,
+          other_debt: d.otherDebt,
+          debt_service: d.debtService,
+          cash_112: d.cash112,
+          dt_vat: d.dtVat,
+          var_icf: d.icfVal,
+          opex_t1: d.opexT1,
+          cogs_nonmat: d.cogsNonMat,
+          delta_inv: d.deltaInv
+        },
+        uploaded_documents: state.uploadedDocs,
+        missing_notes: missing
+      };
+      state.step = Math.max(state.step, 1);
+      const p1 = document.getElementById("pill-1");
+      p1.textContent = "Xong";
+      p1.className = "font-mono-code text-[11px] font-bold text-indigo-600 dark:text-indigo-400";
+      document.getElementById("badge-progress").textContent = `${state.step}/4 Agent hoàn tất`;
+      logEvent(`Agent 1 bóc tách xong dữ liệu TT200 cho ${d.companyName}.`);
+      renderOutputs();
+    }
+
+    function executeAgent2() {
+      if (!state.a1) executeAgent1();
+      const r = state.a1.raw;
+      const tDays = state.a1.period.t_days_ytd;
+      const d = getInputs();
+      const flags = [];
+
+      if (!d.hasNotes) flags.push("[CẢNH BÁO THIẾU THUYẾT MINH BÓC TÁCH] Gán khoản loại trừ = 0.");
+
+      const arClean = Math.max(0, r.ar_gop - Math.max(r.ar_treo, r.dp_noxau));
+      const invClean = Math.max(0, r.inv_gop - Math.max(r.inv_udong, r.dp_giamgia));
+      const apClean = Math.max(0, r.tong_331 - r.ap_treo - r.ap_capex);
+      const nwcCurr = (invClean + arClean + r.tsnh_khac) - (apClean + r.no_khac);
+
+      const dttAnnExact = r.dtt_ytd * (365 / tDays);
+      const cogsAnnExact = r.cogs_ytd * (365 / tDays);
+
+      const dioVal = safeDiv(invClean, r.cogs_ytd) !== null ? Number(((invClean / r.cogs_ytd) * tDays).toFixed(1)) : "N/A";
+      const dsoVal = safeDiv(arClean, r.dtt_ytd) !== null ? Number(((arClean / r.dtt_ytd) * tDays).toFixed(1)) : "N/A";
+
+      const dpoFallback = !(d.isMfg && d.hasBreakdown);
+      let purchasesYtd = r.cogs_ytd;
+      if (!dpoFallback) {
+        const calcPurch = r.cogs_ytd + r.delta_inv - r.cogs_nonmat;
+        purchasesYtd = calcPurch > 0 ? calcPurch : r.cogs_ytd;
+      } else {
+        flags.push("[DPO_FALLBACK_USED = True] Dùng COGS thay Purchases do thiếu thuyết minh bóc tách giá vốn.");
+      }
+
+      const dpoVal = safeDiv(apClean, purchasesYtd) !== null ? Number(((apClean / purchasesYtd) * tDays).toFixed(1)) : "N/A";
+      const cccVal = (typeof dioVal === "number" && typeof dsoVal === "number" && typeof dpoVal === "number")
+        ? Number((dioVal + dsoVal - dpoVal).toFixed(1))
+        : "N/A";
+
+      const cashRatioRaw = safeDiv(r.cash_112, r.dt_vat);
+      const cashRatioPct = cashRatioRaw !== null ? Number((cashRatioRaw * 100).toFixed(1)) : null;
+      if (cashRatioPct !== null && cashRatioPct < 70) {
+        flags.push(`[RED_FLAG] Tỷ lệ tiền về TK 112 / DT_VAT = ${cashRatioPct.toFixed(1)}% (< 70%).`);
+      }
+
+      const revGrowthPct = dttAnnExact > 0 ? Number((((r.dtt_plan - dttAnnExact) / dttAnnExact) * 100).toFixed(1)) : 0;
+      if (revGrowthPct > 15) {
+        flags.push(`[Cảnh báo] Kế hoạch DTT năm T+1 tăng ${revGrowthPct.toFixed(1)}% (> 15%) so với DTT quy năm kỳ T.`);
+      }
+
+      state.a2 = {
+        agent: "Agent 2 – Rà soát, Lọc nhiễu & Chuẩn hóa",
+        clean: {
+          VAR_AR_CLEAN: Number(arClean.toFixed(2)),
+          VAR_INV_CLEAN: Number(invClean.toFixed(2)),
+          VAR_AP_CLEAN: Number(apClean.toFixed(2)),
+          NWC_OP_CURR: Number(nwcCurr.toFixed(2)),
+          VAR_NWCOP_AVG: Number(r.nwc_op_avg.toFixed(2))
+        },
+        annualized: {
+          dtt_ann: Number(dttAnnExact.toFixed(2)),
+          cogs_ann: Number(cogsAnnExact.toFixed(2))
+        },
+        cycle: {
+          DIO: dioVal,
+          DSO: dsoVal,
+          DPO: dpoVal,
+          CCC: cccVal,
+          purchases_ytd: Number(purchasesYtd.toFixed(2))
+        },
+        rev_growth_pct: revGrowthPct,
+        dpo_fallback: dpoFallback,
+        cash_ratio_pct: cashRatioPct,
+        flags
+      };
+      state.step = Math.max(state.step, 2);
+      const p2 = document.getElementById("pill-2");
+      p2.textContent = "Xong";
+      p2.className = "font-mono-code text-[11px] font-bold text-cyan-600 dark:text-cyan-400";
+      document.getElementById("badge-progress").textContent = `${state.step}/4 Agent hoàn tất`;
+      logEvent(`Agent 2 chuẩn hóa xong: CCC=${fmt(cccVal, 1)}d (DIO=${fmt(dioVal, 1)}, DSO=${fmt(dsoVal, 1)}, DPO=${fmt(dpoVal, 1)}), DTT quy năm=${fmt(dttAnnExact)} tỷ.`);
+      renderOutputs();
+    }
+
+    function diagnoseScenarioKB(r, c, a2, varOcf) {
+      const ccc = a2.cycle.CCC;
+      const icfOutflow = Math.abs(Math.min(0, r.var_icf));
+
+      if (varOcf > 0 && icfOutflow > Math.max(varOcf * 1.2, 25)) {
+        return {
+          code: "KB5",
+          name: "KB5: Đảo Vốn Sai Kỳ Hạn",
+          desc: `Cốt lõi HĐKD tạo tiền (OCF = ${fmt(varOcf)} tỷ), nhưng dòng tiền đầu tư/CapEx chi ra ${fmt(icfOutflow)} tỷ vượt khả năng tự tài trợ, nguy cơ dùng vốn ngắn hạn tài trợ tài sản dài hạn.`,
+          action: "Khuyến nghị: Không dùng HMTD ngắn hạn tài trợ đầu tư dài hạn; yêu cầu bổ sung VCSH/TSBĐ độc lập hoặc chuyển sang vay trung dài hạn."
+        };
+      }
+      if (r.lntt < 0 && varOcf < 0) {
+        return {
+          code: "KB4",
+          name: "KB4: Khủng hoảng Thanh khoản",
+          desc: `Hoạt động kinh doanh thua lỗ (LNTT = ${fmt(r.lntt)} tỷ) và dòng tiền kinh doanh âm sâu (OCF = ${fmt(varOcf)} tỷ), thu không đủ bù chi.`,
+          action: "Khuyến nghị: Ngừng cấp mới / Cơ cấu nợ; phong tỏa nguồn thu và kiểm soát chặt TSBĐ."
+        };
+      }
+      if (r.lntt > 0 && varOcf < 0) {
+        return {
+          code: "KB2",
+          name: "KB2: Tăng trưởng Nóng (Bẫy Nợ & Kho)",
+          desc: `Doanh nghiệp có lãi kế toán (LNTT = ${fmt(r.lntt)} tỷ) nhưng OCF âm (${fmt(varOcf)} tỷ) do biến động ΔNWC_op = +${fmt(r.delta_nwcop)} tỷ hút cạn tiền mặt (CCC = ${fmt(ccc, 1)} ngày).`,
+          action: "Khuyến nghị: Kiểm soát chặt giải ngân theo hóa đơn đã thu; loại nợ quá hạn/hàng chậm luân chuyển khỏi cơ sở tính VLĐ."
+        };
+      }
+      if (varOcf > 0 && r.dtt_plan < a2.annualized.dtt_ann * 0.92) {
+        return {
+          code: "KB3",
+          name: "KB3: Thu hẹp Quy mô – Xả Kho",
+          desc: `OCF dương (${fmt(varOcf)} tỷ) chủ yếu do thu hồi vốn lưu động cũ trong khi quy mô doanh thu có xu hướng thu hẹp.`,
+          action: "Khuyến nghị: Giảm dần hạn mức tương ứng quy mô doanh thu thực tế; giám sát tiến độ trả nợ gốc."
+        };
+      }
+      return {
+        code: "KB1",
+        name: "KB1: Tăng trưởng Bền vững",
+        desc: `Chu trình Tiền (A) → Hàng (B) → Tiền (C) vận hành nhịp nhàng (CCC = ${fmt(ccc, 1)} ngày), OCF dương (${fmt(varOcf)} tỷ) đồng pha với lợi nhuận.`,
+        action: "Khuyến nghị: Đủ cơ sở cấp/duy trì hạn mức theo dự phóng VLĐ vận hành chuẩn hóa."
+      };
+    }
+
+    function executeAgent3() {
+      if (!state.a2) executeAgent2();
+      const r = state.a1.raw;
+      const c = state.a2.clean;
+      const ann = state.a2.annualized;
+      const d = getInputs();
+
+      const varOcf = r.lntt + r.da + r.int_exp - r.tax_paid - r.delta_nwcop - r.int_paid;
+      const ms20DiffRatio = Math.abs(varOcf - r.ms_20) / Math.max(Math.abs(r.ms_20), 1.0);
+      const ms20DiffPct = Number((ms20DiffRatio * 100).toFixed(1));
+      const ms20Flag = ms20DiffRatio > 0.05;
+
+      const dscrRaw = safeDiv(varOcf, r.debt_service);
+      const varDscr = dscrRaw !== null ? Number(dscrRaw.toFixed(2)) : "N/A";
+
+      let vqVld = "N/A";
+      let nhuCau = "N/A";
+      let dk1 = "N/A";
+      let dk2 = "N/A";
+      let hmtdMax = "N/A";
+      let tradLimit = "N/A";
+      let stressRows = [];
+
+      if (c.VAR_NWCOP_AVG > 0) {
+        const vqRaw = safeDiv(ann.dtt_ann, c.VAR_NWCOP_AVG);
+        vqVld = vqRaw !== null ? Number(vqRaw.toFixed(2)) : "N/A";
+
+        if (typeof vqVld === "number" && vqVld > 0) {
+          const nc = r.dtt_plan / vqVld;
+          nhuCau = Number(nc.toFixed(2));
+          const vtc30 = Number((0.30 * nhuCau).toFixed(2));
+          const d1 = Number((0.70 * nhuCau).toFixed(2));
+          const d2 = Number(Math.max(0, nhuCau - vtc30 - r.other_debt).toFixed(2));
+          dk1 = d1;
+          dk2 = d2;
+          hmtdMax = Number(Math.max(0, Math.min(d1, d2)).toFixed(2));
+
+          const cogsPlanEst = r.dtt_ytd > 0 ? r.dtt_plan * (r.cogs_ytd / r.dtt_ytd) : ann.cogs_ann;
+          const daAnn = r.da * (365 / state.a1.period.t_days_ytd);
+          const cashCostT1 = Math.max(0, cogsPlanEst + r.opex_t1 - daAnn);
+          const tradWcNeed = cashCostT1 / vqVld;
+          const tradVal = Math.max(0, tradWcNeed - vtc30 - r.other_debt);
+          tradLimit = Number(tradVal.toFixed(2));
+
+          const defs = [
+            { code: "ST1", label: "DSO kéo dài +15 ngày", min: 1.10, sf: (ann.dtt_ann / 365) * 15 },
+            { code: "ST2", label: "Vòng quay VLĐ giảm 15%", min: 1.10, sf: Math.max(0, r.dtt_plan / (vqVld * 0.85) - c.VAR_NWCOP_AVG) },
+            { code: "ST3", label: "DSO kéo dài +30 ngày", min: 1.05, sf: (ann.dtt_ann / 365) * 30 },
+            { code: "ST4", label: "DSO +15d & DIO +15d", min: 1.00, sf: (ann.dtt_ann / 365) * 15 + (ann.cogs_ann / 365) * 15 }
+          ];
+
+          stressRows = defs.map((item) => {
+            const sfClean = Number(Math.max(0, item.sf).toFixed(2));
+            const deltaI = Number((sfClean * d.stressRate).toFixed(2));
+            const ds = safeDiv(varOcf - deltaI, r.debt_service + deltaI);
+            const dsVal = ds !== null ? Number(ds.toFixed(2)) : null;
+            return {
+              code: item.code,
+              label: item.label,
+              shortfall: sfClean,
+              deltaI: deltaI,
+              dscrStress: dsVal,
+              minDscr: item.min,
+              ok: dsVal !== null && dsVal >= item.min
+            };
+          });
+        }
+      }
+
+      const kb = diagnoseScenarioKB(r, c, state.a2, varOcf);
+
+      const w1 = Number((d.ewsTc * 0.30).toFixed(2));
+      const w2 = Number((d.ewsVld * 0.20).toFixed(2));
+      const w3 = Number((d.ewsQltn * 0.25).toFixed(2));
+      const w4 = Number((d.ewsVtsb * 0.25).toFixed(2));
+      const totalEws = Number((w1 + w2 + w3 + w4).toFixed(2));
+
+      let rank = "Hạng C";
+      let proposal = "HẠN CHẾ / CƠ CẤU LẠI";
+      if (d.knockOut || totalEws < 5.0) {
+        rank = "Hạng D";
+        proposal = "TỪ CHỐI CẤP TÍN DỤNG";
+      } else if (totalEws >= 8.0) {
+        rank = "Hạng A";
+        proposal = "PHÊ DUYỆT";
+      } else if (totalEws >= 6.5) {
+        rank = "Hạng B";
+        proposal = "PHÊ DUYỆT CÓ ĐIỀU KIỆN";
+      }
+
+      const proposedLimit =
+        typeof hmtdMax === "number" && !d.knockOut && totalEws >= 5.0
+          ? Number(Math.min(r.hmtd_req || hmtdMax, hmtdMax).toFixed(2))
+          : 0.0;
+
+      state.a3 = {
+        agent: "Agent 3 – Chuyên gia Thẩm định Tín dụng",
+        ocf: Number(varOcf.toFixed(2)),
+        ms20_diff_pct: ms20DiffPct,
+        ms20_flag: ms20Flag,
+        dscr: varDscr,
+        vq_vld: vqVld,
+        nhu_cau_t1: nhuCau,
+        dk1,
+        dk2,
+        hmtd_max: hmtdMax,
+        trad_limit: tradLimit,
+        proposed_limit: proposedLimit,
+        kb,
+        stress: stressRows,
+        ews: {
+          knock_out: d.knockOut,
+          rows: [
+            { name: "1. Sức khỏe TC & Dòng tiền", weight: 0.30, raw: d.ewsTc, conv: w1 },
+            { name: "2. Quản trị Vốn lưu động", weight: 0.20, raw: d.ewsVld, conv: w2 },
+            { name: "3. Quản trị & Uy tín Chủ DN", weight: 0.25, raw: d.ewsQltn, conv: w3 },
+            { name: "4. Vị thế Ngành & TSBĐ", weight: 0.25, raw: d.ewsVtsb, conv: w4 }
+          ],
+          total: totalEws,
+          rank,
+          proposal
+        }
+      };
+
+      state.step = Math.max(state.step, 3);
+      const p3 = document.getElementById("pill-3");
+      p3.textContent = "Xong";
+      p3.className = "font-mono-code text-[11px] font-bold text-emerald-600 dark:text-emerald-400";
+      document.getElementById("badge-progress").textContent = `${state.step}/4 Agent hoàn tất`;
+      logEvent(`Agent 3 tính toán xong: Kịch bản ${kb.code}, OCF=${fmt(varOcf)} tỷ, DSCR=${fmt(varDscr)}x, HMTD_MAX=${fmt(hmtdMax)} tỷ.`);
+      renderOutputs();
+    }
+
+    function executeAgent4() {
+      if (!state.a3) executeAgent3();
+      const a1 = state.a1;
+      const a2 = state.a2;
+      const a3 = state.a3;
+      const d = getInputs();
+
+      const objections = [...a2.flags];
+      const covenants = [];
+
+      if (d.knockOut) objections.push("Vi phạm Knock-out -> Bắt buộc từ chối cấp tín dụng.");
+      if (a3.ms20_flag) objections.push(`[RED_FLAG] Độ lệch VAR_OCF so với MS_20 là ${a3.ms20_diff_pct}% (> 5%).`);
+      if (typeof a3.hmtd_max !== "number") objections.push("NWC_op_avg ≤ 0: Không áp dụng trần hạn mức theo vòng quay (chuyển sang thẩm định theo hợp đồng/DSCR).");
+      if (a3.kb.code === "KB5") objections.push("Phát hiện dấu hiệu KB5 (Đảo vốn sai kỳ hạn) từ dòng tiền đầu tư/CapEx.");
+      if (a3.kb.code === "KB2") objections.push("Phát hiện dấu hiệu KB2 (Tăng trưởng nóng – OCF âm do ΔNWC_op tăng mạnh).");
+
+      const failedStress = a3.stress.filter((s) => !s.ok);
+      if (failedStress.length > 0) {
+        objections.push(`DSCR Stress dưới ngưỡng tại: ${failedStress.map((s) => s.code).join(", ")}.`);
+      }
+
+      if (a2.cash_ratio_pct !== null && a2.cash_ratio_pct < 70) {
+        covenants.push("Phong tỏa/quản lý tối thiểu 80% dòng tiền thu về qua TK chuyên thu tại Ngân hàng.");
+      } else {
+        covenants.push("Duy trì tỷ lệ luân chuyển doanh thu qua tài khoản thanh toán tương ứng tỷ trọng tài trợ.");
+      }
+      covenants.push("Nghiêm cấm dùng vốn vay ngắn hạn tài trợ TSCĐ, XDCB hoặc đầu tư ngoài ngành (chống KB5).");
+
+      let decision = a3.ews.proposal;
+      let approved = a3.proposed_limit;
+
+      if (d.knockOut || a3.ews.total < 5.0 || a3.kb.code === "KB4") {
+        decision = "TỪ CHỐI CẤP TÍN DỤNG";
+        approved = 0.0;
+      } else if (a3.kb.code === "KB5") {
+        decision = "TỪ CHỐI GIA HẠN / YÊU CẦU BỔ SUNG TSBĐ ĐỘC LẬP 100% (KB5)";
+        approved = 0.0;
+        covenants.push("Yêu cầu thoái vốn đầu tư ngoài ngành hoặc bổ sung TSBĐ độc lập 100% trước khi xem xét lại.");
+      } else if (a3.ews.rank === "Hạng C") {
+        decision = "HẠN CHẾ / CƠ CẤU LẠI (HẠNG C – CẮT GIẢM 25%)";
+        approved = typeof approved === "number" ? Number((approved * 0.75).toFixed(2)) : 0.0;
+        covenants.push("Bổ sung TSBĐ độc lập (BĐS) với tỷ lệ LTV ≤ 60% và giải ngân từng lần kiểm soát chứng từ chặt chẽ.");
+      } else if (failedStress.length > 0 && typeof a3.hmtd_max === "number") {
+        decision = "PHÊ DUYỆT CÓ ĐIỀU KIỆN (CẮT GIẢM 15% DO STRESS TEST)";
+        approved = Number((approved * 0.85).toFixed(2));
+        covenants.push("Thiết lập chốt chặn kiểm soát tuổi nợ phải thu (< 60 ngày) và tốc độ xả tồn kho định kỳ hàng quý.");
+      }
+
+      state.a4 = {
+        agent: "Agent 4 – Chuyên gia Phê duyệt Độc lập",
+        decision,
+        approved_limit: approved,
+        objections,
+        covenants
+      };
+
+      state.markdown = buildMarkdown(a1, a2, a3, state.a4);
+      state.step = 4;
+      const p4 = document.getElementById("pill-4");
+      p4.textContent = "Xong";
+      p4.className = "font-mono-code text-[11px] font-bold text-amber-600 dark:text-amber-400";
+      document.getElementById("badge-progress").textContent = "4/4 Agent hoàn tất";
+      logEvent(`Agent 4 ban hành Nghị quyết: ${decision} (${fmt(approved)} tỷ).`);
+      renderOutputs();
+    }
+
+    function runFullPipeline() {
+      executeAgent1();
+      executeAgent2();
+      executeAgent3();
+      executeAgent4();
+      renderCharts();
+      notify("Đã hoàn tất toàn bộ quy trình 4 AI Agent chuẩn v7.2!");
+    }
+
+    function runStepPipeline() {
+      if (state.step === 0) executeAgent1();
+      else if (state.step === 1) executeAgent2();
+      else if (state.step === 2) executeAgent3();
+      else if (state.step === 3) {
+        executeAgent4();
+        renderCharts();
+      } else {
+        notify("Cả 4 Agent đã hoàn tất. Bạn có thể thay đổi số liệu để chạy lại.", "warn");
+      }
+    }
+
+    function buildMarkdown(a1, a2, a3, a4) {
+      const stressText = a3.stress.length
+        ? a3.stress.map((s) => `- **${s.code}** (${s.label}): Thiếu hụt ${fmt(s.shortfall)} tỷ | ΔI = ${fmt(s.deltaI)} tỷ | DSCR Stress = ${s.dscrStress !== null ? fmt(s.dscrStress) + "x" : "N/A"} (Ngưỡng ≥ ${fmt(s.minDscr)}x)`).join("\n")
+        : "- Không tính Stress Test vòng quay do NWC_op_avg ≤ 0.";
+
+      return [
+        `# TỜ TRÌNH THẨM ĐỊNH & NGHỊ QUYẾT TÍN DỤNG (AI-READY MASTER v7.2)`,
+        `**Khách hàng:** ${a1.company.name} | **Ngành:** ${a1.company.industry} | **Kỳ:** T_ngày = ${a1.period.t_days_ytd}`,
+        ``,
+        `## 1. Tóm tắt Kết quả 12 Mục Thẩm định (Agent 3)`,
+        `1. **Hồ sơ & Pháp lý:** HMTD đề xuất ${fmt(a1.company.hmtd_req)} tỷ; thiếu thuyết minh: ${a1.missing_notes.length ? a1.missing_notes.join("; ") : "Không"}.`,
+        `2. **Dư nợ & Nghĩa vụ trả nợ:** Dư nợ TCTD khác ${fmt(a1.raw.other_debt)} tỷ; Gốc + lãi đến hạn ${fmt(a1.raw.debt_service)} tỷ.`,
+        `3. **Lọc nhiễu VLĐ (TT200):** AR_CLEAN = ${fmt(a2.clean.VAR_AR_CLEAN)} tỷ; INV_CLEAN = ${fmt(a2.clean.VAR_INV_CLEAN)} tỷ; AP_CLEAN = ${fmt(a2.clean.VAR_AP_CLEAN)} tỷ.`,
+        `4. **NWC_op, Chu kỳ CCC, OCF & DSCR:** NWC_op_avg = ${fmt(a2.clean.VAR_NWCOP_AVG)} tỷ; DIO = ${fmt(a2.cycle.DIO, 1)}d, DSO = ${fmt(a2.cycle.DSO, 1)}d, DPO = ${fmt(a2.cycle.DPO, 1)}d → **CCC = ${fmt(a2.cycle.CCC, 1)} ngày**; VAR_OCF = ${fmt(a3.ocf)} tỷ (Lệch MS_20 = ${fmt(a3.ms20_diff_pct, 1)}%); DSCR = ${fmt(a3.dscr)}x.`,
+        `5. **Đối soát Tiền về:** Tiền về TK 112 / DT_VAT = ${a2.cash_ratio_pct !== null ? fmt(a2.cash_ratio_pct, 1) + "%" : "N/A"}.`,
+        `6. **Chuỗi cung ứng & Khách hàng:** Đánh giá theo đặc thù ngành ${a1.company.industry}.`,
+        `7. **Trần HMTD & Stress Test:** VQ_VLD = ${fmt(a3.vq_vld)} vòng/năm; Nhu cầu T+1 = ${fmt(a3.nhu_cau_t1)} tỷ; ĐK1 = ${fmt(a3.dk1)} tỷ; ĐK2 = ${fmt(a3.dk2)} tỷ; **VAR_HMTD_MAX = ${fmt(a3.hmtd_max)} tỷ** (Đối chiếu truyền thống: ${fmt(a3.trad_limit)} tỷ).`,
+        stressText,
+        `8. **Chẩn đoán Kịch bản Vận hành:** **${a3.kb.name}** — ${a3.kb.desc}`,
+        `9–10. **Định tính & Thực địa:** DPO_FALLBACK_USED = ${a2.dpo_fallback}; kiểm tra vật lý tồn kho, công nợ và dòng tiền chuyên thu.`,
+        `11–12. **Điểm EWS & Đề xuất:** **${fmt(a3.ews.total)} / 10 (${a3.ews.rank})** — ${a3.ews.proposal}.`,
+        ``,
+        `## 2. Nghị quyết Phê duyệt Độc lập (Agent 4)`,
+        `- **Phán quyết cuối cùng:** **${a4.decision}**`,
+        `- **Hạn mức phê duyệt:** **${fmt(a4.approved_limit)} tỷ đồng**`,
+        `- **Điểm phản biện:** ${a4.objections.length ? a4.objections.join(" | ") : "Không có."}`,
+        `- **Điều kiện cấp tín dụng:** ${a4.covenants.join(" | ")}`
+      ].join("\n");
+    }
+
+    function renderCharts() {
+      if (!window.Chart || !state.a1 || !state.a2 || !state.a3) return;
+      const r = state.a1.raw;
+      const c = state.a2.clean;
+      const a3 = state.a3;
+      const a4 = state.a4;
+
+      const ctxNwc = document.getElementById("chart-nwc");
+      if (ctxNwc) {
+        if (state.charts.nwc) state.charts.nwc.destroy();
+        state.charts.nwc = new Chart(ctxNwc, {
+          type: "bar",
+          data: {
+            labels: ["Phải thu (131)", "Hàng tồn kho (141)", "Phải trả NCC (311)"],
+            datasets: [
+              {
+                label: "Số dư Gộp",
+                data: [r.ar_gop, r.inv_gop, r.tong_331],
+                backgroundColor: "rgba(148, 163, 184, 0.55)",
+                borderRadius: 6
+              },
+              {
+                label: "Giá trị Sạch (TT200)",
+                data: [c.VAR_AR_CLEAN, c.VAR_INV_CLEAN, c.VAR_AP_CLEAN],
+                backgroundColor: "rgba(37, 99, 235, 0.85)",
+                borderRadius: 6
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: "bottom", labels: { boxWidth: 12, font: { size: 11 } } } },
+            scales: { y: { beginAtZero: true } }
+          }
+        });
+      }
+
+      const ctxLimit = document.getElementById("chart-limit");
+      if (ctxLimit) {
+        if (state.charts.limit) state.charts.limit.destroy();
+        state.charts.limit = new Chart(ctxLimit, {
+          type: "bar",
+          data: {
+            labels: ["KH Đề xuất", "Trần HMTD_MAX", "Đối chiếu TT", "Agent 4 Duyệt"],
+            datasets: [
+              {
+                label: "Tỷ đồng",
+                data: [
+                  r.hmtd_req,
+                  typeof a3.hmtd_max === "number" ? a3.hmtd_max : 0,
+                  typeof a3.trad_limit === "number" ? a3.trad_limit : 0,
+                  a4 ? a4.approved_limit : 0
+                ],
+                backgroundColor: [
+                  "rgba(100, 116, 139, 0.7)",
+                  "rgba(14, 165, 233, 0.85)",
+                  "rgba(168, 85, 247, 0.75)",
+                  "rgba(16, 185, 129, 0.9)"
+                ],
+                borderRadius: 6
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true } }
+          }
+        });
+      }
+    }
+
+    function renderOutputs() {
+      const a1 = state.a1;
+      const a2 = state.a2;
+      const a3 = state.a3;
+      const a4 = state.a4;
+
+      if (a2) {
+        document.getElementById("kpi-dio").textContent = typeof a2.cycle.DIO === "number" ? `${fmt(a2.cycle.DIO, 1)} ngày` : "N/A";
+        document.getElementById("kpi-dso").textContent = typeof a2.cycle.DSO === "number" ? `${fmt(a2.cycle.DSO, 1)} ngày` : "N/A";
+        document.getElementById("kpi-dpo").textContent = typeof a2.cycle.DPO === "number" ? `${fmt(a2.cycle.DPO, 1)} ngày` : "N/A";
+        document.getElementById("kpi-ccc").textContent = typeof a2.cycle.CCC === "number" ? `${fmt(a2.cycle.CCC, 1)} ngày` : "N/A";
+        document.getElementById("dpo-mode-badge").textContent = a2.dpo_fallback
+          ? "DPO Mode: Fallback (COGS)"
+          : `DPO Mode: Chuẩn Purchases (${fmt(a2.cycle.purchases_ytd)} tỷ)`;
+      }
+
+      if (a3) {
+        document.getElementById("badge-kb").textContent = a3.kb.name;
+        document.getElementById("kb-title").textContent = `Chẩn đoán Kịch bản Vận hành: ${a3.kb.name}`;
+        document.getElementById("kb-desc").textContent = a3.kb.desc;
+        document.getElementById("kb-action").textContent = a3.kb.action;
+        document.getElementById("trad-limit-note").textContent = `HMTD Đối chiếu Truyền thống (Mục 3.4): ${typeof a3.trad_limit === "number" ? fmt(a3.trad_limit) + " tỷ" : "N/A"}`;
+
+        document.getElementById("sum-ocf").textContent = `${fmt(a3.ocf)} tỷ`;
+        document.getElementById("sum-ms20").textContent = `Lệch MS_20: ${fmt(a3.ms20_diff_pct, 1)}%` + (a3.ms20_flag ? " (Flag)" : "");
+        document.getElementById("sum-dscr").textContent = typeof a3.dscr === "number" ? `${fmt(a3.dscr)}x` : "N/A";
+        document.getElementById("sum-cash-ratio").textContent = `Tiền về/VAT: ${a2.cash_ratio_pct !== null ? fmt(a2.cash_ratio_pct, 1) + "%" : "N/A"}`;
+        document.getElementById("sum-vq").textContent = typeof a3.vq_vld === "number" ? `${fmt(a3.vq_vld)} vòng` : "N/A";
+        document.getElementById("sum-ccc").textContent = `CCC: ${typeof a2.cycle.CCC === "number" ? fmt(a2.cycle.CCC, 1) + " ngày" : "N/A"}`;
+        document.getElementById("sum-hmtd-max").textContent = typeof a3.hmtd_max === "number" ? `${fmt(a3.hmtd_max)} tỷ` : "N/A";
+        document.getElementById("sum-ews").textContent = `EWS: ${fmt(a3.ews.total)} / 10`;
+
+        document.getElementById("tbl-stress").innerHTML = a3.stress.length
+          ? a3.stress.map((s) => `
+              <tr>
+                <td class="px-3.5 py-2.5 font-sans font-semibold">${esc(s.code)} – ${esc(s.label)}</td>
+                <td class="px-3.5 py-2.5 text-right">${fmt(s.shortfall)}</td>
+                <td class="px-3.5 py-2.5 text-right text-amber-600 dark:text-amber-300">${fmt(s.deltaI)}</td>
+                <td class="px-3.5 py-2.5 text-right font-bold ${s.ok ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"}">${s.dscrStress !== null ? fmt(s.dscrStress) + "x" : "N/A"}</td>
+                <td class="px-3.5 py-2.5 text-center font-sans">
+                  <span class="rounded-lg px-2 py-0.5 text-[11px] font-semibold ${s.ok ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300" : "bg-rose-500/15 text-rose-700 dark:text-rose-300"}">
+                    ≥ ${fmt(s.minDscr)}x (${s.ok ? "Đạt" : "Vượt ngưỡng"})
+                  </span>
+                </td>
+              </tr>
+            `).join("")
+          : `<tr><td colspan="5" class="px-3.5 py-3 text-center font-sans text-slate-400">Không áp dụng Stress Test vòng quay do NWC_op_avg ≤ 0.</td></tr>`;
+
+        document.getElementById("tbl-ews").innerHTML = a3.ews.rows.map((r) => `
+          <tr>
+            <td class="px-3.5 py-2.5 font-sans font-medium">${esc(r.name)}</td>
+            <td class="px-3.5 py-2.5 text-right text-slate-500">${(r.weight * 100).toFixed(0)}%</td>
+            <td class="px-3.5 py-2.5 text-right">${fmt(r.raw, 1)}</td>
+            <td class="px-3.5 py-2.5 text-right font-bold text-blue-700 dark:text-blue-300">${fmt(r.conv)}</td>
+          </tr>
+        `).join("") + `
+          <tr class="bg-slate-50 font-bold dark:bg-slate-950">
+            <td class="px-3.5 py-2.5 font-sans" colspan="3">TỔNG ĐIỂM EWS (${esc(a3.ews.rank)})</td>
+            <td class="px-3.5 py-2.5 text-right text-emerald-600 dark:text-emerald-400">${fmt(a3.ews.total)} / 10</td>
+          </tr>
+        `;
+      }
+
+      if (a4) {
+        document.getElementById("sum-rank").textContent = a3.ews.rank;
+        document.getElementById("sum-decision").textContent = a4.decision;
+        document.getElementById("sum-approved-limit").textContent = `${fmt(a4.approved_limit)} tỷ`;
+
+        document.getElementById("sum-flags").innerHTML = a4.objections.length
+          ? `<ul class="list-disc pl-4 space-y-1 text-amber-700 dark:text-amber-300">${a4.objections.map((o) => `<li>${esc(o)}</li>`).join("")}</ul>`
+          : `<p class="text-emerald-600 dark:text-emerald-400 font-medium">Không phát hiện cờ cảnh báo rủi ro trọng yếu.</p>`;
+
+        document.getElementById("sum-covenants").innerHTML =
+          `<ul class="list-disc pl-4 space-y-1">${a4.covenants.map((c) => `<li>${esc(c)}</li>`).join("")}</ul>`;
+
+        const sections = [
+          ["1. Thông tin & Hồ sơ", `${a1.company.name} (${a1.company.industry}) • HMTD đề xuất: ${fmt(a1.company.hmtd_req)} tỷ • Kỳ: ${a1.period.t_days_ytd} ngày.`],
+          ["2. Dư nợ & Nghĩa vụ trả nợ", `Dư nợ TCTD khác: ${fmt(a1.raw.other_debt)} tỷ • Nghĩa vụ gốc + lãi đến hạn: ${fmt(a1.raw.debt_service)} tỷ.`],
+          ["3. Lọc nhiễu VLĐ (TT200)", `AR_CLEAN = ${fmt(a2.clean.VAR_AR_CLEAN)} tỷ • INV_CLEAN = ${fmt(a2.clean.VAR_INV_CLEAN)} tỷ • AP_CLEAN = ${fmt(a2.clean.VAR_AP_CLEAN)} tỷ.`],
+          ["4. NWC_op, CCC, OCF & DSCR", `NWC_op_avg = ${fmt(a2.clean.VAR_NWCOP_AVG)} tỷ • DIO = ${fmt(a2.cycle.DIO, 1)}d, DSO = ${fmt(a2.cycle.DSO, 1)}d, DPO = ${fmt(a2.cycle.DPO, 1)}d (CCC = ${fmt(a2.cycle.CCC, 1)}d) • VAR_OCF = ${fmt(a3.ocf)} tỷ (Lệch MS_20: ${fmt(a3.ms20_diff_pct, 1)}%) • DSCR = ${fmt(a3.dscr)}x.`],
+          ["5. Đối soát Doanh thu & Tiền về", `Tiền về TK 112 / DT_VAT = ${a2.cash_ratio_pct !== null ? fmt(a2.cash_ratio_pct, 1) + "%" : "N/A"}.`],
+          ["6. NVL & Khách hàng chủ lực", `Đánh giá rủi ro chuỗi cung ứng và công nợ theo ngành ${a1.company.industry}.`],
+          ["7. Trần HMTD & Stress Test", `VQ_VLD = ${fmt(a3.vq_vld)} vòng • Nhu cầu T+1 = ${fmt(a3.nhu_cau_t1)} tỷ • ĐK1 = ${fmt(a3.dk1)} tỷ • ĐK2 = ${fmt(a3.dk2)} tỷ • VAR_HMTD_MAX = ${fmt(a3.hmtd_max)} tỷ (Đối chiếu truyền thống: ${fmt(a3.trad_limit)} tỷ).`],
+          ["8. Chẩn đoán Kịch bản (KB1–KB5)", `${a3.kb.name}: ${a3.kb.desc}`],
+          ["9. Đánh giá Định tính", `DPO_FALLBACK_USED = ${a2.dpo_fallback ? "True (dùng COGS)" : "False (dùng Purchases)"}.`],
+          ["10. Kiểm tra Thực địa", `Đối chiếu vật lý kho bãi, công nợ và kiểm soát tài khoản chuyên thu.`],
+          ["11. Điểm EWS & Knock-out", `Điểm EWS: ${fmt(a3.ews.total)} / 10 (${a3.ews.rank}) • Knock-out: ${a3.ews.knock_out ? "Có" : "Không"}.`],
+          ["12. Đề xuất Thẩm định", `${a3.ews.proposal} • HMTD đề xuất sơ bộ: ${fmt(a3.proposed_limit)} tỷ.`]
+        ];
+
+        document.getElementById("report-container").innerHTML = `
+          <div class="rounded-2xl border border-amber-300 bg-amber-50/70 p-5 dark:border-amber-500/40 dark:bg-amber-950/20 space-y-2">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <span class="text-xs font-bold uppercase tracking-wider text-amber-800 dark:text-amber-300">Nghị quyết Phê duyệt Độc lập (Agent 4)</span>
+              <span class="rounded-xl bg-amber-600 px-3 py-1 font-mono-code text-xs font-bold text-white">HMTD Duyệt: ${fmt(a4.approved_limit)} tỷ đồng</span>
+            </div>
+            <div class="text-base font-extrabold text-slate-900 dark:text-white">${esc(a4.decision)}</div>
+          </div>
+          <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 space-y-2">
+            <h2 class="text-sm font-bold text-slate-900 dark:text-white">Tờ trình Thẩm định Chi tiết 12 Mục (Agent 3)</h2>
+            <div class="divide-y divide-slate-100 dark:divide-slate-800 text-xs">
+              ${sections.map(([t, desc]) => `
+                <div class="py-2.5 flex flex-col gap-1 sm:flex-row sm:gap-4">
+                  <div class="sm:w-52 shrink-0 font-semibold text-slate-800 dark:text-slate-200">${esc(t)}</div>
+                  <div class="text-slate-600 dark:text-slate-400">${esc(desc)}</div>
+                </div>
+              `).join("")}
+            </div>
+          </div>
+        `;
+      }
+
+      document.getElementById("json-box").textContent = JSON.stringify(
+        { step: state.step, agent_1: a1, agent_2: a2, agent_3: a3, agent_4: a4 },
+        null,
+        2
+      );
+    }
+
+    // --- BÓC TÁCH FILE PDF / EXCEL / JSON ---
+    if (window.pdfjsLib) {
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+    }
+
+    const MAP_RULES = [
+      { id: "inp-ar-gop", name: "AR_Gop (131)", keys: ["131", "phai thu ngan han cua khach hang", "phai thu khach hang"] },
+      { id: "inp-dp-noxau", name: "DP_NoXau (137)", keys: ["137", "du phong phai thu ngan han kho doi", "2293"] },
+      { id: "inp-inv-gop", name: "INV_Gop (141)", keys: ["141", "hang ton kho"] },
+      { id: "inp-dp-giamgia", name: "DP_GiamGia (149)", keys: ["149", "du phong giam gia hang ton kho", "2294"] },
+      { id: "inp-tong-331", name: "Tong_TK331 (311)", keys: ["311", "phai tra nguoi ban ngan han", "phai tra nguoi ban"] },
+      { id: "inp-dtt-ytd", name: "DTT (10)", keys: ["doanh thu thuan ve ban hang", "doanh thu thuan"] },
+      { id: "inp-cogs-ytd", name: "COGS (11)", keys: ["gia von hang ban"] },
+      { id: "inp-int-exp", name: "Lãi vay (23)", keys: ["chi phi lai vay"] },
+      { id: "inp-lntt", name: "LNTT (50)", keys: ["tong loi nhuan ke toan truoc thue", "loi nhuan truoc thue"] },
+      { id: "inp-da", name: "Khấu hao (02)", keys: ["khau hao tscd", "khau hao tai san co dinh"] },
+      { id: "inp-ms20", name: "MS_20", keys: ["luu chuyen tien thuan tu hoat dong kinh doanh"] },
+      { id: "inp-tax-paid", name: "Thuế TNDN nộp (15)", keys: ["thue thu nhap doanh nghiep da nop"] },
+      { id: "inp-int-paid", name: "Lãi vay đã trả (14)", keys: ["tien lai vay da tra"] }
+    ];
+
+    function normVn(s) {
+      return String(s || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/đ/g, "d")
+        .replace(/Đ/g, "D")
+        .toLowerCase()
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    function parseNumToken(tok) {
+      let s = String(tok || "").trim();
+      if (!s) return null;
+      const neg = /^\(.*\)$/.test(s);
+      if (neg) s = s.slice(1, -1);
+      s = s.replace(/[^\d.,-]/g, "");
+      if (!s || s === "-" || s === "." || s === ",") return null;
+      if (/^-?\d{1,3}(\.\d{3})+(,\d+)?$/.test(s)) s = s.replace(/\./g, "").replace(",", ".");
+      else if (/^-?\d{1,3}(,\d{3})+(\.\d+)?$/.test(s)) s = s.replace(/,/g, "");
+      else if (s.includes(",") && !s.includes(".")) s = s.replace(",", ".");
+      const n = parseFloat(s);
+      if (Number.isNaN(n)) return null;
+      return neg ? -Math.abs(n) : n;
+    }
+
+    async function readPdfLines(file) {
+      const buf = await file.arrayBuffer();
+      const pdf = await window.pdfjsLib.getDocument({ data: buf }).promise;
+      const lines = [];
+      const pages = Math.min(pdf.numPages, 25);
+      for (let p = 1; p <= pages; p++) {
+        const page = await pdf.getPage(p);
+        const content = await page.getTextContent();
+        const rows = new Map();
+        for (const it of content.items) {
+          const y = Math.round(it.transform[5] / 4) * 4;
+          if (!rows.has(y)) rows.set(y, []);
+          rows.get(y).push({ x: it.transform[4], str: it.str });
+        }
+        for (const y of Array.from(rows.keys()).sort((a, b) => b - a)) {
+          const line = rows.get(y).sort((a, b) => a.x - b.x).map((x) => x.str).join(" ").replace(/\s+/g, " ").trim();
+          if (line) lines.push(line);
+        }
+      }
+      return lines;
+    }
+
+    async function readExcelLines(file) {
+      const buf = await file.arrayBuffer();
+      const wb = window.XLSX.read(buf, { type: "array" });
+      const lines = [];
+      for (const name of wb.SheetNames) {
+        const rows = window.XLSX.utils.sheet_to_json(wb.Sheets[name], { header: 1, defval: "" });
+        for (const row of rows) {
+          const line = row.map((c) => String(c).trim()).filter(Boolean).join(" | ");
+          if (line) lines.push(line);
+        }
+      }
+      return lines;
+    }
+
+    async function processFiles(files, sourceContext = "Tệp tổng hợp") {
+      if (!files || !files.length) return;
+      const scale = parseFloat(document.getElementById("unit-scale").value) || 1;
+      const names = [];
+      let allLines = [];
+
+      try {
+        for (const f of Array.from(files)) {
+          names.push(f.name);
+          const low = f.name.toLowerCase();
+          if (low.endsWith(".json")) {
+            const txt = await f.text();
+            const obj = JSON.parse(txt);
+            const raw = obj.agent_1 ? obj.agent_1.raw : obj;
+            if (raw && typeof raw === "object") {
+              if (raw.ar_gop !== undefined) document.getElementById("inp-ar-gop").value = raw.ar_gop;
+              if (raw.inv_gop !== undefined) document.getElementById("inp-inv-gop").value = raw.inv_gop;
+              if (raw.tong_331 !== undefined) document.getElementById("inp-tong-331").value = raw.tong_331;
+              if (raw.dtt_ytd !== undefined) document.getElementById("inp-dtt-ytd").value = raw.dtt_ytd;
+              if (raw.cogs_ytd !== undefined) document.getElementById("inp-cogs-ytd").value = raw.cogs_ytd;
+              if (raw.lntt !== undefined) document.getElementById("inp-lntt").value = raw.lntt;
+              if (raw.ms_20 !== undefined) document.getElementById("inp-ms20").value = raw.ms_20;
+            }
+            allLines.push(txt);
+          } else if (low.endsWith(".pdf")) {
+            allLines = allLines.concat(await readPdfLines(f));
+          } else {
+            allLines = allLines.concat(await readExcelLines(f));
+          }
+        }
+
+        const matched = [];
+        const seen = new Set();
+        for (const line of allLines) {
+          const norm = normVn(line);
+          for (const rule of MAP_RULES) {
+            if (seen.has(rule.id)) continue;
+            const ok = rule.keys.some((k) => (/^\d{3}$/.test(k) ? new RegExp(`(^|\\s|\\|)${k}(\\s|\\||$)`).test(norm) : norm.includes(k)));
+            if (!ok) continue;
+            const nums = (line.match(/\(?-?\d[\d.,]*\)?/g) || [])
+              .map(parseNumToken)
+              .filter((v, idx) => v !== null && Math.abs(v) > 0 && !(idx === 0 && rule.keys.includes(String(Math.abs(v)))));
+            if (nums.length) {
+              let val = nums[0] / scale;
+              if (["inp-dp-noxau", "inp-dp-giamgia", "inp-tax-paid", "inp-int-paid"].includes(rule.id)) {
+                val = Math.abs(val);
+              }
+              document.getElementById(rule.id).value = val.toFixed(2);
+              seen.add(rule.id);
+              matched.push(`${rule.name}: ${val.toFixed(2)} tỷ`);
+            }
+          }
+        }
+
+        document.getElementById("file-status").textContent = names.join(", ");
+        document.getElementById("badge-scenario").textContent = `Hồ sơ nạp (${Object.keys(state.uploadedDocs).length || names.length} nguồn)`;
+        document.getElementById("file-extract-banner").classList.remove("hidden");
+        document.getElementById("file-raw-text").textContent = allLines.slice(0, 120).join("\n");
+        document.getElementById("file-extract-summary").innerHTML = matched.length
+          ? `[${esc(sourceContext)}] Đã điền tự động <strong>${matched.length}</strong> chỉ tiêu: <span class="font-mono-code">${esc(matched.join(" • "))}</span>`
+          : `[${esc(sourceContext)}] Đã đính kèm tệp <strong>${esc(names.join(", "))}</strong>. Bấm <strong>Xem/Ẩn văn bản gốc</strong> để đối chiếu thêm.`;
+
+        updateLiveCalculations();
+        resetAgents();
+        if (document.getElementById("chk-autorun").checked) {
+          runFullPipeline();
+        }
+        logEvent(`Nạp tệp [${sourceContext}]: ${names.join(", ")} — Nhận diện ${matched.length} chỉ tiêu.`);
+        notify(`Đã nạp tệp cho "${sourceContext}" (${matched.length} chỉ tiêu).`);
+      } catch (e) {
+        notify(`Lỗi đọc tệp: ${e.message}`, "err");
+      }
+    }
+
+    function exportExcelSample() {
+      if (!window.XLSX) return;
+      const data = [
+        ["Mã số TT200", "Chỉ tiêu Tài chính (Đơn vị: Tỷ đồng)", "Số liệu Kỳ báo cáo"],
+        ["131", "Phải thu ngắn hạn của khách hàng", 85.0],
+        ["137", "Dự phòng phải thu ngắn hạn khó đòi", -5.0],
+        ["141", "Hàng tồn kho", 110.0],
+        ["149", "Dự phòng giảm giá hàng tồn kho", -10.0],
+        ["311", "Phải trả người bán ngắn hạn", 62.0],
+        ["10", "Doanh thu thuần về bán hàng và cung cấp dịch vụ", 450.0],
+        ["11", "Giá vốn hàng bán", 360.0],
+        ["23", "Chi phí lãi vay", 9.0],
+        ["50", "Tổng lợi nhuận kế toán trước thuế", 32.0],
+        ["02", "Khấu hao TSCĐ và BĐSĐT", 8.0],
+        ["14", "Tiền lãi vay đã trả", -9.0],
+        ["15", "Thuế thu nhập doanh nghiệp đã nộp", -6.0],
+        ["20", "Lưu chuyển tiền thuần từ hoạt động kinh doanh", 22.0]
+      ];
+      const ws = window.XLSX.utils.aoa_to_sheet(data);
+      const wb = window.XLSX.utils.book_new();
+      window.XLSX.utils.book_append_sheet(wb, ws, "BCTC_TT200");
+      window.XLSX.writeFile(wb, "Mau_BCTC_TT200_CreditFlow_v7_2.xlsx");
+      notify("Đã tải tệp Excel mẫu chuẩn TT200.");
+    }
+
+    function downloadBlob(filename, content, type) {
+      const blob = new Blob([content], { type });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      notify(`Đã xuất tệp ${filename}`);
+    }
+
+    // Điều hướng Sidebar & Topbar
+    document.querySelectorAll(".nav-btn").forEach((btn) => {
+      btn.addEventListener("click", () => switchView(btn.getAttribute("data-view")));
+    });
+    document.querySelectorAll("[data-goto]").forEach((btn) => {
+      btn.addEventListener("click", () => switchView(btn.getAttribute("data-goto")));
+    });
+
+    // Kịch bản mẫu & Hồ sơ trắng
+    document.querySelectorAll(".preset-item").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const key = btn.getAttribute("data-preset");
+        const p = PRESETS[key];
+        if (!p) return;
+        state.uploadedDocs = {};
+        setFormValues(p, p.label);
+        resetAgents();
+        runFullPipeline();
+      });
+    });
+
+    document.getElementById("btn-clear-blank").addEventListener("click", () => {
+      state.uploadedDocs = {};
+      setFormValues(BLANK_CASE, BLANK_CASE.label);
+      resetAgents();
+      notify("Đã tạo hồ sơ trắng mới — Hãy tải file theo từng mục checklist bên dưới.", "warn");
+    });
+
+    document.getElementById("btn-intake-start").addEventListener("click", () => {
+      runFullPipeline();
+      switchView("analysis");
+    });
+
+    document.getElementById("btn-save-local").addEventListener("click", () => {
+      localStorage.setItem(LOCAL_KEY, JSON.stringify(getInputs()));
+      document.getElementById("btn-load-local").classList.remove("hidden");
+      notify("Đã lưu hồ sơ hiện tại vào bộ nhớ thiết bị.");
+    });
+
+    document.getElementById("btn-load-local").addEventListener("click", () => {
+      const raw = localStorage.getItem(LOCAL_KEY);
+      if (!raw) return;
+      setFormValues(JSON.parse(raw), "★ Hồ sơ đã lưu");
+      resetAgents();
+      runFullPipeline();
+    });
+
+    // Chạy từng Agent / Toàn bộ
+    document.getElementById("btn-run-pipeline").addEventListener("click", runFullPipeline);
+    document.getElementById("btn-step-pipeline").addEventListener("click", runStepPipeline);
+    document.querySelectorAll(".agent-pill").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const n = Number(btn.getAttribute("data-agent"));
+        if (n === 1) executeAgent1();
+        else if (n === 2) executeAgent2();
+        else if (n === 3) executeAgent3();
+        else if (n === 4) {
+          executeAgent4();
+          renderCharts();
+        }
+      });
+    });
+
+    // Lắng nghe thay đổi input + Auto-Run Mode
+    let autoTimer = null;
+    function handleLiveEdit() {
+      updateLiveCalculations();
+      if (document.getElementById("chk-autorun").checked) {
+        clearTimeout(autoTimer);
+        autoTimer = setTimeout(() => {
+          executeAgent1();
+          executeAgent2();
+          executeAgent3();
+          executeAgent4();
+          renderCharts();
+        }, 280);
+      }
+    }
+    document.getElementById("view-workspace").addEventListener("input", handleLiveEdit);
+    document.getElementById("view-workspace").addEventListener("change", handleLiveEdit);
+
+    // Tải file tổng hợp & Xuất báo cáo
+    document.getElementById("file-input").addEventListener("change", (e) => processFiles(e.target.files, "Nạp nhanh toàn bộ hồ sơ"));
+    const dz = document.getElementById("dropzone");
+    dz.addEventListener("dragover", (e) => { e.preventDefault(); dz.classList.add("border-blue-500"); });
+    dz.addEventListener("dragleave", () => dz.classList.remove("border-blue-500"));
+    dz.addEventListener("drop", (e) => {
+      e.preventDefault();
+      dz.classList.remove("border-blue-500");
+      if (e.dataTransfer && e.dataTransfer.files) processFiles(e.dataTransfer.files, "Kéo thả hồ sơ");
+    });
+    document.getElementById("btn-dl-template").addEventListener("click", exportExcelSample);
+    document.getElementById("btn-toggle-raw").addEventListener("click", () => {
+      document.getElementById("file-raw-text").classList.toggle("hidden");
+    });
+    document.getElementById("btn-export-md").addEventListener("click", () => {
+      downloadBlob("To_Trinh_Nghi_Quyet_v7_2.md", state.markdown || "", "text/markdown;charset=utf-8");
+    });
+    document.getElementById("btn-export-json").addEventListener("click", () => {
+      downloadBlob("Du_Lieu_4_Agent_v7_2.json", document.getElementById("json-box").textContent, "application/json;charset=utf-8");
+    });
+    document.getElementById("btn-copy-json").addEventListener("click", () => {
+      const ta = document.createElement("textarea");
+      ta.value = document.getElementById("json-box").textContent;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+      notify("Đã sao chép JSON vào bộ nhớ tạm.");
+    });
+
+    window.addEventListener("DOMContentLoaded", () => {
+      if (localStorage.getItem(LOCAL_KEY)) {
+        document.getElementById("btn-load-local").classList.remove("hidden");
+      }
+      setFormValues(PRESETS.standard_9m, PRESETS.standard_9m.label);
+      runFullPipeline();
+    });
+  </script>
+</body>
+</html>
