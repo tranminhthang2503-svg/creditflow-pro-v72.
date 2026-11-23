@@ -830,7 +830,7 @@
       position: fixed;
       inset: 0;
       z-index: 60;
-      background: rgba(15, 23, 42, 0.76);
+      background: rgba(15, 23, 42, 0.78);
       display: flex;
       flex-direction: column;
     }
@@ -843,6 +843,7 @@
       align-items: center;
       justify-content: space-between;
       gap: 8px;
+      border-bottom: 2px solid #2563EB;
     }
     .modal-body {
       flex: 1;
@@ -856,36 +857,67 @@
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
     }
 
-    #print-only-container {
+    #print-sheet-mount {
       display: none;
     }
 
     @media print {
       @page {
         size: A4 portrait;
-        margin: 12mm 13mm 12mm 13mm;
+        margin: 12mm 12mm 14mm 12mm;
       }
-      body {
+      html, body {
+        height: auto !important;
+        min-height: auto !important;
+        overflow: visible !important;
         background: #FFFFFF !important;
         padding: 0 !important;
         margin: 0 !important;
+        position: static !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
       }
-      #app-shell,
-      #mobile-bottom-nav,
-      #preview-modal,
-      #toast-box {
+      body > *:not(#print-sheet-mount) {
         display: none !important;
       }
-      #print-only-container {
+      #print-sheet-mount {
         display: block !important;
+        position: static !important;
         width: 100% !important;
-      }
-      .memo-sheet {
+        max-width: none !important;
+        margin: 0 !important;
         padding: 0 !important;
+        overflow: visible !important;
+        background: #FFFFFF !important;
+      }
+      #print-sheet-mount .memo-sheet {
+        padding: 0 !important;
+        width: 100% !important;
+        overflow: visible !important;
+      }
+      table.memo-table {
+        page-break-inside: auto !important;
+        break-inside: auto !important;
+      }
+      table.memo-table thead {
+        display: table-header-group !important;
+      }
+      table.memo-table tr {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+      }
+      .memo-info-box,
+      .memo-formula-box,
+      .memo-knockout-box,
+      .memo-conclusion-box {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
       }
       * {
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
+        color-adjust: exact !important;
       }
     }
   </style>
@@ -899,7 +931,8 @@
     <div class="modal-bar">
       <div style="font-weight:700; font-size:13px;">Bản Xem Trước Báo Cáo Thẩm Định Tín Dụng (Chuẩn A4 – 12 Mục)</div>
       <div class="action-group">
-        <button id="btn-modal-print" type="button" class="btn-emerald">🖨️ In / Lưu File PDF</button>
+        <button id="btn-modal-direct-pdf" type="button" class="btn-emerald">⬇️ Tải trực tiếp file .PDF</button>
+        <button id="btn-modal-print" type="button" class="btn-royal">🖨️ In / Lưu PDF Chuẩn Vector (A4)</button>
         <button id="btn-modal-close" type="button" class="btn-white">✕ Đóng</button>
       </div>
     </div>
@@ -909,7 +942,7 @@
   </div>
 
   <!-- Khung Dành Riêng Cho Lệnh In / Xuất PDF -->
-  <div id="print-only-container"></div>
+  <div id="print-sheet-mount"></div>
 
   <!-- Khung Ứng Dụng Chính -->
   <div id="app-shell">
@@ -994,15 +1027,16 @@
             <button id="btn-init-new-top" type="button" class="btn-ice">✨ Dữ liệu mới</button>
             <button id="btn-run-all" type="button" class="btn-royal desktop-only">▶ Tính &amp; Cập nhật</button>
             <button id="btn-preview-pdf" type="button" class="btn-navy desktop-only">👁 Xem trước 12 Mục</button>
-            <button id="btn-export-pdf" type="button" class="btn-emerald">📄 Xuất PDF</button>
+            <button id="btn-direct-pdf-top" type="button" class="btn-emerald">⬇️ Tải file .PDF</button>
+            <button id="btn-export-pdf" type="button" class="btn-white desktop-only">🖨️ In A4</button>
           </div>
         </div>
 
         <div id="desktop-stage-pills" class="stage-pills">
-          <div class="stage-pill"><span>1. Tiếp nhận &amp; Checklist</span><strong id="st-pill-1" class="mono">9/11 hồ sơ</strong></div>
+          <div class="stage-pill"><span>1. Tiếp nhận &amp; Checklist</span><strong id="st-pill-1" class="mono">10/12 hồ sơ</strong></div>
           <div class="stage-pill"><span>2. Chuẩn hóa TT200</span><strong id="st-pill-2" class="mono">NWC_op: 87.00 tỷ</strong></div>
           <div class="stage-pill"><span>3. Dòng tiền &amp; Stress</span><strong id="st-pill-3" class="mono">DSCR T+1: 2.01x</strong></div>
-          <div class="stage-pill"><span>4. Xếp hạng &amp; Quyết nghị</span><strong id="st-pill-4" class="mono">Hạng C • 29.00 tỷ</strong></div>
+          <div class="stage-pill"><span>4. HMTD đề xuất / Phê duyệt</span><strong id="st-pill-4" class="mono">45.00 / 29.00 tỷ</strong></div>
         </div>
       </header>
 
@@ -1015,7 +1049,7 @@
               <strong id="mob-decision" style="font-size:12.5px; color:#0F172A;">PHÊ DUYỆT CÓ ĐIỀU KIỆN</strong>
             </div>
             <div style="font-size:12px; color:#334155; margin-top:3px;">
-              Duyệt: <strong id="mob-limit" class="mono" style="color:#1B365D;">29.00 tỷ</strong> •
+              HMTD đề xuất / phê duyệt: <strong id="mob-limit" class="mono" style="color:#1B365D;">45.00 / 29.00 tỷ</strong> •
               OCF: <strong id="mob-ocf" class="mono">-9.80 tỷ</strong> •
               DSCR: <strong id="mob-dscr" class="mono">2.01x</strong>
             </div>
@@ -1036,7 +1070,7 @@
         <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:6px;">
           <button id="btn-mob-run" type="button" class="btn-royal" style="font-size:12px; padding:7px 6px;">▶ Tính toán</button>
           <button id="btn-mob-preview" type="button" class="btn-navy" style="font-size:12px; padding:7px 6px;">👁 Xem Tờ trình</button>
-          <button id="btn-mob-ghost" type="button" class="btn-amber" style="font-size:12px; padding:7px 6px;">↺ Mẫu giả định</button>
+          <button id="btn-mob-direct-pdf" type="button" class="btn-emerald" style="font-size:12px; padding:7px 6px;">⬇️ Tải .PDF</button>
         </div>
       </section>
 
@@ -1055,7 +1089,7 @@
             <!-- BẢNG I: THÔNG TIN DOANH NGHIỆP & CẤU HÌNH THAM SỐ BẰNG NÚT MÀU -->
             <div class="card">
               <div class="card-header">
-                <h2 class="card-title">I. Thông tin Khách hàng &amp; Cấu hình Kỳ Thẩm định (Dạng Bảng)</h2>
+                <h2 class="card-title">I. Thông tin Khách hàng &amp; Đề xuất Cấp tín dụng (Dạng Bảng)</h2>
                 <span class="badge badge-navy">Chuẩn Mapping TT200</span>
               </div>
 
@@ -1090,20 +1124,24 @@
                         </div>
                         <input id="unit-scale" type="hidden" value="1" />
                       </td>
-                      <td class="lbl-cell">Hạn mức đề xuất (VAR_HMTD_REQ)</td>
-                      <td class="val-cell"><input id="inp-hmtd-req" data-field="hmtdReq" type="number" inputmode="decimal" step="0.01" /></td>
+                      <td class="lbl-cell" style="background:#EFF6FF; color:#1D4ED8;">HMTD đề xuất (VAR_HMTD_REQ – tỷ)</td>
+                      <td class="val-cell" style="background:#F8FAFC;">
+                        <input id="inp-hmtd-req" data-field="hmtdReq" type="number" inputmode="decimal" step="0.01" style="font-weight:800; color:#1B365D; border-color:#3B82F6; background:#FFFFFF;" />
+                        <div style="font-size:10.5px; color:#475569; margin-top:3px;">Đồng bộ 2 chiều với Mục 12 trong Bảng Checklist</div>
+                      </td>
                     </tr>
                     <tr>
                       <td class="lbl-cell">Nhóm ngành đặc thù</td>
                       <td class="val-cell" colspan="3">
-                        <div id="sector-choice-group" class="choice-group">
-                          <button type="button" data-sector="Xây lắp" data-mfg="0" class="choice-btn active-blue">Xây lắp Công trình</button>
-                          <button type="button" data-sector="Sản xuất" data-mfg="1" class="choice-btn">Sản xuất Công nghiệp</button>
-                          <button type="button" data-sector="Thương mại FMCG" data-mfg="0" class="choice-btn">Thương mại / FMCG</button>
-                          <button type="button" data-sector="Dược phẩm & Y tế" data-mfg="0" class="choice-btn">Dược phẩm &amp; TBYT</button>
-                          <button type="button" data-sector="XNK Thủy sản" data-mfg="1" class="choice-btn">XNK Thủy sản</button>
-                          <button type="button" data-sector="Dịch vụ & Logistics" data-mfg="0" class="choice-btn">Dịch vụ / Logistics</button>
-                        </div>
+            <!-- BẢNG II: BẢNG CHECKLIST HỒ SƠ ĐẦU VÀO CHUẨN HÓA (12 MỤC + TẢI PDF/EXCEL + NÚT TRẠNG THÁI MÀU) -->
+            <div id="sec-docs" class="card">
+              <div class="card-header">
+                <div>
+                  <h2 class="card-title">II. Bảng Checklist Hồ sơ Đầu vào Chuẩn hóa &amp; Tải Tệp (PDF / Excel)</h2>
+                  <div style="font-size:11.5px; color:#64748B;">Chọn trạng thái bằng nút màu và tải trực tiếp tệp <strong>PDF, Excel (.xlsx, .xls, .csv)</strong> từ máy tính hoặc điện thoại cho từng hạng mục (bao gồm Kế hoạch T+1 &amp; HMTD đề xuất).</div>
+                </div>
+                <span id="doc-count-badge" class="badge badge-real">10/12 đầy đủ</span>
+              </div>
                         <input id="inp-industry" data-field="industry" type="text" style="margin-top:6px;" />
                       </td>
                     </tr>
@@ -1657,7 +1695,8 @@
                 <strong style="font-size:13px; color:#0F294A;">Báo cáo Thẩm định Tín dụng KHDN Đầy đủ 12 Mục (Chuẩn Ngân hàng)</strong>
                 <div class="action-group">
                   <button id="btn-rep-preview" type="button" class="btn-navy" style="font-size:12px;">👁 Xem khổ A4</button>
-                  <button id="btn-rep-print" type="button" class="btn-emerald" style="font-size:12px;">📄 Xuất File PDF</button>
+                  <button id="btn-rep-direct-pdf" type="button" class="btn-emerald" style="font-size:12px;">⬇️ Tải trực tiếp file .PDF</button>
+                  <button id="btn-rep-print" type="button" class="btn-royal" style="font-size:12px;">🖨️ In / Lưu PDF Vector</button>
                 </div>
               </div>
               <div id="inline-report-container"></div>
@@ -1689,7 +1728,9 @@
             </div>
             <div id="sum-decision" style="font-size:14.5px; font-weight:800; margin-top:6px;">PHÊ DUYỆT CÓ ĐIỀU KIỆN</div>
             <div style="margin-top:8px; padding-top:8px; border-top:1px solid rgba(255,255,255,0.2); font-size:12px;">
-              Hạn mức duyệt: <strong id="sum-limit" class="mono" style="font-size:15px;">29.00 tỷ đồng</strong>
+              <div>HMTD đề xuất / HMTD phê duyệt:</div>
+              <strong id="sum-limit" class="mono" style="font-size:14.5px; color:#93C5FD;">45.00 / 29.00 tỷ đồng</strong>
+              <div id="sum-limit-diff" style="font-size:11px; opacity:0.88; margin-top:2px;">Cắt giảm 16.00 tỷ so với đề xuất</div>
             </div>
           </div>
 
@@ -1800,7 +1841,7 @@
       }
 
       /* =================================================================
-         2. DỮ LIỆU GIẢ ĐỊNH CHUẨN & BẢNG CHECKLIST 11 HẠNG MỤC HỒ SƠ
+         2. DỮ LIỆU GIẢ ĐỊNH CHUẨN & BẢNG CHECKLIST 12 HẠNG MỤC HỒ SƠ
          ================================================================= */
       var DOC_ITEMS_META = [
         { id: "1", stt: "1", title: "1. Đăng ký kinh doanh / Hồ sơ pháp lý", isSub: false },
@@ -1815,7 +1856,8 @@
         { id: "8", stt: "8", title: "8. Chi tiết phải trả năm T; T−1", isSub: false },
         { id: "9", stt: "9", title: "9. Tờ khai VAT", isSub: false },
         { id: "10", stt: "10", title: "10. Sổ phụ ngân hàng", isSub: false },
-        { id: "11", stt: "11", title: "11. Kế hoạch Kinh doanh & Doanh thu Dự phóng Năm T+1 (Chi tiết Doanh thu / Giá vốn / Chi phí / Thuế TNDN / Lợi nhuận)", isSub: false, isPlanT1: true }
+        { id: "11", stt: "11", title: "11. Kế hoạch Kinh doanh & Doanh thu Dự phóng Năm T+1 (Chi tiết Doanh thu / Giá vốn / Chi phí / Thuế TNDN / Lợi nhuận)", isSub: false, isPlanT1: true },
+        { id: "12", stt: "12", title: "12. Đơn đề nghị cấp tín dụng / Phương án vay vốn (HMTD đề xuất)", isSub: false, isHmtdReqSlot: true }
       ];
 
       var GHOST_SAMPLE = {
@@ -1893,7 +1935,7 @@
         var ghostStatuses = {
           "1": "ok", "2": "ok", "3_t1": "ok", "3_t": "ok",
           "4": "ok", "5": "ok", "6": "missing", "7": "missing",
-          "8": "missing", "9": "ok", "10": "ok", "11": "ok"
+          "8": "missing", "9": "ok", "10": "ok", "11": "ok", "12": "ok"
         };
         var ghostNotes = {
           "1": "ĐKDN & hồ sơ pháp lý hợp lệ",
@@ -1907,7 +1949,8 @@
           "8": "Chưa tách nợ mua sắm TSCĐ",
           "9": "Tờ khai VAT năm T & T−1",
           "10": "Sổ phụ ngân hàng đối chiếu dòng tiền",
-          "11": "DTT T+1: 340.00 tỷ; LNST: 11.28 tỷ"
+          "11": "DTT T+1: 340.00 tỷ; LNST: 11.28 tỷ",
+          "12": "HMTD đề xuất: 45.00 tỷ (12 tháng)"
         };
         return DOC_ITEMS_META.filter(function (m) { return !m.isGroupHeader; }).map(function (m) {
           return {
@@ -1917,6 +1960,7 @@
             isSub: !!m.isSub,
             hasMonthSelect: !!m.hasMonthSelect,
             isPlanT1: !!m.isPlanT1,
+            isHmtdReqSlot: !!m.isHmtdReqSlot,
             planExpanded: false,
             monthT: 9,
             files: [],
@@ -1927,56 +1971,659 @@
       }
 
       /* =================================================================
-         3. NHẬN DIỆN THIẾT BỊ & CHUYỂN ĐỔI GIAO DIỆN PC / MOBILE
+         8. HỆ THỐNG XUẤT PDF KÉP 100% NGOẠI TUYẾN (VECTOR PRINT + DIRECT .PDF BLOB)
          ================================================================= */
-      function isMobileViewport() {
-        var ua = navigator.userAgent || "";
-        var mobileUA = /Android|iPhone|iPad|iPod|Mobile|Opera Mini|IEMobile/i.test(ua);
-        return window.innerWidth <= 900 || (mobileUA && window.innerWidth <= 1024);
+      function buildBankStandard12SectionReportHTML() {
+        runAppraisalEngine(false);
+        return buildFormal12SectionMemo(appState.lastResult);
       }
 
-      function syncLayoutViews() {
-        var isMob = appState.activeDevice === "mobile";
-        var secDocs = $("sec-docs");
-        var secInputs = $("sec-inputs");
-        var secAnalysis = $("sec-analysis");
-        var secReport = $("sec-report");
-        var secJson = $("sec-json");
+      function openReportPreview() {
+        var html = buildBankStandard12SectionReportHTML();
+        $("modal-paper-content").innerHTML = html;
+        $("preview-modal").classList.remove("hidden");
+      }
 
-        if (isMob) {
-          var t = appState.mobileTab;
-          secInputs.classList.toggle("hidden", t !== "docs" && t !== "inputs");
-          secDocs.classList.toggle("hidden", t !== "docs");
-          var otherInputCards = secInputs.querySelectorAll(":scope > .card:not(#sec-docs)");
-          for (var c = 0; c < otherInputCards.length; c++) {
-            otherInputCards[c].classList.toggle("hidden", t !== "inputs");
+      function triggerVectorPrintToPdf() {
+        var html = buildBankStandard12SectionReportHTML();
+        var mount = $("print-sheet-mount");
+        mount.innerHTML = html;
+        $("preview-modal").classList.add("hidden");
+
+        // Bắt buộc trình duyệt reflow đồng bộ trước khi gọi hộp thoại In / Lưu PDF
+        void mount.offsetHeight;
+
+        setTimeout(function () {
+          try {
+            window.focus();
+            window.print();
+          } catch (e) {
+            notify("Trình duyệt chặn hộp thoại in tự động. Đang chuyển sang tải trực tiếp file .PDF...");
+            downloadDirectPdfBlob();
+          }
+        }, 160);
+      }
+
+      /* Đóng gói mảng dữ liệu ảnh JPEG nhiều trang thành tệp nhị phân PDF 1.4 chuẩn A4 (595.28 x 841.89 pt) */
+      function buildBinaryPdfFromJpegPages(jpegDataUrls) {
+        var pageW = 595.28;
+        var pageH = 841.89;
+        var chunks = [];
+        var byteLen = 0;
+        var offsets = [0];
+
+        function pushAscii(str) {
+          var arr = new Uint8Array(str.length);
+          for (var i = 0; i < str.length; i++) {
+            arr[i] = str.charCodeAt(i) & 0xff;
+          }
+          chunks.push(arr);
+          byteLen += arr.length;
+        }
+
+        function pushBytes(u8) {
+          chunks.push(u8);
+          byteLen += u8.length;
+        }
+
+        function startObj(objNum) {
+          offsets[objNum] = byteLen;
+          pushAscii(objNum + " 0 obj\n");
+        }
+
+        function endObj() {
+          pushAscii("\nendobj\n");
+        }
+
+        function dataUrlToUint8(dataUrl) {
+          var b64 = dataUrl.split(",")[1];
+          var bin = atob(b64);
+          var u8 = new Uint8Array(bin.length);
+          for (var i = 0; i < bin.length; i++) {
+            u8[i] = bin.charCodeAt(i);
+          }
+          return u8;
+        }
+
+        function getJpegDimensions(u8) {
+          var i = 2;
+          while (i + 9 < u8.length) {
+            if (u8[i] === 0xff) {
+              var marker = u8[i + 1];
+              if (marker === 0xc0 || marker === 0xc1 || marker === 0xc2) {
+                var h = (u8[i + 5] << 8) | u8[i + 6];
+                var w = (u8[i + 7] << 8) | u8[i + 8];
+                return { width: w || 1240, height: h || 1754 };
+              }
+              var segLen = (u8[i + 2] << 8) | u8[i + 3];
+              if (segLen < 2) break;
+              i += 2 + segLen;
+            } else {
+              i++;
+            }
+          }
+          return { width: 1240, height: 1754 };
+        }
+
+        pushAscii("%PDF-1.4\n");
+
+        var numPages = jpegDataUrls.length;
+        // Object 1: Catalog, Object 2: Pages, mỗi trang dùng 3 object: Page, ContentStream, ImageXObject
+        var pageObjIds = [];
+        for (var p = 0; p < numPages; p++) {
+          pageObjIds.push(3 + p * 3);
+        }
+
+        startObj(1);
+        pushAscii("<< /Type /Catalog /Pages 2 0 R >>");
+        endObj();
+
+        startObj(2);
+        pushAscii("<< /Type /Pages /Kids [" + pageObjIds.map(function (id) { return id + " 0 R"; }).join(" ") + "] /Count " + numPages + " >>");
+        endObj();
+
+        for (var idx = 0; idx < numPages; idx++) {
+          var pageObjId = 3 + idx * 3;
+          var contentObjId = pageObjId + 1;
+          var imgObjId = pageObjId + 2;
+
+          var jpgBytes = dataUrlToUint8(jpegDataUrls[idx]);
+          var dim = getJpegDimensions(jpgBytes);
+
+          startObj(pageObjId);
+          pushAscii(
+            "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 " + pageW.toFixed(2) + " " + pageH.toFixed(2) + "] " +
+            "/Resources << /XObject << /Im0 " + imgObjId + " 0 R >> >> " +
+            "/Contents " + contentObjId + " 0 R >>"
+          );
+          endObj();
+
+          var drawCmd = "q\n" + pageW.toFixed(2) + " 0 0 " + pageH.toFixed(2) + " 0 0 cm\n/Im0 Do\nQ\n";
+          startObj(contentObjId);
+          pushAscii("<< /Length " + drawCmd.length + " >>\nstream\n" + drawCmd + "endstream");
+          endObj();
+
+          startObj(imgObjId);
+          pushAscii(
+            "<< /Type /XObject /Subtype /Image /Width " + dim.width + " /Height " + dim.height + " " +
+            "/ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length " + jpgBytes.length + " >>\nstream\n"
+          );
+          pushBytes(jpgBytes);
+          pushAscii("\nendstream");
+          endObj();
+        }
+
+        var xrefStart = byteLen;
+        var totalObjs = 3 + numPages * 3;
+        pushAscii("xref\n0 " + totalObjs + "\n");
+        pushAscii("0000000000 65535 f \n");
+        for (var o = 1; o < totalObjs; o++) {
+          var offStr = String(offsets[o] || 0);
+          while (offStr.length < 10) offStr = "0" + offStr;
+          pushAscii(offStr + " 00000 n \n");
+        }
+
+        pushAscii(
+          "trailer\n<< /Size " + totalObjs + " /Root 1 0 R >>\n" +
+          "startxref\n" + xrefStart + "\n%%EOF"
+        );
+
+        return new Blob(chunks, { type: "application/pdf" });
+      }
+
+      /* Bộ vẽ trực tiếp toàn bộ 12 mục báo cáo ra nhiều trang Canvas A4 (100% không bao giờ trắng trang) */
+      function renderReportToA4CanvasPages(res) {
+        var d = res.input;
+        var c = res.clean;
+        var m = res.metrics;
+        var v = res.verdict;
+        var e = res.ews;
+
+        var W = 1240;
+        var H = 1754;
+        var marginX = 68;
+        var marginTop = 68;
+        var marginBottom = 78;
+        var usableW = W - marginX * 2;
+        var pages = [];
+        var canvas = null;
+        var ctx = null;
+        var y = marginTop;
+
+        function newPage() {
+          if (canvas) {
+            pages.push(canvas.toDataURL("image/jpeg", 0.92));
+          }
+          canvas = document.createElement("canvas");
+          canvas.width = W;
+          canvas.height = H;
+          ctx = canvas.getContext("2d");
+          ctx.fillStyle = "#FFFFFF";
+          ctx.fillRect(0, 0, W, H);
+          y = marginTop;
+        }
+
+        function ensureSpace(needH) {
+          if (y + needH > H - marginBottom) {
+            newPage();
+          }
+        }
+
+        function wrapTextLines(text, maxW, fontSpec) {
+          ctx.font = fontSpec;
+          var words = String(text || "").split(/\s+/);
+          var lines = [];
+          var line = "";
+          for (var i = 0; i < words.length; i++) {
+            var w = words[i];
+            if (!w) continue;
+            var test = line ? (line + " " + w) : w;
+            if (ctx.measureText(test).width <= maxW) {
+              line = test;
+            } else {
+              if (line) lines.push(line);
+              line = w;
+            }
+          }
+          if (line) lines.push(line);
+          return lines.length ? lines : [""];
+        }
+
+        function drawBanner() {
+          ctx.fillStyle = "#1B365D";
+          ctx.fillRect(marginX, y, usableW, 6);
+          y += 16;
+          ctx.font = "bold 17px Arial, sans-serif";
+          ctx.fillStyle = "#2B6CB0";
+          ctx.fillText("BÁO CÁO THẨM ĐỊNH TÍN DỤNG KHDN CHUYÊN SÂU • CHUẨN MAPPING TT200 & VAS 24", marginX, y + 16);
+          y += 28;
+          ctx.font = "bold 28px Arial, sans-serif";
+          ctx.fillStyle = "#1B365D";
+          ctx.fillText("BÁO CÁO THẨM ĐỊNH TÍN DỤNG & NGHỊ QUYẾT CẤP TÍN DỤNG", marginX, y + 26);
+          y += 38;
+          ctx.font = "18px Arial, sans-serif";
+          ctx.fillStyle = "#334155";
+          ctx.fillText("Kỳ báo cáo: Lũy kế " + d.tDays + " ngày năm T   |   Kỳ kế hoạch: Năm T+1   |   Đơn vị tiền tệ: Tỷ đồng", marginX, y + 18);
+          y += 28;
+          ctx.fillStyle = "#1B365D";
+          ctx.fillRect(marginX, y, usableW, 3);
+          y += 20;
+        }
+
+        function drawSectionHeading(title) {
+          ensureSpace(58);
+          y += 8;
+          ctx.font = "bold 21px Arial, sans-serif";
+          ctx.fillStyle = "#1B365D";
+          ctx.fillText(title, marginX, y + 20);
+          y += 28;
+          ctx.fillStyle = "#1B365D";
+          ctx.fillRect(marginX, y, usableW, 2.5);
+          y += 12;
+        }
+
+        function drawSubHeading(title) {
+          ensureSpace(38);
+          y += 4;
+          ctx.font = "bold 18.5px Arial, sans-serif";
+          ctx.fillStyle = "#1E3A8A";
+          ctx.fillText(title, marginX, y + 18);
+          y += 28;
+        }
+
+        function drawCallout(boxTitle, bulletLines, styleType) {
+          var bg = "#F0F4F8";
+          var border = "#BFDBFE";
+          var accent = "#2B6CB0";
+          var titleColor = "#1B365D";
+          if (styleType === "formula") {
+            bg = "#F0F9FF"; border = "#CBD5E1"; accent = "#0284C7"; titleColor = "#0369A1";
+          } else if (styleType === "conclusion") {
+            bg = "#F1F5F9"; border = "#CBD5E1"; accent = "#1B365D"; titleColor = "#1B365D";
+          } else if (styleType === "knockout") {
+            bg = "#FEF2F2"; border = "#FECACA"; accent = "#B91C1C"; titleColor = "#B91C1C";
           }
 
-          secAnalysis.classList.toggle("hidden", t !== "analysis");
-          secReport.classList.toggle("hidden", t !== "report");
-          secJson.classList.add("hidden");
-
-          var mobBtns = document.querySelectorAll(".mob-nav-btn");
-          for (var i = 0; i < mobBtns.length; i++) {
-            mobBtns[i].classList.toggle("active", mobBtns[i].getAttribute("data-mob-tab") === t);
+          var bodyFont = "17.5px Arial, sans-serif";
+          var allWrapped = [];
+          for (var i = 0; i < bulletLines.length; i++) {
+            var wl = wrapTextLines(bulletLines[i], usableW - 36, bodyFont);
+            for (var j = 0; j < wl.length; j++) {
+              allWrapped.push(wl[j]);
+            }
           }
-        } else {
-          var v = appState.desktopView;
-          secInputs.classList.toggle("hidden", v !== "workspace");
-          secDocs.classList.remove("hidden");
-          var allCards = secInputs.querySelectorAll(":scope > .card");
-          for (var d = 0; d < allCards.length; d++) {
-            allCards[d].classList.remove("hidden");
+          var boxH = 38 + allWrapped.length * 24 + 12;
+          ensureSpace(boxH + 10);
+
+          ctx.fillStyle = bg;
+          ctx.fillRect(marginX, y, usableW, boxH);
+          ctx.strokeStyle = border;
+          ctx.lineWidth = 1.5;
+          ctx.strokeRect(marginX, y, usableW, boxH);
+          ctx.fillStyle = accent;
+          ctx.fillRect(marginX, y, 7, boxH);
+
+          ctx.font = "bold 16.5px Arial, sans-serif";
+          ctx.fillStyle = titleColor;
+          ctx.fillText(boxTitle, marginX + 18, y + 24);
+
+          ctx.font = bodyFont;
+          ctx.fillStyle = "#1E293B";
+          var ty = y + 48;
+          for (var k = 0; k < allWrapped.length; k++) {
+            ctx.fillText(allWrapped[k], marginX + 18, ty);
+            ty += 24;
+          }
+          y += boxH + 12;
+        }
+
+        function drawTable(headers, colWidths, rows, aligns) {
+          var cellFont = "16.5px Arial, sans-serif";
+          var headFont = "bold 16.5px Arial, sans-serif";
+
+          function renderHeaderRow() {
+            var hLinesList = [];
+            var maxHLines = 1;
+            for (var cIdx = 0; cIdx < headers.length; cIdx++) {
+              var hl = wrapTextLines(headers[cIdx], colWidths[cIdx] - 16, headFont);
+              hLinesList.push(hl);
+              if (hl.length > maxHLines) maxHLines = hl.length;
+            }
+            var rowH = maxHLines * 22 + 14;
+            ensureSpace(rowH + 34);
+
+            var cx = marginX;
+            for (var cIdx2 = 0; cIdx2 < headers.length; cIdx2++) {
+              var cw = colWidths[cIdx2];
+              ctx.fillStyle = "#1B365D";
+              ctx.fillRect(cx, y, cw, rowH);
+              ctx.strokeStyle = "#CBD5E1";
+              ctx.lineWidth = 1;
+              ctx.strokeRect(cx, y, cw, rowH);
+
+              ctx.font = headFont;
+              ctx.fillStyle = "#FFFFFF";
+              var lines = hLinesList[cIdx2];
+              for (var l = 0; l < lines.length; l++) {
+                var tx = cx + 8;
+                if (aligns && aligns[cIdx2] === "right") {
+                  tx = cx + cw - 8 - ctx.measureText(lines[l]).width;
+                } else if (aligns && aligns[cIdx2] === "center") {
+                  tx = cx + (cw - ctx.measureText(lines[l]).width) / 2;
+                }
+                ctx.fillText(lines[l], tx, y + 21 + l * 22);
+              }
+              cx += cw;
+            }
+            y += rowH;
           }
 
-          secAnalysis.classList.toggle("hidden", v !== "analysis");
-          secReport.classList.toggle("hidden", v !== "report");
-          secJson.classList.toggle("hidden", v !== "json");
+          renderHeaderRow();
 
-          var navBtns = document.querySelectorAll(".nav-item");
-          for (var j = 0; j < navBtns.length; j++) {
-            navBtns[j].classList.toggle("active", navBtns[j].getAttribute("data-desk-view") === v);
+          for (var rIdx = 0; rIdx < rows.length; rIdx++) {
+            var rowSpec = rows[rIdx];
+            var isGroup = !!rowSpec.isGroup;
+            var isHighlight = !!rowSpec.isHighlight;
+            var isTotal = !!rowSpec.isTotal;
+            var cells = rowSpec.cells || rowSpec;
+            var rowFont = (isGroup || isHighlight || isTotal) ? "bold 16.5px Arial, sans-serif" : cellFont;
+
+            if (isGroup) {
+              var gLines = wrapTextLines(cells[0], usableW - 18, rowFont);
+              var gH = gLines.length * 22 + 12;
+              if (y + gH > H - marginBottom) {
+                newPage();
+                renderHeaderRow();
+              }
+              ctx.fillStyle = "#E0F2FE";
+              ctx.fillRect(marginX, y, usableW, gH);
+              ctx.strokeStyle = "#CBD5E1";
+              ctx.strokeRect(marginX, y, usableW, gH);
+              ctx.font = rowFont;
+              ctx.fillStyle = "#1B365D";
+              for (var gl = 0; gl < gLines.length; gl++) {
+                ctx.fillText(gLines[gl], marginX + 9, y + 20 + gl * 22);
+              }
+              y += gH;
+              continue;
+            }
+
+            var cellLines = [];
+            var maxLines = 1;
+            for (var col = 0; col < colWidths.length; col++) {
+              var wrapped = wrapTextLines(cells[col] != null ? cells[col] : "", colWidths[col] - 16, rowFont);
+              cellLines.push(wrapped);
+              if (wrapped.length > maxLines) maxLines = wrapped.length;
+            }
+            var rH = maxLines * 21 + 12;
+            if (y + rH > H - marginBottom) {
+              newPage();
+              renderHeaderRow();
+            }
+
+            var bgCol = isTotal ? "#DBEAFE" : (isHighlight ? "#E0F2FE" : (rIdx % 2 === 1 ? "#F8FAFC" : "#FFFFFF"));
+            var cx2 = marginX;
+            for (var col2 = 0; col2 < colWidths.length; col2++) {
+              var cw2 = colWidths[col2];
+              ctx.fillStyle = bgCol;
+              ctx.fillRect(cx2, y, cw2, rH);
+              ctx.strokeStyle = "#CBD5E1";
+              ctx.lineWidth = 1;
+              ctx.strokeRect(cx2, y, cw2, rH);
+
+              ctx.font = rowFont;
+              ctx.fillStyle = isTotal ? "#1B365D" : "#1E293B";
+              var cLines = cellLines[col2];
+              for (var cl = 0; cl < cLines.length; cl++) {
+                var tx2 = cx2 + 8;
+                if (aligns && aligns[col2] === "right") {
+                  tx2 = cx2 + cw2 - 8 - ctx.measureText(cLines[cl]).width;
+                } else if (aligns && aligns[col2] === "center") {
+                  tx2 = cx2 + (cw2 - ctx.measureText(cLines[cl]).width) / 2;
+                }
+                ctx.fillText(cLines[cl], tx2, y + 20 + cl * 21);
+              }
+              cx2 += cw2;
+            }
+            y += rH;
           }
+          y += 12;
+        }
+
+        // BẮT ĐẦU VẼ TRANG 1 & TOÀN BỘ 12 MỤC
+        newPage();
+        drawBanner();
+
+        // MỤC 1
+        drawSectionHeading("1. THÔNG TIN KHÁCH HÀNG & CHECKLIST HỒ SƠ ĐẦU VÀO");
+        drawCallout("THÔNG TIN ĐỀ XUẤT CẤP TÍN DỤNG", [
+          "• Tên KH: " + d.companyName + "  |  Ngành nghề: " + d.industry + "  |  MST: " + d.taxCode,
+          "• Hạn mức đề xuất (VAR_HMTD_REQ): " + fmt(d.hmtdReq) + " tỷ  |  Mục đích & Thời hạn: " + d.purpose
+        ], "info");
+        drawTable(
+          ["STT", "Hạng mục Tài liệu", "Trạng thái", "Thời điểm / Ghi chú Kiểm soát"],
+          [74, 520, 170, 340],
+          appState.docs.map(function (doc) {
+            var stText = doc.status === "ok" ? "Đầy đủ" : (doc.status === "missing" ? "Thiếu chi tiết" : "Chưa cung cấp");
+            var fList = (doc.files && doc.files.length) ? (" [" + doc.files.map(function (f) { return f.name; }).join(", ") + "]") : "";
+            return [doc.stt, doc.title.replace(/^\d+\.\s*/, "") + fList, stText, doc.note || "—"];
+          }),
+          ["center", "left", "left", "left"]
+        );
+        drawCallout("KẾT LUẬN / ĐÁNH GIÁ MỤC 1", [
+          "Hồ sơ đã được tiếp nhận, kiểm tra tính hợp lệ và đối chiếu chéo số liệu theo chuẩn Thông tư 200 để phục vụ phân tích dòng tiền vận hành."
+        ], "conclusion");
+
+        // MỤC 2
+        drawSectionHeading("2. ĐÁNH GIÁ PHÁP LÝ & DƯ NỢ TÍN DỤNG");
+        drawCallout("ĐÁNH GIÁ PHÁP LÝ & QUAN HỆ TÍN DỤNG", [
+          "Doanh nghiệp hoạt động hợp pháp theo Giấy chứng nhận ĐKDN, ngành nghề đăng ký phù hợp phương án vay vốn. Tình trạng quan hệ tín dụng trên CIC: Nhóm " + d.cicGroup + ". Dư nợ ngắn hạn hiện hữu tại TCTD khác là " + fmt(d.otherDebt) + " tỷ đồng, nghĩa vụ trả nợ gốc và lãi đến hạn là " + fmt(m.effectiveDebtService) + " tỷ đồng."
+        ], "info");
+        drawCallout("KẾT LUẬN / ĐÁNH GIÁ MỤC 2", [
+          "Tư cách pháp lý đầy đủ, hợp lệ. Dư nợ vay ngắn hạn tại TCTD khác (" + fmt(d.otherDebt) + " tỷ) được khấu trừ trực tiếp khi xác định trần hạn mức bổ sung tại Mục 7."
+        ], "conclusion");
+
+        // MỤC 3
+        drawSectionHeading("3. LỌC NHIỄU BCTC & PHÂN LOẠI ĐỘNG: NĂM T−2, NĂM T−1 & KỲ T (CHUẨN TT200)");
+        drawTable(
+          ["Biến số Hệ thống", "Chỉ tiêu BCTC / Mã số TT200", "Năm T−2 (tỷ)", "Năm T−1 (tỷ)", "Kỳ T (tỷ)"],
+          [220, 404, 160, 160, 160],
+          [
+            ["AR_Gop / DP_NoXau", "Phải thu KH (MS 131) / Dự phòng nợ xấu (MS 137)", fmt(d.arGopT2) + " / (" + fmt(d.dpNoXauT2) + ")", fmt(d.arGopT1) + " / (" + fmt(d.dpNoXauT1) + ")", fmt(d.arGop) + " / (" + fmt(d.dpNoXau) + ")"],
+            { isHighlight: true, cells: ["VAR_AR_CLEAN", "Phải thu khách hàng sạch sau chống trừ trùng", fmt(c.arCleanT2), fmt(c.arCleanT1), fmt(c.arClean)] },
+            ["INV_Gop / DP_GiamGia", "Hàng tồn kho gộp (MS 141) / Dự phòng giảm giá (MS 149)", fmt(d.invGopT2) + " / (" + fmt(d.dpGiamGiaT2) + ")", fmt(d.invGopT1) + " / (" + fmt(d.dpGiamGiaT1) + ")", fmt(d.invGop) + " / (" + fmt(d.dpGiamGia) + ")"],
+            { isHighlight: true, cells: ["VAR_INV_CLEAN", "Hàng tồn kho sạch sau chống trừ trùng", fmt(c.invCleanT2), fmt(c.invCleanT1), fmt(c.invClean)] },
+            { isHighlight: true, cells: ["VAR_AP_CLEAN", "Phải trả người bán sạch (MS 311 / TK 331)", fmt(c.apCleanT2), fmt(c.apCleanT1), fmt(c.apClean)] },
+            ["VAR_DTT / VAR_COGS", "Doanh thu thuần (MS 10) / Giá vốn hàng bán (MS 11)", fmt(d.dttT2) + " / " + fmt(d.cogsT2), fmt(d.dttT1) + " / " + fmt(d.cogsT1), fmt(d.dttYtd) + " / " + fmt(d.cogsYtd)],
+            ["LNTT / D&A / Lãi vay", "LNTT (MS 50) / Khấu hao (MS 02) / CP lãi vay (MS 23)", fmt(d.lnttT2) + " / " + fmt(d.daT2) + " / " + fmt(d.intExpT2), fmt(d.lnttT1) + " / " + fmt(d.daT1) + " / " + fmt(d.intExpT1), fmt(d.lntt) + " / " + fmt(d.da) + " / " + fmt(d.intExp)],
+            ["MS_20 (B03-DN)", "Lưu chuyển tiền thuần từ HĐKD trên BCTC", fmt(d.ms20T2), fmt(d.ms20T1), fmt(d.ms20)]
+          ],
+          ["left", "left", "right", "right", "right"]
+        );
+
+        // MỤC 4
+        drawSectionHeading("4. PHÂN TÍCH TÀI CHÍNH, SO SÁNH NĂM T−2, NĂM T−1 & KỲ T + DỰ PHÓNG T+1");
+        drawSubHeading("4.1. Bảng tính Vốn lưu động vận hành (NWC_op), Dòng tiền OCF & DSCR (tỷ đồng)");
+        drawTable(
+          ["Khoản mục (tỷ đồng)", "Năm T−2", "Năm T−1", "Kỳ T (" + d.tDays + "d)", "Kế hoạch T+1"],
+          [424, 160, 160, 180, 180],
+          [
+            ["Doanh thu thuần / Dự phóng (DTT)", fmt(d.dttT2), fmt(d.dttT1), fmt(d.dttYtd) + " (QN: " + fmt(c.dttAnn) + ")", fmt(d.dttPlan)],
+            ["Giá vốn / LNST Kế hoạch T+1", "—", "—", "—", "GV: " + fmt(d.cogsPlan) + " | LNST: " + fmt(m.lnstPlan)],
+            ["(+) Tài sản ngắn hạn vận hành sạch", fmt(c.arCleanT2 + c.invCleanT2 + d.tsnhKhacT2), fmt(c.arCleanT1 + c.invCleanT1 + d.tsnhKhacT1), fmt(c.arClean + c.invClean + d.tsnhKhac), "—"],
+            ["(−) Nợ ngắn hạn vận hành sạch", fmt(c.apCleanT2 + d.noKhacT2), fmt(c.apCleanT1 + d.noKhacT1), fmt(c.apClean + d.noKhac), "—"],
+            { isTotal: true, cells: ["(=) Vốn lưu động vận hành (NWC_op) / Nhu cầu T+1", fmt(c.nwcOpT2), fmt(c.nwcOpT1), fmt(c.nwcOpEnd), m.nhuCauT1 !== null ? fmt(m.nhuCauT1) : "N/A"] },
+            ["Dòng tiền HĐKD (VAR_OCF) / EBITDA T+1", fmt(m.ocfT2), fmt(m.ocfT1), fmt(m.ocf), fmt(m.ebitdaPlan) + " (EBITDA)"],
+            ["Hệ số khả năng trả nợ (VAR_DSCR)", m.dscrT2 !== null ? fmt(m.dscrT2) + "x" : "N/A", m.dscrT1 !== null ? fmt(m.dscrT1) + "x" : "N/A", m.dscr !== null ? fmt(m.dscr) + "x" : "N/A", m.dscrPlanT1 !== null ? fmt(m.dscrPlanT1) + "x" : "N/A"]
+          ],
+          ["left", "right", "right", "right", "right"]
+        );
+
+        drawSubHeading("4.2. Các chỉ số Vận hành Quy chuẩn năm (Annualized với T_ngày = " + d.tDays + ")");
+        drawCallout("CHỈ SỐ CHU KỲ TIỀN MẶT & VÒNG QUAY VLĐVH QUY CHUẨN NĂM (HỆ SỐ " + fmt(c.annFactor, 4) + ")", [
+          "• Năm T−2: DSO = " + fmt(m.dsoT2, 1) + "d | DIO = " + fmt(m.dioT2, 1) + "d | DPO = " + fmt(m.dpoT2, 1) + "d | CCC = " + (m.cccT2 !== null ? fmt(m.cccT2, 1) + " ngày" : "N/A") + " | Vòng quay VLĐ = " + (m.vqVldT2 !== null ? fmt(m.vqVldT2) + " vòng" : "N/A"),
+          "• Năm T−1: DSO = " + fmt(m.dsoT1, 1) + "d | DIO = " + fmt(m.dioT1, 1) + "d | DPO = " + fmt(m.dpoT1, 1) + "d | CCC = " + (m.cccT1 !== null ? fmt(m.cccT1, 1) + " ngày" : "N/A") + " | Vòng quay VLĐ = " + (m.vqVldT1 !== null ? fmt(m.vqVldT1) + " vòng" : "N/A"),
+          "• Kỳ T (Quy năm): DSO = " + fmt(m.dso, 1) + "d | DIO = " + fmt(m.dio, 1) + "d | DPO = " + fmt(m.dpo, 1) + "d | VAR_CCC = " + (m.ccc !== null ? fmt(m.ccc, 1) + " ngày" : "N/A") + " | VAR_VQ_VLD_T = " + (m.vqVld !== null ? fmt(m.vqVld) + " vòng/năm" : "N/A")
+        ], "formula");
+
+        drawSubHeading("4.3. Bảng Toàn diện 19 Chỉ số Tài chính Doanh nghiệp: Năm T−2, Năm T−1 & Kỳ T");
+        var ratioRows = [];
+        res.ratioGroups.forEach(function (grp) {
+          ratioRows.push({ isGroup: true, cells: [grp.groupTitle] });
+          grp.items.forEach(function (it) {
+            ratioRows.push([it.name, it.formula, it.valT2Str, it.valT1Str, it.valStr, it.evalText]);
+          });
+        });
+        drawTable(
+          ["Tên Chỉ số & Ký hiệu", "Công thức Chuẩn mực TT200", "Năm T−2", "Năm T−1", "Kỳ T", "Đánh giá Kỳ T"],
+          [240, 294, 110, 110, 110, 240],
+          ratioRows,
+          ["left", "left", "right", "right", "right", "left"]
+        );
+
+        drawCallout("KẾT LUẬN / ĐÁNH GIÁ MỤC 4", [
+          "Vòng quay VLĐVH quy chuẩn năm đạt " + (m.vqVld !== null ? fmt(m.vqVld) + " vòng/năm" : "N/A") + ", chu kỳ tiền mặt CCC ở mức " + (m.ccc !== null ? fmt(m.ccc, 1) + " ngày" : "N/A") + ", dòng tiền thuần HĐKD đạt " + fmt(m.ocf) + " tỷ, hệ số thanh toán hiện hành đạt " + (m.currentRatio !== null ? fmt(m.currentRatio) + "x" : "N/A") + ", ROA/ROE quy năm đạt " + (m.roaPct !== null ? fmt(m.roaPct, 1) + "%" : "N/A") + " / " + (m.roePct !== null ? fmt(m.roePct, 1) + "%" : "N/A") + " và hệ số DSCR đạt " + (m.dscr !== null ? fmt(m.dscr) + "x" : "N/A") + "."
+        ], "conclusion");
+
+        // MỤC 5
+        drawSectionHeading("5. ĐỐI SOÁT DOANH THU & DÒNG TIỀN VẬN HÀNH");
+        drawCallout("ĐỐI SOÁT CHÉO DOANH THU KẾ TOÁN, VAT & TIỀN VỀ TK 112", [
+          "• Doanh thu thuần kế toán kỳ báo cáo: " + fmt(d.dttYtd) + " tỷ  |  Tổng giá trị phải thu theo tờ khai VAT: " + fmt(d.dtVat) + " tỷ.",
+          "• Tổng tiền hàng thực tế ghi Có về TK 112: " + fmt(d.cash112) + " tỷ -> Tỷ lệ Tiền về / DT_VAT = " + (m.cashRatioPct !== null ? fmt(m.cashRatioPct, 1) + "%" : "N/A") + "."
+        ], "formula");
+        drawCallout("KẾT LUẬN / ĐÁNH GIÁ MỤC 5", [
+          "Tỷ lệ tiền về thực tế đạt " + (m.cashRatioPct !== null ? fmt(m.cashRatioPct, 1) + "%" : "N/A") + ", phản ánh mức độ luân chuyển dòng tiền thực qua hệ thống ngân hàng."
+        ], "conclusion");
+
+        // MỤC 6
+        drawSectionHeading("6. ĐÁNH GIÁ CHI TIẾT NVL & KHÁCH HÀNG CHỦ LỰC");
+        drawCallout("PHÂN TÍCH CHUỖI CUNG ỨNG & CÔNG NỢ", [
+          "Cơ cấu hàng tồn kho gồm TK 152: " + fmt(d.tk152) + " tỷ, TK 153: " + fmt(d.tk153) + " tỷ, TK 155: " + fmt(d.tk155) + " tỷ, TK 156: " + fmt(d.tk156) + " tỷ. Thời gian tồn kho bình quân DIO = " + fmt(m.dio, 1) + " ngày, kỳ thu tiền bình quân DSO = " + fmt(m.dso, 1) + " ngày, kỳ thanh toán nhà cung cấp DPO = " + fmt(m.dpo, 1) + " ngày."
+        ], "info");
+        drawCallout("KẾT LUẬN / ĐÁNH GIÁ MỤC 6", [
+          "Cần kiểm soát tập trung công nợ phải thu các khách hàng chủ lực và định mức dự trữ hàng tồn kho theo tiến độ hợp đồng."
+        ], "conclusion");
+
+        // MỤC 7
+        drawSectionHeading("7. VÒNG QUAY VLĐVH, NHU CẦU BỔ SUNG & STRESS TEST TOÁN HỌC CHI TIẾT");
+        drawCallout("KHUNG CÔNG THỨC TÍNH HẠN MỨC TÍN DỤNG TỐI ĐA NĂM T+1 (DTT DỰ PHÓNG = " + fmt(d.dttPlan) + " TỶ)", [
+          "• VAR_NHUCAU_T+1 = " + fmt(d.dttPlan) + " / " + fmt(m.vqVld) + " = " + fmt(m.nhuCauT1) + " tỷ  |  Vốn tự có tối thiểu (30%): " + fmt(m.vtcMin30) + " tỷ.",
+          "• HMTD ĐK 1 (Trần 70%): " + fmt(m.hmtdDk1) + " tỷ  |  HMTD ĐK 2 (Trừ VTC & Dư nợ NH khác): " + fmt(m.hmtdDk2) + " tỷ.",
+          "• Trần Hạn mức Tối đa Hợp lý (VAR_HMTD_MAX): " + fmt(m.hmtdMax) + " tỷ đồng."
+        ], "formula");
+        drawTable(
+          ["Kịch bản Căng thẳng", "Thiếu hụt Vốn & Lãi tăng thêm", "DSCR Min", "DSCR Stress", "Đánh giá"],
+          [384, 310, 130, 140, 140],
+          res.stressList.map(function (s) {
+            return [s.code + ": " + s.desc, "Thiếu " + fmt(s.shortVal) + " tỷ; ΔI = " + fmt(s.dI) + " tỷ", ">= " + fmt(s.minReq) + "x", fmt(s.dscr) + "x", s.pass ? "Đạt" : "Không đạt"];
+          }),
+          ["left", "right", "center", "right", "center"]
+        );
+        drawCallout("KẾT LUẬN / ĐÁNH GIÁ MỤC 7", [
+          "Trần HMTD tối đa xác định ở mức " + fmt(m.hmtdMax) + " tỷ đồng. Các kịch bản Stress Test làm suy giảm hệ số DSCR khi kéo dài chu kỳ thu tiền và tồn kho, đòi hỏi chốt chặn quản lý dòng tiền."
+        ], "conclusion");
+
+        // MỤC 8
+        drawSectionHeading("8. CHẨN ĐOÁN KỊCH BẢN TÀI CHÍNH & LUẬN ĐIỂM CỐT LÕI");
+        drawCallout("TỔNG HỢP CHẨN ĐOÁN KỊCH BẢN VẬN HÀNH", [
+          "Kịch bản phân loại: " + v.scenario + " (NWC_op = " + fmt(c.nwcOpEnd) + " tỷ; OCF = " + fmt(m.ocf) + " tỷ; CCC = " + fmt(m.ccc, 1) + " ngày; DSCR = " + fmt(m.dscr) + "x)."
+        ], "info");
+        drawCallout("KẾT LUẬN / ĐÁNH GIÁ MỤC 8", [
+          "Trọng tâm kiểm soát tín dụng tập trung vào tốc độ thu hồi công nợ phải thu và giải phóng hàng tồn kho luân chuyển."
+        ], "conclusion");
+
+        // MỤC 9
+        drawSectionHeading("9. TÓM TẮT PHỎNG VẤN ĐỊNH TÍNH & ĐÁNH GIÁ NGÀNH");
+        drawCallout("ĐÁNH GIÁ ĐỊNH TÍNH BAN ĐIỀU HÀNH & TRIỂN VỌNG NGÀNH", [
+          "Ban điều hành có kinh nghiệm trong lĩnh vực " + d.industry + "; triển vọng ngành duy trì ổn định trong kỳ kế hoạch T+1 nhưng chịu áp lực cạnh tranh về tiến độ thanh toán và chi phí đầu vào."
+        ], "info");
+        drawCallout("KẾT LUẬN / ĐÁNH GIÁ MỤC 9", [
+          "Năng lực điều hành đáp ứng triển khai phương án kinh doanh, cần tăng cường kỷ luật quản trị dòng tiền và minh bạch thuyết minh BCTC."
+        ], "conclusion");
+
+        // MỤC 10
+        drawSectionHeading("10. CHECKLIST THẨM ĐỊNH CHUYÊN SÂU & THỰC ĐỊA");
+        drawCallout("BIÊN BẢN KIỂM TRA THỰC ĐỊA & VẬT LÝ", [
+          "Kiểm tra thực tế kho bãi, điều kiện PCCC, đối chiếu hiện trạng hàng tồn kho (TK 152–156), xác minh hợp đồng đầu ra chủ lực và định giá độc lập Tài sản bảo đảm: " + d.collateral + "."
+        ], "info");
+        drawCallout("KẾT LUẬN / ĐÁNH GIÁ MỤC 10", [
+          "Hoàn tất kiểm tra thực địa, xác nhận tài sản bảo đảm và phong tỏa tài khoản chuyên thu trước khi kích hoạt hạn mức."
+        ], "conclusion");
+
+        // MỤC 11
+        drawSectionHeading("11. MA TRẬN QUYẾT NGHỊ TÍN DỤNG (EWS & RUBRIC THANG ĐIỂM 0–10 ĐỒNG BỘ)");
+        drawCallout("[KIỂM TRA ĐIỀU KIỆN KNOCK-OUT]", [
+          "Nợ xấu nhóm 3–5 CIC OR Gian lận hóa đơn OR Rút vốn/Chuyển vòng OR Ngừng SX -> " + (d.knockout ? "VI PHẠM KNOCK-OUT (TỪ CHỐI)" : "KHÔNG VI PHẠM (Đạt điều kiện xem xét)") + "."
+        ], "knockout");
+        drawTable(
+          ["Tiêu chí chấm điểm EWS", "Trọng số", "Điểm (0–10)", "Điểm quy đổi"],
+          [564, 180, 180, 180],
+          [
+            ["1. Sức khỏe tài chính & Dòng tiền", "30%", fmt(d.ewsTc, 1), fmt(e.w1)],
+            ["2. Hiệu quả quản trị VLĐ (CCC, VQ)", "20%", fmt(d.ewsVld, 1), fmt(e.w2)],
+            ["3. Năng lực quản trị & Uy tín Chủ DN", "25%", fmt(d.ewsQltn, 1), fmt(e.w3)],
+            ["4. Vị thế ngành & TSBĐ", "25%", fmt(d.ewsVtsb, 1), fmt(e.w4)],
+            { isTotal: true, cells: ["ĐIỂM TỔNG HỢP EWS (VAR_EWS_SCORE)", "100%", "—", fmt(e.total) + " / 10,00 (" + e.rank + ")"] }
+          ],
+          ["left", "center", "right", "right"]
+        );
+        drawCallout("KẾT LUẬN / ĐÁNH GIÁ MỤC 11", [
+          "Điểm EWS tổng hợp đạt " + fmt(e.total) + " / 10,00 (" + e.rank + "), làm cơ sở xác định ngưỡng phê duyệt tín dụng tại Mục 12."
+        ], "conclusion");
+
+        // MỤC 12
+        drawSectionHeading("12. NGƯỠNG QUYẾT NGHỊ & PHÊ DUYỆT TÍN DỤNG (FINAL)");
+        drawCallout("CHI TIẾT PHƯƠNG ÁN PHÊ DUYỆT ĐỀ XUẤT", [
+          "• Quyết nghị Cấp tín dụng: " + v.decision,
+          "• HMTD đề xuất / HMTD phê duyệt: " + fmt(d.hmtdReq) + " tỷ đồng / " + fmt(v.approvedLimit) + " tỷ đồng (" + v.limitDiffText + "; Trần tính toán VAR_HMTD_MAX: " + fmt(m.hmtdMax) + " tỷ).",
+          "• Tài sản bảo đảm (TSBĐ): " + d.collateral,
+          "• Điều kiện cấp tín dụng (Covenants): " + v.covenants.join(" ")
+        ], "info");
+        drawCallout("KẾT LUẬN / ĐÁNH GIÁ MỤC 12 (FINAL)", [
+          v.decision + " — HMTD đề xuất / HMTD phê duyệt: " + fmt(d.hmtdReq) + " tỷ đồng / " + fmt(v.approvedLimit) + " tỷ đồng (" + v.limitDiffText + ") trên nền tảng kiểm soát chặt chẽ mục đích luân chuyển vốn, bổ sung đầy đủ thuyết minh chi tiết và giám sát tài khoản chuyên thu theo đúng quy định."
+        ], "conclusion");
+
+        // Bảng chữ ký
+        drawTable(
+          ["Chuyên viên Thẩm định", "Kiểm soát Rủi ro Tín dụng", "Cấp Phê duyệt Tín dụng"],
+          [368, 368, 368],
+          [["(Ký và ghi rõ họ tên)", "(Ký và ghi rõ họ tên)", "(Ký, đóng dấu và ghi rõ họ tên)"]],
+          ["center", "center", "center"]
+        );
+
+        if (canvas) {
+          pages.push(canvas.toDataURL("image/jpeg", 0.92));
+        }
+        return pages;
+      }
+
+      function downloadDirectPdfBlob() {
+        try {
+          runAppraisalEngine(false);
+          notify("Đang khởi tạo tệp PDF chuẩn A4 đầy đủ 12 mục...");
+          var res = appState.lastResult;
+          var jpegPages = renderReportToA4CanvasPages(res);
+          var pdfBlob = buildBinaryPdfFromJpegPages(jpegPages);
+
+          var cleanName = normalizeViKey(res.input.companyName || "KHDN").replace(/\s+/g, "_").toUpperCase();
+          var fileName = "Bao_Cao_Tham_Dinh_" + (cleanName || "KHDN") + "_12_Muc.pdf";
+
+          var url = URL.createObjectURL(pdfBlob);
+          var link = document.createElement("a");
+          link.href = url;
+          link.download = fileName;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          setTimeout(function () {
+            URL.revokeObjectURL(url);
+          }, 15000);
+
+          notify("Đã xuất thành công file " + fileName + " (" + jpegPages.length + " trang A4)!");
+        } catch (err) {
+          console.error("Direct PDF error:", err);
+          notify("Đang mở chế độ In / Lưu PDF dự phòng...");
+          triggerVectorPrintToPdf();
         }
       }
 
@@ -2148,6 +2795,8 @@
         });
         var chkDtt = $("chk-dtt-plan");
         if (chkDtt) chkDtt.setAttribute("placeholder", String(GHOST_SAMPLE.dttPlan));
+        var chkHmtd = $("chk-hmtd-req");
+        if (chkHmtd) chkHmtd.setAttribute("placeholder", String(GHOST_SAMPLE.hmtdReq));
       }
 
       function updateModeUI() {
@@ -2254,6 +2903,7 @@
         if (!tbody) return;
 
         var curDttPlanVal = $("inp-dtt-plan") ? $("inp-dtt-plan").value : "";
+        var curHmtdReqVal = $("inp-hmtd-req") ? $("inp-hmtd-req").value : "";
         var curCogsPlanVal = $("inp-cogs-plan") ? $("inp-cogs-plan").value : "";
         var curOpexPlanVal = $("inp-opex-plan") ? $("inp-opex-plan").value : "";
         var curDaPlanVal = $("inp-da-plan") ? $("inp-da-plan").value : "";
@@ -2344,6 +2994,20 @@
                 '<input id="doc-file-' + doc.id + '" data-doc-idx="' + idx + '" class="doc-file-inp" type="file" multiple accept=".xlsx,.xls,.csv,.pdf,.json,.txt" style="display:none;" />' +
                 '<button type="button" id="btn-dl-plan-template" class="btn-white" style="padding:4px 8px; font-size:11px; width:100%;">⬇ File mẫu Excel T+1</button>' +
               '</div>';
+          } else if (doc.isHmtdReqSlot) {
+            planQuickBoxHtml =
+              '<div style="margin-top:7px; padding:8px 10px; background:#EFF6FF; border:1px solid #93C5FD; border-radius:9px;">' +
+                '<div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px;">' +
+                  '<div style="display:flex; align-items:center; gap:6px; flex:1; min-width:210px;">' +
+                    '<span style="font-size:11.5px; font-weight:800; color:#1B365D; white-space:nowrap;">HMTD đề xuất (tỷ đồng):</span>' +
+                    '<input id="chk-hmtd-req" type="number" inputmode="decimal" step="0.01" value="' + esc(curHmtdReqVal) + '" placeholder="' + GHOST_SAMPLE.hmtdReq + '" style="width:115px; padding:4px 8px; font-weight:800; color:#1B365D; background:#FFFFFF; border-color:#3B82F6;" />' +
+                  '</div>' +
+                  '<span style="font-size:11px; color:#1E40AF; font-weight:600;">Trần tính toán: <strong id="chk-hmtd-max-ref" class="mono">29.07</strong> tỷ</span>' +
+                '</div>' +
+              '</div>';
+            uploadCellHtml =
+              '<label class="upload-pill-btn" for="doc-file-' + doc.id + '" style="width:100%;">📎 Tải Đơn đề nghị / PA</label>' +
+              '<input id="doc-file-' + doc.id + '" data-doc-idx="' + idx + '" class="doc-file-inp" type="file" multiple accept=".pdf,.xlsx,.xls,.csv,.json,.txt" style="display:none;" />';
           } else {
             uploadCellHtml =
               '<label class="upload-pill-btn" for="doc-file-' + doc.id + '" style="width:100%;">📎 Tải PDF / Excel</label>' +
@@ -2797,12 +3461,12 @@
           decision = "PHÊ DUYỆT CÓ ĐIỀU KIỆN (KHỐNG CHẾ TRẦN)";
         }
 
-        var covenants = [
-          "Bổ sung đầy đủ thuyết minh chi tiết tuổi nợ TK 131 và Nhập–Xuất–Tồn TK 152–156 trước giải ngân.",
-          "Quản lý doanh thu chuyển về tài khoản chuyên thu tại ngân hàng tối thiểu 65% doanh thu thực tế.",
-          "Giải ngân từng lần theo hóa đơn/hợp đồng đầu vào hợp lệ; cấm dùng vốn ngắn hạn tài trợ TSCĐ/XDCB.",
-          "Duy trì DSO ≤ 65 ngày, DIO ≤ 90 ngày định kỳ hàng quý và không phát sinh nợ nhóm 2 trở lên trên CIC."
-        ];
+        var limitDiff = d.hmtdReq - approvedLimit;
+        var limitDiffText = approvedLimit === 0
+          ? "Từ chối / Chưa phê duyệt cấp hạn mức"
+          : (limitDiff > 0.005
+              ? ("Cắt giảm " + fmt(limitDiff) + " tỷ đồng so với đề xuất")
+              : "Chấp thuận 100% hạn mức đề xuất");
 
         return {
           input: d,
@@ -2842,6 +3506,8 @@
             flags: flags,
             decision: decision,
             approvedLimit: approvedLimit,
+            limitDiff: limitDiff,
+            limitDiffText: limitDiffText,
             covenants: covenants
           }
         };
@@ -3036,12 +3702,12 @@
             '<div class="memo-info-box"><div class="memo-box-title">Chi tiết Phương án Phê duyệt Đề xuất</div>' +
               '<ul>' +
                 '<li><strong>Quyết nghị Cấp tín dụng:</strong> <strong>' + esc(v.decision) + '</strong></li>' +
-                '<li><strong>Hạn mức tín dụng ngắn hạn phê duyệt:</strong> <strong>' + fmt(v.approvedLimit) + ' tỷ đồng</strong> (Đề xuất KH: ' + fmt(d.hmtdReq) + ' tỷ; Trần tính toán: ' + fmt(m.hmtdMax) + ' tỷ).</li>' +
+                '<li><strong>HMTD đề xuất / HMTD phê duyệt:</strong> <strong>' + fmt(d.hmtdReq) + ' tỷ đồng / ' + fmt(v.approvedLimit) + ' tỷ đồng</strong> (' + esc(v.limitDiffText) + '; Trần tính toán VAR_HMTD_MAX: ' + fmt(m.hmtdMax) + ' tỷ).</li>' +
                 '<li><strong>Tài sản bảo đảm (TSBĐ):</strong> ' + esc(d.collateral) + '</li>' +
                 '<li><strong>Điều kiện cấp tín dụng (Covenants):</strong> ' + esc(v.covenants.join(" ")) + '</li>' +
               '</ul>' +
             '</div>' +
-            '<div class="memo-conclusion-box"><div class="memo-box-title">Kết luận / Đánh giá Mục 12 (Final)</div><strong>' + esc(v.decision) + '</strong> hạn mức tín dụng ngắn hạn tối đa <strong>' + fmt(v.approvedLimit) + ' tỷ đồng</strong> trên nền tảng kiểm soát chặt chẽ mục đích luân chuyển vốn, bổ sung đầy đủ thuyết minh chi tiết và giám sát tài khoản chuyên thu theo đúng quy định.</div>' +
+            '<div class="memo-conclusion-box"><div class="memo-box-title">Kết luận / Đánh giá Mục 12 (Final)</div><strong>' + esc(v.decision) + '</strong> — <strong>HMTD đề xuất / HMTD phê duyệt: ' + fmt(d.hmtdReq) + ' tỷ đồng / ' + fmt(v.approvedLimit) + ' tỷ đồng</strong> (' + esc(v.limitDiffText) + ') trên nền tảng kiểm soát chặt chẽ mục đích luân chuyển vốn, bổ sung đầy đủ thuyết minh chi tiết và giám sát tài khoản chuyên thu theo đúng quy định.</div>' +
 
             '<table class="memo-table" style="margin-top:12px; page-break-inside:avoid;">' +
               '<thead><tr><th class="center">Chuyên viên Thẩm định</th><th class="center">Kiểm soát Rủi ro Tín dụng</th><th class="center">Cấp Phê duyệt Tín dụng</th></tr></thead>' +
@@ -3077,6 +3743,7 @@
 
           $("live-nhucau-t1").textContent = res.metrics.nhuCauT1 !== null ? fmt(res.metrics.nhuCauT1) : "N/A";
           $("live-hmtd-max-box").textContent = res.metrics.hmtdMax !== null ? fmt(res.metrics.hmtdMax) : "N/A";
+          if ($("chk-hmtd-max-ref")) $("chk-hmtd-max-ref").textContent = res.metrics.hmtdMax !== null ? fmt(res.metrics.hmtdMax) : "N/A";
           if ($("chk-lntt-plan")) $("chk-lntt-plan").textContent = fmt(res.metrics.lnttPlan);
           if ($("chk-lnst-plan")) $("chk-lnst-plan").textContent = fmt(res.metrics.lnstPlan);
           if ($("chk-ebitda-plan")) $("chk-ebitda-plan").textContent = fmt(res.metrics.ebitdaPlan);
@@ -3095,7 +3762,7 @@
           // Stage Pills
           if ($("st-pill-2")) $("st-pill-2").textContent = "NWC_op: " + fmt(res.clean.nwcOpEnd) + " tỷ";
           if ($("st-pill-3")) $("st-pill-3").textContent = "DSCR: " + (res.metrics.dscr !== null ? fmt(res.metrics.dscr) + "x" : "N/A");
-          if ($("st-pill-4")) $("st-pill-4").textContent = res.ews.rank + " • " + fmt(res.verdict.approvedLimit) + " tỷ";
+          if ($("st-pill-4")) $("st-pill-4").textContent = fmt(d.hmtdReq) + " / " + fmt(res.verdict.approvedLimit) + " tỷ";
 
           // Thẻ T+1 HMTD trên tab Phân tích
           $("analysis-dtt-plan-badge").textContent = "DTT Dự phóng T+1: " + fmt(d.dttPlan) + " tỷ";
@@ -3107,7 +3774,8 @@
           // Desktop Right Panel
           $("sum-rank").textContent = res.ews.rank;
           $("sum-decision").textContent = res.verdict.decision;
-          $("sum-limit").textContent = fmt(res.verdict.approvedLimit) + " tỷ đồng";
+          $("sum-limit").textContent = fmt(d.hmtdReq) + " / " + fmt(res.verdict.approvedLimit) + " tỷ đồng";
+          if ($("sum-limit-diff")) $("sum-limit-diff").textContent = res.verdict.limitDiffText;
           $("sum-ocf").textContent = fmt(res.metrics.ocf) + " tỷ";
           $("sum-ms20").textContent = "Lệch MS_20: " + fmt(res.metrics.ms20DiffPct, 1) + "%";
           $("sum-dscr").textContent = res.metrics.dscr !== null ? fmt(res.metrics.dscr) + "x" : "N/A";
@@ -3128,7 +3796,7 @@
           // Mobile Sticky Summary
           $("mob-rank").textContent = res.ews.rank;
           $("mob-decision").textContent = res.verdict.decision;
-          $("mob-limit").textContent = fmt(res.verdict.approvedLimit) + " tỷ";
+          $("mob-limit").textContent = fmt(d.hmtdReq) + " / " + fmt(res.verdict.approvedLimit) + " tỷ";
           $("mob-ocf").textContent = fmt(res.metrics.ocf) + " tỷ";
           $("mob-dscr").textContent = res.metrics.dscr !== null ? fmt(res.metrics.dscr) + "x" : "N/A";
           $("mob-vq").textContent = res.metrics.vqVld !== null ? fmt(res.metrics.vqVld) + " vòng" : "N/A";
@@ -3352,9 +4020,15 @@
         $("btn-preview-pdf").addEventListener("click", openReportPreview);
         $("btn-mob-preview").addEventListener("click", openReportPreview);
         $("btn-rep-preview").addEventListener("click", openReportPreview);
-        $("btn-export-pdf").addEventListener("click", triggerPrintToPdf);
-        $("btn-rep-print").addEventListener("click", triggerPrintToPdf);
-        $("btn-modal-print").addEventListener("click", triggerPrintToPdf);
+
+        $("btn-direct-pdf-top").addEventListener("click", downloadDirectPdfBlob);
+        $("btn-mob-direct-pdf").addEventListener("click", downloadDirectPdfBlob);
+        $("btn-rep-direct-pdf").addEventListener("click", downloadDirectPdfBlob);
+        $("btn-modal-direct-pdf").addEventListener("click", downloadDirectPdfBlob);
+
+        $("btn-export-pdf").addEventListener("click", triggerVectorPrintToPdf);
+        $("btn-rep-print").addEventListener("click", triggerVectorPrintToPdf);
+        $("btn-modal-print").addEventListener("click", triggerVectorPrintToPdf);
         $("btn-modal-close").addEventListener("click", function () {
           $("preview-modal").classList.add("hidden");
         });
@@ -3578,6 +4252,15 @@
             runAppraisalEngine(false);
             return;
           }
+          if (t.id === "chk-hmtd-req") {
+            if ($("inp-hmtd-req")) $("inp-hmtd-req").value = t.value;
+            if (t.value.trim() !== "") {
+              appState.mode = "real";
+              updateModeUI();
+            }
+            runAppraisalEngine(false);
+            return;
+          }
           if (t.classList.contains("doc-note-inp")) {
             var idx = Number(t.getAttribute("data-doc-idx"));
             if (!isNaN(idx) && appState.docs[idx]) {
@@ -3594,6 +4277,9 @@
         function onInputEdit(e) {
           if (e.target && e.target.id === "inp-dtt-plan" && $("chk-dtt-plan")) {
             $("chk-dtt-plan").value = e.target.value;
+          }
+          if (e.target && e.target.id === "inp-hmtd-req" && $("chk-hmtd-req")) {
+            $("chk-hmtd-req").value = e.target.value;
           }
           if (e.target && e.target.hasAttribute("data-field") && e.target.value.trim() !== "") {
             appState.mode = "real";
@@ -3621,6 +4307,9 @@
             });
             if ($("chk-dtt-plan") && $("inp-dtt-plan")) {
               $("chk-dtt-plan").value = $("inp-dtt-plan").value;
+            }
+            if ($("chk-hmtd-req") && $("inp-hmtd-req")) {
+              $("chk-hmtd-req").value = $("inp-hmtd-req").value;
             }
             appState.mode = "real";
             syncChoiceButtonsUI();
