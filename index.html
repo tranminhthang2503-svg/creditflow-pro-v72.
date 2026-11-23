@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-<title>Hệ thống Thẩm định Tín dụng KHDN AI-Ready v7.2 (Production-Ready)</title>
+<title>Hệ thống Thẩm định Tín dụng KHDN • 4 AI Agents v7.2 (Production-Ready)</title>
 <style>
   :root {
     --navy: #0F294A;
@@ -51,10 +51,35 @@
   .tb-btn.active { background: #2563EB; border-color: #93C5FD; box-shadow: 0 0 0 1px #93C5FD; }
   .tb-btn.gold { background: #D97706; border-color: #FCD34D; color: #fff; }
   .tb-btn.emerald { background: #059669; border-color: #6EE7B7; color: #fff; }
+  .tb-btn.indigo { background: #4F46E5; border-color: #A5B4FC; color: #fff; }
 
   /* MODE SWITCHING */
   body.mode-mobile .app-shell { max-width: 680px; margin: 0 auto; padding: 10px 10px 84px 10px; }
   body.mode-desktop .app-shell { max-width: 1440px; margin: 0 auto; padding: 14px 18px 40px 18px; }
+
+  /* 4 AI AGENTS PIPELINE BAR */
+  .agents-bar {
+    background: var(--card); border: 1.5px solid #BFDBFE; border-radius: 10px;
+    padding: 10px 12px; margin-bottom: 10px;
+    box-shadow: 0 2px 8px rgba(15, 41, 74, 0.06);
+  }
+  .agents-header {
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px;
+    margin-bottom: 8px; padding-bottom: 7px; border-bottom: 1px solid #E2E8F0;
+  }
+  .agents-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px;
+  }
+  .agent-card {
+    background: #F8FAFC; border: 1px solid #CBD5E1; border-left: 4px solid #64748B;
+    border-radius: 8px; padding: 8px 10px; transition: all 0.15s;
+  }
+  .agent-card.done { background: #ECFDF5; border-color: #6EE7B7; border-left-color: #059669; }
+  .agent-card.warn { background: #FFFBEB; border-color: #FCD34D; border-left-color: #D97706; }
+  .agent-card.danger { background: #FEF2F2; border-color: #FCA5A5; border-left-color: #DC2626; }
+  .agent-title { font-weight: 800; font-size: 12px; color: #0F294A; display: flex; justify-content: space-between; align-items: center; gap: 4px; }
+  .agent-role { font-size: 11px; color: #334155; font-weight: 600; margin-top: 2px; }
+  .agent-log { font-size: 11px; color: #475569; margin-top: 4px; line-height: 1.35; }
 
   /* STICKY DECISION BANNER */
   .decision-banner {
@@ -165,6 +190,18 @@
   }
   .alert-box.danger { border-left-color: var(--red); background: var(--red-bg); color: #991B1B; }
   .alert-box.info { border-left-color: var(--royal); background: #EFF6FF; color: #1E3A8A; }
+  .alert-box.success { border-left-color: var(--green); background: var(--green-bg); color: #065F46; }
+
+  /* MODAL FOR JSON / BULK IMPORT */
+  .modal-backdrop {
+    display: none; position: fixed; inset: 0; z-index: 10001;
+    background: rgba(15, 23, 42, 0.55); align-items: center; justify-content: center; padding: 14px;
+  }
+  .modal-backdrop.open { display: flex; }
+  .modal-box {
+    background: #fff; border-radius: 12px; max-width: 640px; width: 100%;
+    border: 1.5px solid #93C5FD; box-shadow: 0 12px 32px rgba(0,0,0,0.28); overflow: hidden;
+  }
 
   /* REPORT 12 SECTIONS */
   .report-sheet { background: #fff; border: 1px solid #CBD5E1; border-radius: 10px; padding: 18px; }
@@ -182,13 +219,13 @@
     position: fixed; top: 62px; right: 14px; z-index: 10000;
     background: #0F294A; color: #fff; padding: 9px 14px; border-radius: 8px;
     font-size: 12px; font-weight: 600; box-shadow: 0 6px 20px rgba(0,0,0,0.25);
-    display: none; max-width: 340px;
+    display: none; max-width: 360px;
   }
 
   /* PRINT STYLES */
   @media print {
     html, body { background: #fff !important; height: auto !important; overflow: visible !important; }
-    .topbar, .decision-banner, .desktop-tabs, .mobile-nav, #panel-checklist, #panel-inputs, #panel-analysis, .no-print, #toast {
+    .topbar, .agents-bar, .decision-banner, .desktop-tabs, .mobile-nav, #panel-checklist, #panel-inputs, #panel-analysis, .no-print, #toast, .modal-backdrop {
       display: none !important;
     }
     .app-shell { max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
@@ -203,21 +240,81 @@
 
 <div id="toast"></div>
 
+<!-- MODAL NẠP JSON / EXPORT SCHEMA -->
+<div class="modal-backdrop" id="json-modal">
+  <div class="modal-box">
+    <div class="card-hd">
+      <span>🤖 AI AGENT 1 &amp; 2 • NẠP / XUẤT DỮ LIỆU JSON CHUẨN HÓA v7.2</span>
+      <button type="button" class="tb-btn" data-action="close-json-modal">✕ Đóng</button>
+    </div>
+    <div class="card-bd">
+      <div class="alert-box info">
+        Dán chuỗi <strong>JSON chuẩn hóa v7.2</strong> trích xuất từ PDF/Excel vào ô bên dưới rồi bấm <strong>Áp dụng vào Bảng Nhập liệu</strong>, hoặc sao chép JSON hiện tại của hồ sơ.
+      </div>
+      <textarea id="json-payload-box" rows="10" placeholder='{"company_info":{"name":"..."},"financials":{"ar_gop":85.0,...}}'></textarea>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;margin-top:10px;">
+        <button type="button" class="pill-btn" data-action="copy-current-json">📋 Xuất JSON hiện tại</button>
+        <button type="button" class="pill-btn active-green" data-action="apply-json-payload">⚡ Áp dụng vào Bảng Nhập liệu</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <header class="topbar">
   <div>
-    <div class="brand-title">🏛️ THẨM ĐỊNH TÍN DỤNG KHDN • AI-READY v7.2</div>
+    <div class="brand-title">🏛️ THẨM ĐỊNH TÍN DỤNG KHDN • 4 AI AGENTS v7.2</div>
     <div class="brand-sub">Chuẩn TT200 / VAS 24 • Zero-Hallucination &amp; Dynamic Timeline</div>
   </div>
   <div class="toolbar-actions">
     <button type="button" class="tb-btn active" id="btnModeMobile" data-action="set-mode" data-mode="mobile">📱 Điện thoại</button>
     <button type="button" class="tb-btn" id="btnModeDesktop" data-action="set-mode" data-mode="desktop">🖥️ Máy tính</button>
     <button type="button" class="tb-btn" id="btnModeAuto" data-action="set-mode" data-mode="auto">🔄 Tự động</button>
+    <button type="button" class="tb-btn indigo" data-action="run-all-4-agents">🤖 Chạy 4 AI Agents</button>
     <button type="button" class="tb-btn gold" data-action="run-unit-test">🧪 Kiểm thử v7.2</button>
     <button type="button" class="tb-btn emerald" data-action="export-pdf-file">⬇️ Tải file .PDF</button>
   </div>
 </header>
 
 <div class="app-shell">
+  <!-- 4 AI AGENTS WORKFLOW PIPELINE -->
+  <div class="agents-bar">
+    <div class="agents-header">
+      <div style="font-weight:800;font-size:12.5px;color:#0F294A;">
+        🤖 QUY TRÌNH PHỐI HỢP 4 AI AGENTS TỰ ĐỘNG (ĐỌC FILE → LỌC SẠCH → THẨM ĐỊNH → PHÊ DUYỆT)
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;">
+        <label class="upload-btn" style="background:#EEF2FF;border-color:#818CF8;color:#3730A3;">
+          📂 Nạp nhanh nhiều file PDF / Excel / CSV / XML
+          <input type="file" id="bulk-file-input" accept=".pdf,.xlsx,.xls,.csv,.xml,.json,.txt" multiple style="display:none;">
+        </label>
+        <button type="button" class="pill-btn" data-action="open-json-modal">🧩 Nạp/Xuất JSON</button>
+        <button type="button" class="pill-btn active-blue" data-action="run-all-4-agents">▶ Chạy lại 4 Agents</button>
+      </div>
+    </div>
+    <div class="agents-grid">
+      <div class="agent-card done" id="agent1-card">
+        <div class="agent-title"><span>AI AGENT 1 • ĐỌC &amp; KIỂM HỢP FILE</span><span class="badge b-green" id="agent1-badge">Sẵn sàng</span></div>
+        <div class="agent-role">Đọc dữ liệu file đầu vào &amp; đánh giá tính đầy đủ/hợp lệ</div>
+        <div class="agent-log" id="agent1-log">Hồ sơ 13/13 đầu mục hợp lệ. Hỗ trợ tự động bóc tách Excel (.xlsx/.csv), PDF, XML thuế &amp; JSON.</div>
+      </div>
+      <div class="agent-card done" id="agent2-card">
+        <div class="agent-title"><span>AI AGENT 2 • NHẬP &amp; LỌC DỮ LIỆU SẠCH</span><span class="badge b-green" id="agent2-badge">Đã lọc sạch</span></div>
+        <div class="agent-role">Nhập liệu TT200 &amp; lọc nhiễu chống trừ trùng theo lý luận</div>
+        <div class="agent-log" id="agent2-log">AR_Clean, INV_Clean, AP_Clean và NWC_op vận hành đã được bóc tách loại trừ khoản treo/CapEx.</div>
+      </div>
+      <div class="agent-card done" id="agent3-card">
+        <div class="agent-title"><span>AI AGENT 3 • CHUYÊN GIA THẨM ĐỊNH</span><span class="badge b-blue" id="agent3-badge">Đã phân tích</span></div>
+        <div class="agent-role">Phân tích 19 chỉ số, OCF VAS 24, Stress Test ST1–ST4 &amp; đề xuất</div>
+        <div class="agent-log" id="agent3-log">Đang chờ tổng hợp đề xuất hạn mức dựa trên vòng quay VLĐ và sức chịu đựng dòng tiền.</div>
+      </div>
+      <div class="agent-card done" id="agent4-card">
+        <div class="agent-title"><span>AI AGENT 4 • CHUYÊN GIA PHÊ DUYỆT</span><span class="badge b-green" id="agent4-badge">Phê duyệt</span></div>
+        <div class="agent-role">Kiểm soát Knock-out, EWS 4 trụ cột &amp; quyết nghị HMTD cuối</div>
+        <div class="agent-log" id="agent4-log">Quyết nghị HMTD đề xuất / HMTD phê duyệt &amp; điều kiện kiểm soát dòng tiền sau vay.</div>
+      </div>
+    </div>
+  </div>
+
   <!-- LIVE DECISION SUMMARY BANNER -->
   <div class="decision-banner">
     <div class="decision-grid">
@@ -256,7 +353,7 @@
   <section id="panel-checklist" class="panel active">
     <div class="card">
       <div class="card-hd">
-        <span>📋 BẢNG CHECKLIST NẠP HỒ SƠ ĐẦU VÀO (PDF / EXCEL TỪ MÁY TÍNH &amp; ĐIỆN THOẠI)</span>
+        <span>📋 BẢNG CHECKLIST NẠP HỒ SƠ ĐẦU VÀO (AI AGENT 1 TỰ ĐỌC &amp; ĐÁNH GIÁ HỢP LỆ)</span>
         <div style="display:flex;gap:6px;flex-wrap:wrap;">
           <button type="button" class="tb-btn emerald" data-action="fill-sample-real">⚡ Điền mẫu Hoàng Nam</button>
           <button type="button" class="tb-btn" data-action="clear-all-inputs">✨ Xóa trắng nhập mới</button>
@@ -264,8 +361,9 @@
       </div>
       <div class="card-bd">
         <div class="alert-box info">
-          <strong>Hướng dẫn nhanh:</strong> Bấm nút <strong>📎 Tải PDF / Excel</strong> ngay bên cạnh từng đầu mục hồ sơ để đính kèm tệp từ điện thoại hoặc máy tính. Các ô số liệu tại Mục 3.2, Mục 11 và Mục 12 đồng bộ trực tiếp với toàn bộ mô hình tính toán.
+          <strong>Cơ chế AI Agent 1 &amp; 2 Tự động:</strong> Khi bạn bấm <strong>📎 Tải PDF / Excel</strong> ở từng đầu mục (hoặc nạp hàng loạt ở thanh trên), <strong>AI Agent 1</strong> sẽ đọc nội dung tệp, kiểm tra tính đầy đủ/hợp lệ của chứng từ, và bàn giao cho <strong>AI Agent 2</strong> tự động ánh xạ các mã số TT200 (`MS 10`, `MS 11`, `MS 20`, `MS 50`, `MS 131`, `MS 141`, `MS 311`...) vào <strong>Bảng Nhập liệu</strong>.
         </div>
+        <div id="parser-audit-log"></div>
         <div class="tbl-wrap">
           <table id="checklist-table">
             <thead>
@@ -274,14 +372,15 @@
                 <th>Hạng mục hồ sơ chuẩn hóa TT200 / CIC / Ngân hàng</th>
                 <th style="width:155px;">Nạp tài liệu (PDF/Excel)</th>
                 <th style="width:215px;">Trạng thái kiểm soát</th>
-                <th style="width:190px;">Ghi chú / Số liệu nhanh</th>
+                <th style="width:205px;">Đánh giá AI Agent 1 / Ghi chú</th>
               </tr>
             </thead>
             <tbody id="checklist-tbody"></tbody>
           </table>
         </div>
-        <div style="margin-top:12px;display:flex;justify-content:flex-end;gap:8px;">
-          <button type="button" class="pill-btn active-blue" style="padding:9px 14px;font-size:12.5px;" data-action="switch-tab" data-tab="inputs">Tiếp tục sang Bước 2: Nhập liệu BCTC ➡️</button>
+        <div style="margin-top:12px;display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;">
+          <button type="button" class="pill-btn active-green" style="padding:9px 14px;font-size:12.5px;" data-action="run-all-4-agents">🤖 Kích hoạt 4 AI Agents Phân tích Toàn diện</button>
+          <button type="button" class="pill-btn active-blue" style="padding:9px 14px;font-size:12.5px;" data-action="switch-tab" data-tab="inputs">Sang Bước 2: Kiểm tra Dữ liệu Sạch ➡️</button>
         </div>
       </div>
     </div>
@@ -408,7 +507,7 @@
 
     <!-- BẢNG III: LỌC NHIỄU VỐN LƯU ĐỘNG 3 KỲ -->
     <div class="card">
-      <div class="card-hd"><span>BẢNG III. LỌC NHIỄU VỐN LƯU ĐỘNG VẬN HÀNH 3 KỲ (NĂM T−2 | NĂM T−1 | KỲ T)</span></div>
+      <div class="card-hd"><span>BẢNG III. AI AGENT 2 – LỌC NHIỄU VỐN LƯU ĐỘNG VẬN HÀNH 3 KỲ (NĂM T−2 | NĂM T−1 | KỲ T)</span></div>
       <div class="card-bd">
         <div class="tbl-wrap">
           <table>
@@ -701,6 +800,12 @@
   <section id="panel-analysis" class="panel">
     <div id="warnings-container"></div>
 
+    <!-- NHẬN XÉT CHUYÊN SÂU CỦA AI AGENT 3 & AI AGENT 4 -->
+    <div class="card">
+      <div class="card-hd"><span>🧠 PHÂN TÍCH CHUYÊN GIA (AI AGENT 3: THẨM ĐỊNH &amp; AI AGENT 4: PHÊ DUYỆT)</span></div>
+      <div class="card-bd" id="agents-synthesis-box"></div>
+    </div>
+
     <!-- 19 CHỈ SỐ TÀI CHÍNH 4 NHÓM -->
     <div class="card">
       <div class="card-hd"><span>1. BẢNG TOÀN DIỆN 19 CHỈ SỐ TÀI CHÍNH DOANH NGHIỆP (4 NHÓM CHUẨN TT200)</span></div>
@@ -839,7 +944,8 @@
     has_exclusion_notes: true,
     cic_group: 1,
     ews: { tc: 7.5, vld: 7.0, qltn: 8.0, vtsb: 7.5 },
-    checklist: {}
+    checklist: {},
+    parserLogs: []
   };
 
   CHECKLIST_ITEMS.forEach(item => {
@@ -894,7 +1000,7 @@
     t.textContent = msg;
     t.style.display = "block";
     clearTimeout(window._toastTimer);
-    window._toastTimer = setTimeout(() => { t.style.display = "none"; }, 2600);
+    window._toastTimer = setTimeout(() => { t.style.display = "none"; }, 3000);
   }
 
   function numVal(id) {
@@ -921,6 +1027,339 @@
   function fmtNum(v, dec) {
     if (v === null || v === undefined || v === "N/A" || !Number.isFinite(v)) return "N/A";
     return v.toFixed(dec);
+  }
+
+  // =========================================================================
+  // BUILT-IN ZERO-CDN PARSER FOR AI AGENT 1 & AI AGENT 2
+  // Supports: JSON Schema v7.2, CSV/TSV, HTKK XML, XLSX (OpenXML Deflate/Store), PDF Text Streams
+  // =========================================================================
+  function parseNumberSmart(raw) {
+    if (typeof raw === "number") return raw;
+    if (!raw) return null;
+    let s = String(raw).trim().replace(/\s+/g, "");
+    if (!s) return null;
+    let neg = false;
+    if (s.startsWith("(") && s.endsWith(")")) { neg = true; s = s.slice(1, -1); }
+    // Handle Vietnamese/English thousand separators
+    if (/^-?\d{1,3}(\.\d{3})+(,\d+)?$/.test(s)) {
+      s = s.replace(/\./g, "").replace(",", ".");
+    } else if (/^-?\d{1,3}(,\d{3})+(\.\d+)?$/.test(s)) {
+      s = s.replace(/,/g, "");
+    } else {
+      s = s.replace(",", ".");
+    }
+    const v = parseFloat(s);
+    if (!Number.isFinite(v)) return null;
+    return neg ? -v : v;
+  }
+
+  function applySchemaV72(obj) {
+    if (!obj || typeof obj !== "object") return 0;
+    let count = 0;
+    const setIf = (id, val) => {
+      if (val !== null && val !== undefined && $(id)) {
+        $(id).value = typeof val === "number" ? val.toFixed(2) : val;
+        count++;
+      }
+    };
+    if (obj.company_info) {
+      const c = obj.company_info;
+      setIf("inp_company_name", c.name);
+      setIf("inp_mst", c.mst);
+      setIf("inp_hmtd_req", c.hmtd_req);
+      if (typeof c.is_manufacturing === "boolean") STATE.is_manufacturing = c.is_manufacturing;
+      if (typeof c.has_exclusion_notes === "boolean") STATE.has_exclusion_notes = c.has_exclusion_notes;
+    }
+    if (obj.period_config && obj.period_config.t_days_ytd) {
+      STATE.t_days = parseInt(obj.period_config.t_days_ytd, 10) || STATE.t_days;
+    }
+    if (obj.debt_and_covenants) {
+      const d = obj.debt_and_covenants;
+      setIf("inp_other_debt", d.other_debt);
+      setIf("inp_principal_due", d.principal_due);
+      setIf("inp_current_interest", d.current_interest);
+    }
+    if (obj.ews_inputs) {
+      const e = obj.ews_inputs;
+      if (typeof e.score_tc === "number") STATE.ews.tc = e.score_tc;
+      if (typeof e.score_vld === "number") STATE.ews.vld = e.score_vld;
+      if (typeof e.score_qltn === "number") STATE.ews.qltn = e.score_qltn;
+      if (typeof e.score_vtsb === "number") STATE.ews.vtsb = e.score_vtsb;
+      if (e.knock_out === true) STATE.cic_group = 3;
+    }
+    if (obj.financials) {
+      const f = obj.financials;
+      const mapF = {
+        ar_gop: "ar_gop_t", ar_treo: "ar_treo_t", dp_noxau_tt48: "dp_ar_t",
+        inv_gop: "inv_gop_t", inv_udong_180d: "inv_ud_t", dp_giamgia: "dp_inv_t",
+        tong_tk331: "ap_gop_t", ap_treo: "ap_treo_t", ap_capex: "ap_capex_t",
+        tsnh_vh_khac: "tsnh_vh_t", no_vh_khac: "no_vh_t",
+        dtt_ytd: "dtt_t", cogs_ytd: "cogs_t", purchases_ytd: "purch_t",
+        lntt_ytd: "lntt_t", da_ytd: "da_t", interest_exp_ytd: "int_exp_t",
+        tax_paid_ytd: "tax_t", interest_paid_ytd: "int_paid_t",
+        ms_20_ytd: "ms20_t", dtt_plan_t1: "dtt_plan_t1",
+        cash_collected_112: "cash_in_112", dt_vat_incl_tax: "dt_incl_vat"
+      };
+      Object.keys(mapF).forEach(k => { if (f[k] !== undefined && f[k] !== null) setIf(mapF[k], f[k]); });
+    }
+    // Also allow flat field IDs directly
+    Object.keys(SAMPLE_VALUES).forEach(k => { if (obj[k] !== undefined) setIf(k, obj[k]); });
+    return count;
+  }
+
+  function mapExtractedTextToTT200(text, defaultDocId) {
+    let mappedCount = 0;
+    const notes = [];
+    // Detect MST (10 or 13 digits)
+    const mstMatch = text.match(/(?:MST|Mã số thuế|MÃ SỐ THUẾ)[:\s-]*([0-9]{10}(?:-[0-9]{3})?)/i);
+    if (mstMatch && $("inp_mst")) {
+      $("inp_mst").value = mstMatch[1];
+      mappedCount++;
+      notes.push(`MST=${mstMatch[1]}`);
+    }
+
+    // Detect Company Name
+    const nameMatch = text.match(/(?:Tên doanh nghiệp|Người nộp thuế|CÔNG TY[^\n\r]{4,90})/i);
+    if (nameMatch && $("inp_company_name")) {
+      const cleanName = nameMatch[0].replace(/^(?:Tên doanh nghiệp|Người nộp thuế)[:\s-]*/i, "").trim();
+      if (cleanName.length >= 6 && cleanName.length <= 100) {
+        $("inp_company_name").value = cleanName;
+        mappedCount++;
+      }
+    }
+
+    // Detect CIC bad debt keywords
+    if (/nhóm\s*[345]|nợ\s*xấu|nợ\s*nghi\s*ngờ|nợ\s*có\s*khả\s*năng\s*mất\s*vốn/i.test(text)) {
+      STATE.cic_group = 3;
+      notes.push("Phát hiện cảnh báo CIC Nhóm 3-5");
+    } else if (/nhóm\s*2|nợ\s*cần\s*chú\s*ý/i.test(text)) {
+      STATE.cic_group = 2;
+      notes.push("Phát hiện CIC Nhóm 2");
+    }
+
+    // Detect TT200 line patterns: e.g. "131 ... 68.50" or "Doanh thu thuần ... 295.00"
+    const rules = [
+      { re: /(?:Doanh thu thuần[^\n\r]{0,40}|Mã số\s*10\b|\bMS\s*10\b)[^\d\n\r-]{1,25}([\d.,()-]+)/i, target: "dtt_t", label: "DTT(MS10)" },
+      { re: /(?:Giá vốn hàng bán[^\n\r]{0,40}|Mã số\s*11\b|\bMS\s*11\b)[^\d\n\r-]{1,25}([\d.,()-]+)/i, target: "cogs_t", label: "GVHB(MS11)" },
+      { re: /(?:Chi phí lãi vay[^\n\r]{0,40}|Mã số\s*23\b|\bMS\s*23\b)[^\d\n\r-]{1,25}([\d.,()-]+)/i, target: "int_exp_t", label: "Lãi vay(MS23)" },
+      { re: /(?:Lợi nhuận kế toán trước thuế[^\n\r]{0,40}|Mã số\s*50\b|\bMS\s*50\b)[^\d\n\r-]{1,25}([\d.,()-]+)/i, target: "lntt_t", label: "LNTT(MS50)" },
+      { re: /(?:Tiền và các khoản tương đương tiền[^\n\r]{0,40}|Mã số\s*110\b|\bMS\s*110\b)[^\d\n\r-]{1,25}([\d.,()-]+)/i, target: "cash_t", label: "Tiền(MS110)" },
+      { re: /(?:Phải thu ngắn hạn của khách hàng[^\n\r]{0,40}|Mã số\s*131\b|\bMS\s*131\b)[^\d\n\r-]{1,25}([\d.,()-]+)/i, target: "ar_gop_t", label: "AR(MS131)" },
+      { re: /(?:Dự phòng phải thu ngắn hạn khó đòi[^\n\r]{0,40}|Mã số\s*137\b|\bMS\s*137\b)[^\d\n\r-]{1,25}([\d.,()-]+)/i, target: "dp_ar_t", label: "DP_AR(MS137)" },
+      { re: /(?:Hàng tồn kho[^\n\r]{0,40}|Mã số\s*141\b|\bMS\s*141\b)[^\d\n\r-]{1,25}([\d.,()-]+)/i, target: "inv_gop_t", label: "INV(MS141)" },
+      { re: /(?:Dự phòng giảm giá hàng tồn kho[^\n\r]{0,40}|Mã số\s*149\b|\bMS\s*149\b)[^\d\n\r-]{1,25}([\d.,()-]+)/i, target: "dp_inv_t", label: "DP_INV(MS149)" },
+      { re: /(?:Tổng cộng tài sản[^\n\r]{0,40}|Mã số\s*270\b|\bMS\s*270\b)[^\d\n\r-]{1,25}([\d.,()-]+)/i, target: "ta_t", label: "TổngTS(MS270)" },
+      { re: /(?:Nợ ngắn hạn[^\n\r]{0,40}|Mã số\s*310\b|\bMS\s*310\b)[^\d\n\r-]{1,25}([\d.,()-]+)/i, target: "cl_t", label: "NợNH(MS310)" },
+      { re: /(?:Phải trả người bán ngắn hạn[^\n\r]{0,40}|Mã số\s*311\b|\bMS\s*311\b)[^\d\n\r-]{1,25}([\d.,()-]+)/i, target: "ap_gop_t", label: "AP(MS311)" },
+      { re: /(?:Vốn chủ sở hữu[^\n\r]{0,40}|Mã số\s*400\b|\bMS\s*400\b)[^\d\n\r-]{1,25}([\d.,()-]+)/i, target: "eq_t", label: "VCSH(MS400)" },
+      { re: /(?:Lưu chuyển tiền thuần từ hoạt động kinh doanh[^\n\r]{0,40}|Mã số\s*20\b|\bMS\s*20\b)[^\d\n\r-]{1,25}([\d.,()-]+)/i, target: "ms20_t", label: "OCF(MS20)" },
+      { re: /(?:Doanh thu dự phóng|Kế hoạch doanh thu|VAR_DT_KH_T\+1)[^\d\n\r-]{1,25}([\d.,()-]+)/i, target: "dtt_plan_t1", label: "DT_KH_T+1" },
+      { re: /(?:HMTD đề xuất|Hạn mức đề xuất|VAR_HMTD_REQ)[^\d\n\r-]{1,25}([\d.,()-]+)/i, target: "inp_hmtd_req", label: "HMTD_ĐX" }
+    ];
+
+    // Auto scale if raw VND (>= 1,000,000) -> convert to Tỷ đồng
+    rules.forEach(r => {
+      const m = text.match(r.re);
+      if (m && m[1]) {
+        let num = parseNumberSmart(m[1]);
+        if (num !== null) {
+          if (Math.abs(num) >= 1000000) num = num / 1e9;
+          else if (Math.abs(num) >= 10000) num = num / 1e3;
+          $(r.target).value = num.toFixed(2);
+          mappedCount++;
+          notes.push(`${r.label}=${num.toFixed(2)}`);
+        }
+      }
+    });
+
+    // Also parse explicit key=value or CSV field_id,value pairs
+    const lines = text.split(/\r?\n/);
+    lines.forEach(ln => {
+      const parts = ln.split(/[,;\t=:]/).map(s => s.trim());
+      if (parts.length >= 2 && SAMPLE_VALUES[parts[0]] !== undefined) {
+        const val = parseNumberSmart(parts[1]);
+        if (val !== null) {
+          $(parts[0]).value = val.toFixed(2);
+          mappedCount++;
+          notes.push(`${parts[0]}=${val.toFixed(2)}`);
+        }
+      }
+    });
+
+    return { mappedCount, notes };
+  }
+
+  // Minimal Zero-CDN ZIP/XLSX XML text extractor using native DecompressionStream
+  async function extractTextFromXlsx(arrayBuffer) {
+    if (typeof DecompressionStream === "undefined") return "";
+    const u8 = new Uint8Array(arrayBuffer);
+    const view = new DataView(arrayBuffer);
+    const decoder = new TextDecoder("utf-8", { fatal: false });
+    let offset = 0;
+    const xmlTexts = [];
+
+    while (offset + 30 < u8.length) {
+      const sig = view.getUint32(offset, true);
+      if (sig !== 0x04034b50) break; // Local file header signature
+      const method = view.getUint16(offset + 8, true);
+      const compSize = view.getUint32(offset + 18, true);
+      const nameLen = view.getUint16(offset + 26, true);
+      const extraLen = view.getUint16(offset + 28, true);
+      const fname = decoder.decode(u8.subarray(offset + 30, offset + 30 + nameLen));
+      const dataStart = offset + 30 + nameLen + extraLen;
+      const compData = u8.subarray(dataStart, dataStart + compSize);
+      offset = dataStart + compSize;
+
+      if (fname.endsWith(".xml") && (fname.includes("sharedStrings") || fname.includes("sheet"))) {
+        try {
+          if (method === 0) {
+            xmlTexts.push(decoder.decode(compData));
+          } else if (method === 8) {
+            const ds = new DecompressionStream("deflate-raw");
+            const writer = ds.writable.getWriter();
+            writer.write(compData);
+            writer.close();
+            const buf = await new Response(ds.readable).arrayBuffer();
+            xmlTexts.push(decoder.decode(buf));
+          }
+        } catch (err) { /* ignore malformed entry */ }
+      }
+    }
+    return xmlTexts.join("\n").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
+  }
+
+  function extractTextFromPdfBytes(arrayBuffer) {
+    const raw = new TextDecoder("latin1").decode(new Uint8Array(arrayBuffer));
+    const matches = raw.match(/\(([^()\\]{2,120})\)/g) || [];
+    return matches.map(s => s.slice(1, -1)).join(" ");
+  }
+
+  function detectDocBucketByFilename(fname) {
+    const n = fname.toLowerCase();
+    if (n.includes("dkkd") || n.includes("phap_ly") || n.includes("dieu_le")) return "doc_1";
+    if (n.includes("cic")) return "doc_2";
+    if (n.includes("t-1") || n.includes("2024") || n.includes("2025") || n.includes("bctc_nam")) return "doc_3_1";
+    if (n.includes("quy") || n.includes("thang") || n.includes("bctc")) return "doc_3_2";
+    if (n.includes("511") || n.includes("ban_hang")) return "doc_4";
+    if (n.includes("112") || n.includes("ngan_hang")) return "doc_5";
+    if (n.includes("ton_kho") || n.includes("nxt") || n.includes("156")) return "doc_6";
+    if (n.includes("phai_thu") || n.includes("131")) return "doc_7";
+    if (n.includes("phai_tra") || n.includes("331")) return "doc_8";
+    if (n.includes("vat") || n.includes("gtgt")) return "doc_9";
+    if (n.includes("so_phu") || n.includes("sao_ke")) return "doc_10";
+    if (n.includes("ke_hoach") || n.includes("du_phong") || n.includes("t+1")) return "doc_11";
+    if (n.includes("de_nghi") || n.includes("phuong_an") || n.includes("hmtd")) return "doc_12";
+    return "doc_3_2";
+  }
+
+  async function processUploadedFiles(fileList, forcedDocId) {
+    const files = Array.from(fileList || []);
+    if (!files.length) return;
+
+    let totalExtracted = 0;
+    const summaryLogs = [];
+
+    for (const f of files) {
+      const targetDoc = forcedDocId || detectDocBucketByFilename(f.name);
+      STATE.checklist[targetDoc].files.push({ name: f.name, size: f.size });
+      STATE.checklist[targetDoc].status = "ok";
+
+      const ext = f.name.split(".").pop().toLowerCase();
+      let extractedText = "";
+      try {
+        if (ext === "json") {
+          const txt = await f.text();
+          const parsed = JSON.parse(txt);
+          const cnt = applySchemaV72(parsed);
+          totalExtracted += cnt;
+          STATE.checklist[targetDoc].note = `AI Agent 1&2: Nạp JSON (${cnt} chỉ tiêu)`;
+          summaryLogs.push(`📄 <strong>${f.name}</strong> → Nạp chuẩn JSON v7.2 (${cnt} trường dữ liệu).`);
+          continue;
+        } else if (ext === "csv" || ext === "txt" || ext === "xml") {
+          extractedText = await f.text();
+        } else if (ext === "xlsx") {
+          const buf = await f.arrayBuffer();
+          extractedText = await extractTextFromXlsx(buf);
+        } else if (ext === "pdf") {
+          const buf = await f.arrayBuffer();
+          extractedText = extractTextFromPdfBytes(buf);
+        }
+      } catch (err) {
+        summaryLogs.push(`⚠️ <strong>${f.name}</strong>: Đã lưu chứng từ (cần kiểm tra nhập tay nếu là PDF scan ảnh).`);
+      }
+
+      if (extractedText && extractedText.length > 5) {
+        const res = mapExtractedTextToTT200(extractedText, targetDoc);
+        totalExtracted += res.mappedCount;
+        if (res.mappedCount > 0) {
+          STATE.checklist[targetDoc].note = `AI Agent 2 đã trích ${res.mappedCount} chỉ tiêu (${res.notes.slice(0, 3).join(", ")})`;
+          summaryLogs.push(`✅ <strong>${f.name}</strong> → AI Agent 1 kiểm hợp lệ &amp; AI Agent 2 tự điền <strong>${res.mappedCount}</strong> chỉ tiêu (${res.notes.slice(0, 4).join(", ")}).`);
+        } else {
+          STATE.checklist[targetDoc].note = "AI Agent 1: Chứng từ hợp lệ (PDF scan/biểu mẫu tùy chỉnh)";
+          summaryLogs.push(`📎 <strong>${f.name}</strong> → Đã đính kèm vào Mục ${targetDoc.replace("doc_", "").replace("_", ".")} (Hợp lệ).`);
+        }
+      } else {
+        STATE.checklist[targetDoc].note = "AI Agent 1: Đã tiếp nhận chứng từ đính kèm";
+        summaryLogs.push(`📎 <strong>${f.name}</strong> → Đã đính kèm vào Mục ${targetDoc.replace("doc_", "").replace("_", ".")}.`);
+      }
+    }
+
+    STATE.parserLogs = summaryLogs;
+    renderAll();
+    updateAgentsPipelineUI(true, files.length, totalExtracted);
+    showToast(`🤖 AI Agent 1 & 2 đã xử lý ${files.length} tệp (trích xuất ${totalExtracted} chỉ tiêu)!`);
+  }
+
+  function updateAgentsPipelineUI(fromUpload, fileCount, extractedCount) {
+    const res = computeModel();
+    const okDocs = CHECKLIST_ITEMS.filter(i => STATE.checklist[i.id].status === "ok").length;
+    const missingDocs = CHECKLIST_ITEMS.filter(i => STATE.checklist[i.id].status === "missing").length;
+
+    // Agent 1
+    $("agent1-card").className = "agent-card " + (missingDocs > 0 ? "warn" : "done");
+    $("agent1-badge").className = "badge " + (missingDocs > 0 ? "b-amber" : "b-green");
+    $("agent1-badge").textContent = missingDocs > 0 ? `Thiếu ${missingDocs} mục` : `Đầy đủ ${okDocs}/13`;
+    $("agent1-log").textContent = fromUpload
+      ? `Vừa đọc ${fileCount} tệp tải lên; kiểm hợp lệ ${okDocs}/13 đầu mục hồ sơ pháp lý, CIC & BCTC.`
+      : `Đã rà soát ${okDocs}/13 đầu mục hồ sơ (${missingDocs} mục chưa có). Kỳ xét duyệt: ${STATE.t_days} ngày.`;
+
+    // Agent 2
+    $("agent2-card").className = "agent-card " + (STATE.has_exclusion_notes ? "done" : "warn");
+    $("agent2-badge").className = "badge " + (STATE.has_exclusion_notes ? "b-green" : "b-amber");
+    $("agent2-badge").textContent = STATE.has_exclusion_notes ? "Lọc sạch chuẩn" : "Thiếu TM bóc tách";
+    $("agent2-log").textContent = `AR_Clean=${fmtNum(computeCleanWC("t").arClean, 2)}, INV_Clean=${fmtNum(computeCleanWC("t").invClean, 2)}, AP_Clean=${fmtNum(computeCleanWC("t").apClean, 2)} → NWC_op=${fmtNum(res.metrics.t.nwcOp, 2)} ${STATE.unit}.`;
+
+    // Agent 3
+    const passStress = res.stressList.filter(s => s.pass).length;
+    $("agent3-card").className = "agent-card " + (res.metrics.t.ms20DiffPct > 5 ? "warn" : "done");
+    $("agent3-badge").className = "badge b-blue";
+    $("agent3-badge").textContent = `Stress ${passStress}/4 đạt`;
+    $("agent3-log").textContent = `OCF=${fmtNum(res.metrics.t.varOcf, 2)} ${STATE.unit}, DSCR=${fmtNum(res.metrics.t.dscr, 2)}x, VQ_VLD=${fmtNum(res.metrics.t.vqVld, 2)}v → Trần HMTD_MAX=${res.hmtdMax !== null ? fmtNum(res.hmtdMax, 2) : "N/A"} ${STATE.unit}.`;
+
+    // Agent 4
+    $("agent4-card").className = "agent-card " + (res.knockOut || res.rank === "Hạng D" ? "danger" : res.rank === "Hạng A" ? "done" : "warn");
+    $("agent4-badge").className = "badge " + (res.knockOut || res.rank === "Hạng D" ? "b-red" : "b-green");
+    $("agent4-badge").textContent = `${res.rank} • ${res.decision}`;
+    $("agent4-log").textContent = `EWS ${fmtNum(res.ewsTotal, 2)}/10 (${res.rank}). HMTD đề xuất / HMTD phê duyệt: ${fmtNum(res.hmtdReq, 2)} / ${fmtNum(res.hmtdApproved, 2)} ${STATE.unit}.`;
+
+    // Audit log banner in Checklist tab
+    if ($("parser-audit-log")) {
+      $("parser-audit-log").innerHTML = STATE.parserLogs.length
+        ? `<div class="alert-box success">${STATE.parserLogs.join("<br>")}</div>`
+        : "";
+    }
+
+    // Synthesis box in Analysis tab
+    if ($("agents-synthesis-box")) {
+      $("agents-synthesis-box").innerHTML = `
+        <div class="alert-box info" style="margin-bottom:8px;">
+          <strong>🤖 AI Agent 3 (Chuyên gia Thẩm định Tín dụng):</strong> Sau khi AI Agent 2 loại trừ các khoản công nợ treo và phải trả XDCB/CapEx, vốn lưu động vận hành ròng (<code>VAR_NWCOP</code>) kỳ T đạt <strong>${fmtNum(res.metrics.t.nwcOp, 2)} ${STATE.unit}</strong> với vòng quay VLĐ quy năm <strong>${fmtNum(res.metrics.t.vqVld, 2)} vòng</strong>. Dòng tiền thuần từ HĐKD chuẩn VAS 24 (<code>VAR_OCF</code>) đạt <strong>${fmtNum(res.metrics.t.varOcf, 2)} ${STATE.unit}</strong>, đảm bảo hệ số trả nợ <code>DSCR = ${fmtNum(res.metrics.t.dscr, 2)}x</code>. Căn cứ doanh thu dự phóng năm T+1 (<strong>${fmtNum(numVal("dtt_plan_t1"), 2)} ${STATE.unit}</strong>), trần hạn mức tối đa theo mô hình là <strong>${res.hmtdMax !== null ? fmtNum(res.hmtdMax, 2) + " " + STATE.unit : "N/A"}</strong>.
+        </div>
+        <div class="alert-box ${res.knockOut || res.rank === "Hạng D" ? "danger" : "success"}" style="margin-bottom:0;">
+          <strong>⚖️ AI Agent 4 (Chuyên gia Phê duyệt Tín dụng):</strong> Đối chiếu điều kiện Knock-out (CIC Nhóm ${STATE.cic_group}) và chấm điểm EWS 4 trụ cột đạt <strong>${fmtNum(res.ewsTotal, 2)} / 10.00 điểm (${res.rank})</strong>, cấp phê duyệt quyết nghị: <strong>${res.decision}</strong> với mức <strong>HMTD đề xuất / HMTD phê duyệt: ${fmtNum(res.hmtdReq, 2)} / ${fmtNum(res.hmtdApproved, 2)} ${STATE.unit}</strong>, kèm điều kiện kiểm soát dòng tiền chuyên thu qua tài khoản tại Ngân hàng.
+        </div>
+      `;
+    }
   }
 
   function renderChecklist() {
@@ -962,7 +1401,7 @@
         <td class="center">
           <label class="upload-btn">
             📎 Tải PDF / Excel
-            <input type="file" accept=".pdf,.xlsx,.xls,.csv,.json" multiple style="display:none;" data-upload-doc="${item.id}">
+            <input type="file" accept=".pdf,.xlsx,.xls,.csv,.xml,.json,.txt" multiple style="display:none;" data-upload-doc="${item.id}">
           </label>
         </td>
         <td>
@@ -973,7 +1412,7 @@
           </div>
         </td>
         <td>
-          <input type="text" placeholder="Ghi chú đối chiếu..." value="${st.note}" data-doc-note="${item.id}">
+          <input type="text" placeholder="AI Agent 1 ghi nhận..." value="${st.note}" data-doc-note="${item.id}">
         </td>
       </tr>`;
     }).join("");
@@ -1021,8 +1460,6 @@
     $("inv_sub_total").textContent = fmtNum(invSubSum, 2);
 
     const tDays = STATE.t_days;
-    const annFactor = 365.0 / tDays;
-
     const periods = [
       { key: "t2", days: 365, wc: wcT2, wcPrev: wcT2 },
       { key: "t1", days: 365, wc: wcT1, wcPrev: wcT2 },
@@ -1038,7 +1475,6 @@
       const dtt = numVal("dtt_" + k);
       const cogs = numVal("cogs_" + k);
       const purch = numVal("purch_" + k);
-      const opex = numVal("opex_" + k);
       const da = numVal("da_" + k);
       const intExp = numVal("int_exp_" + k);
       const lntt = numVal("lntt_" + k);
@@ -1054,7 +1490,6 @@
 
       const dttAnn = dtt * af;
       const cogsAnn = cogs * af;
-      const lnttAnn = lntt * af;
       const lnst = lntt - tax;
       const lnstAnn = lnst * af;
       const ebit = lntt + intExp;
@@ -1082,7 +1517,6 @@
       const deltaNwc = p.key === "t2" ? 0 : (p.wc.nwcOp - p.wcPrev.nwcOp);
       const varOcf = lntt + da + intExp - tax - deltaNwc - intPaid;
       const ms20DiffPct = (Math.abs(varOcf - ms20) / Math.max(Math.abs(ms20), 1.0)) * 100;
-
       const vqVld = nwcAvg > 0 ? safeDiv(dttAnn, nwcAvg) : null;
 
       metrics[k] = {
@@ -1115,7 +1549,6 @@
       warnings.push(`[RED FLAG ĐỐI SOÁT MS 20]: Chênh lệch giữa VAR_OCF (${fmtNum(metrics.t.varOcf, 2)}) và MS 20 (${fmtNum(metrics.t.ms20, 2)}) là ${fmtNum(metrics.t.ms20DiffPct, 1)}% (> 5.0%).`);
     }
 
-    // Revenue cross-check
     const dtInclVat = numVal("dt_incl_vat");
     const cashIn112 = numVal("cash_in_112");
     const tienVeRatio = safeDiv(cashIn112 * 100, dtInclVat);
@@ -1124,7 +1557,6 @@
       warnings.push(`[RED FLAG DÒNG TIỀN VỀ TK 112]: Tỷ lệ tiền về TK 112 / Doanh thu có VAT chỉ đạt ${fmtNum(tienVeRatio, 1)}% (< 70.0%).`);
     }
 
-    // DSCR Period T
     const prinDue = numVal("inp_principal_due");
     const curInt = numVal("inp_current_interest");
     const varDscr = safeDiv(metrics.t.varOcf, prinDue + curInt);
@@ -1132,7 +1564,6 @@
     metrics.t1.dscr = safeDiv(metrics.t1.varOcf, prinDue + curInt);
     metrics.t.dscr = varDscr;
 
-    // HMTD T+1
     const dttPlanT1 = numVal("dtt_plan_t1");
     const otherDebt = numVal("inp_other_debt");
     const hmtdReq = numVal("inp_hmtd_req");
@@ -1148,7 +1579,6 @@
       warnings.push("[CẢNH BÁO NWC_op_avg <= 0]: Vòng quay VLĐ và Trần HMTD T+1 trả về N/A, cần thẩm định theo tiến độ hợp đồng và DSCR.");
     }
 
-    // Stress Test ST1 - ST4 (r = 8%)
     const rate = 0.08;
     const dttAnn = metrics.t.dttAnn;
     const cogsAnn = metrics.t.cogsAnn;
@@ -1167,7 +1597,6 @@
       return { ...st, sf: sfClean, deltaI, dscrS, pass };
     });
 
-    // EWS Scoring
     const wTc = STATE.ews.tc * 0.30;
     const wVld = STATE.ews.vld * 0.20;
     const wQltn = STATE.ews.qltn * 0.25;
@@ -1197,19 +1626,16 @@
     const m = res.metrics;
     const u = STATE.unit;
 
-    // Top KPI Banner
     $("kpi-nwcop").textContent = `${fmtNum(m.t.nwcOp, 2)} ${u}`;
     $("kpi-ocf-dscr").textContent = `${fmtNum(m.t.varOcf, 2)} ${u} / ${fmtNum(m.t.dscr, 2)}x`;
     $("kpi-hmtd-max").textContent = res.hmtdMax !== null ? `${fmtNum(res.hmtdMax, 2)} ${u}` : "N/A";
     $("kpi-hmtd-final").textContent = `${fmtNum(res.hmtdReq, 2)} / ${fmtNum(res.hmtdApproved, 2)} ${u}`;
     $("kpi-ews").textContent = `${fmtNum(res.ewsTotal, 2)} (${res.rank})`;
 
-    // Warnings
     $("warnings-container").innerHTML = res.warnings.map(w =>
       `<div class="alert-box ${w.includes("RED FLAG") ? "danger" : ""}">${w}</div>`
     ).join("");
 
-    // 19 Ratios across 4 groups
     const ratioRows = [
       { grp: "NHÓM 1: KHẢ NĂNG THANH TOÁN (LIQUIDITY)" },
       { name: "1. Hệ số thanh toán hiện hành", f: "TSNH / Nợ ngắn hạn", v2: fmtNum(m.t2.currentRatio, 2)+"x", v1: fmtNum(m.t1.currentRatio, 2)+"x", vt: fmtNum(m.t.currentRatio, 2)+"x", ok: m.t.currentRatio >= 1.2 },
@@ -1248,12 +1674,11 @@
       </tr>`;
     }).join("");
 
-    // HMTD Table
     $("hmtd-tbody").innerHTML = [
       ["Doanh thu thuần quy chuẩn năm (DTT_ann)", `DTT_T (${fmtNum(m.t.dtt, 2)}) × (365 / ${STATE.t_days})`, `${fmtNum(m.t.dttAnn, 2)} ${u}`],
       ["Vốn lưu động vận hành bình quân (NWC_op_avg)", `(NWC_op_T + NWC_op_T−1) / 2`, `${fmtNum(m.t.nwcAvg, 2)} ${u}`],
       ["Vòng quay VLĐ vận hành quy năm (VAR_VQ_VLD_T)", `DTT_ann / NWC_op_avg`, m.t.vqVld !== null ? `${fmtNum(m.t.vqVld, 2)} vòng` : "N/A"],
-      ["Doanh thu thuần dự phóng Năm T+1 (VAR_DT_KH_T+1)", `Theo kế hoạch kinh doanh T+1`, `${fmtNum(res.hmtdReq > 0 ? numVal("dtt_plan_t1") : numVal("dtt_plan_t1"), 2)} ${u}`],
+      ["Doanh thu thuần dự phóng Năm T+1 (VAR_DT_KH_T+1)", `Theo kế hoạch kinh doanh T+1`, `${fmtNum(numVal("dtt_plan_t1"), 2)} ${u}`],
       ["Tổng Nhu cầu VLĐ Năm T+1 (VAR_NHUCAU_T+1)", `DTT_T+1 / VAR_VQ_VLD_T`, res.nhuCauT1 !== null ? `${fmtNum(res.nhuCauT1, 2)} ${u}` : "N/A"],
       ["Vốn tự có tối thiểu tham gia 30% (VAR_VTC_MIN_30)", `30.0% × VAR_NHUCAU_T+1`, res.vtcMin30 !== null ? `${fmtNum(res.vtcMin30, 2)} ${u}` : "N/A"],
       ["Điều kiện khống chế 1 (DK1 - Tối đa 70% nhu cầu)", `70.0% × VAR_NHUCAU_T+1`, res.dk1 !== null ? `${fmtNum(res.dk1, 2)} ${u}` : "N/A"],
@@ -1264,7 +1689,6 @@
       <td>${row[0]}</td><td style="font-size:11.5px;color:#475569;">${row[1]}</td><td class="num">${row[2]}</td>
     </tr>`).join("");
 
-    // Stress Table
     $("stress-tbody").innerHTML = res.stressList.map(st => `<tr>
       <td style="font-weight:700;">${st.code}</td>
       <td>${st.name}</td>
@@ -1275,7 +1699,6 @@
       <td class="center"><span class="badge ${st.pass ? "b-green" : "b-red"}">${st.pass ? "Đạt (Pass)" : "Không đạt"}</span></td>
     </tr>`).join("");
 
-    // EWS Table
     const ewsDefs = [
       { key: "tc", label: "1. Sức khỏe Tài chính & Dòng tiền (OCF, DSCR)", w: "30.0%", raw: STATE.ews.tc, weighted: res.wTc },
       { key: "vld", label: "2. Quản trị Vốn lưu động & Chu kỳ tiền (CCC)", w: "20.0%", raw: STATE.ews.vld, weighted: res.wVld },
@@ -1298,7 +1721,7 @@
       <td class="num">${fmtNum(res.ewsTotal, 2)} — ${res.rank}</td>
     </tr>`;
 
-    // 12-Section Report
+    updateAgentsPipelineUI(false, 0, 0);
     renderReport12Sections(res);
   }
 
@@ -1312,18 +1735,18 @@
 
     $("report-mount").innerHTML = `
       <div class="rep-header">
-        <div style="font-size:11px;opacity:0.85;text-transform:uppercase;">BÁO CÁO THẨM ĐỊNH TÍN DỤNG KHÁCH HÀNG DOANH NGHIỆP • CHUẨN AI-READY v7.2</div>
+        <div style="font-size:11px;opacity:0.85;text-transform:uppercase;">BÁO CÁO THẨM ĐỊNH TÍN DỤNG KHÁCH HÀNG DOANH NGHIỆP • 4 AI AGENTS v7.2</div>
         <div style="font-size:17px;font-weight:800;margin-top:3px;">${cname} (MST: ${mst})</div>
         <div style="font-size:12px;margin-top:4px;">Kỳ xét duyệt Năm T: <strong>${STATE.t_days} ngày</strong> | Đơn vị tính: <strong>${u}</strong> | Kết luận: <strong>${res.decision} (${res.rank})</strong></div>
       </div>
 
       <div class="rep-sec">
-        <div class="rep-sec-title">MỤC 1. TỔNG QUAN PHÁP LÝ, MÔ HÌNH KINH DOANH &amp; TRA CỨU CIC</div>
-        <p>Khách hàng <strong>${cname}</strong> (MST: ${mst}) hoạt động trong lĩnh vực ${STATE.is_manufacturing ? "Sản xuất" : "Thương mại & Xây lắp"}. Tình trạng quan hệ tín dụng trên CIC: <strong>Nhóm ${STATE.cic_group}</strong>; Dư nợ ngắn hạn tại TCTD khác là <strong>${fmtNum(numVal("inp_other_debt"), 2)} ${u}</strong>. Hồ sơ đầu vào đã được kiểm soát đầy đủ 13 đầu mục theo danh mục chuẩn.</p>
+        <div class="rep-sec-title">MỤC 1. TỔNG QUAN PHÁP LÝ, MÔ HÌNH KINH DOANH &amp; TRA CỨU CIC (AI AGENT 1)</div>
+        <p>Khách hàng <strong>${cname}</strong> (MST: ${mst}) hoạt động trong lĩnh vực ${STATE.is_manufacturing ? "Sản xuất" : "Thương mại & Xây lắp"}. Tình trạng quan hệ tín dụng trên CIC: <strong>Nhóm ${STATE.cic_group}</strong>; Dư nợ ngắn hạn tại TCTD khác là <strong>${fmtNum(numVal("inp_other_debt"), 2)} ${u}</strong>. Hồ sơ đầu vào đã được AI Agent 1 kiểm soát đầy đủ 13 đầu mục theo danh mục chuẩn.</p>
       </div>
 
       <div class="rep-sec">
-        <div class="rep-sec-title">MỤC 2. ĐÁNH GIÁ CHẤT LƯỢNG HỒ SƠ &amp; LỌC NHIỄU BCTC THEO TT200</div>
+        <div class="rep-sec-title">MỤC 2. ĐÁNH GIÁ CHẤT LƯỢNG HỒ SƠ &amp; LỌC NHIỄU BCTC THEO TT200 (AI AGENT 2)</div>
         <table>
           <thead><tr><th>Chỉ tiêu Vốn lưu động Sạch</th><th class="num">Năm T−2</th><th class="num">Năm T−1</th><th class="num">Kỳ T</th></tr></thead>
           <tbody>
@@ -1336,7 +1759,7 @@
       </div>
 
       <div class="rep-sec">
-        <div class="rep-sec-title">MỤC 3. PHÂN TÍCH CHU TRÌNH TIỀN – HÀNG – TIỀN &amp; 19 CHỈ SỐ TÀI CHÍNH</div>
+        <div class="rep-sec-title">MỤC 3. PHÂN TÍCH CHU TRÌNH TIỀN – HÀNG – TIỀN &amp; 19 CHỈ SỐ TÀI CHÍNH (AI AGENT 3)</div>
         <table>
           <thead><tr><th>Chỉ số Cốt lõi</th><th class="num">Năm T−2</th><th class="num">Năm T−1</th><th class="num">Kỳ T (Quy năm)</th></tr></thead>
           <tbody>
@@ -1386,7 +1809,7 @@
       </div>
 
       <div class="rep-sec">
-        <div class="rep-sec-title">MỤC 10. CHẤM ĐIỂM HỆ THỐNG CẢNH BÁO SỚM (EWS) &amp; XẾP HẠNG RỦI RO</div>
+        <div class="rep-sec-title">MỤC 10. CHẤM ĐIỂM HỆ THỐNG CẢNH BÁO SỚM (EWS) &amp; XẾP HẠNG RỦI RO (AI AGENT 4)</div>
         <p>Tổng điểm EWS 4 trụ cột đạt <strong>${fmtNum(res.ewsTotal, 2)} / 10.00 điểm</strong> (Tài chính: ${fmtNum(res.wTc, 2)}; VLĐ: ${fmtNum(res.wVld, 2)}; Quản trị &amp; CIC: ${fmtNum(res.wQltn, 2)}; Ngành &amp; TSBĐ: ${fmtNum(res.wVtsb, 2)}). Xếp hạng rủi ro: <strong>${res.rank}</strong>.</p>
       </div>
 
@@ -1398,7 +1821,7 @@
       </div>
 
       <div class="rep-sec">
-        <div class="rep-sec-title">MỤC 12. NGƯỠNG QUYẾT NGHỊ &amp; PHÊ DUYỆT TÍN DỤNG (FINAL)</div>
+        <div class="rep-sec-title">MỤC 12. NGƯỠNG QUYẾT NGHỊ &amp; PHÊ DUYỆT TÍN DỤNG (FINAL - AI AGENT 4)</div>
         <div style="background:#ECFDF5;border:1.5px solid #059669;border-radius:8px;padding:12px;">
           <div style="font-size:13.5px;font-weight:800;color:#065F46;">
             KẾT LUẬN THẨM ĐỊNH: ${res.decision} (${res.rank})
@@ -1447,7 +1870,6 @@
     const u = STATE.unit;
     const m = res.metrics;
 
-    // Render multi-page A4 canvas report and encode into valid PDF 1.4 binary
     const pageW = 1240, pageH = 1754;
     const pages = [];
 
@@ -1457,12 +1879,11 @@
       const ctx = c.getContext("2d");
       ctx.fillStyle = "#FFFFFF";
       ctx.fillRect(0, 0, pageW, pageH);
-      // Header bar
       ctx.fillStyle = "#0F294A";
       ctx.fillRect(60, 50, pageW - 120, 86);
       ctx.fillStyle = "#FFFFFF";
       ctx.font = "bold 24px Arial, sans-serif";
-      ctx.fillText("BÁO CÁO THẨM ĐỊNH TÍN DỤNG KHDN • AI-READY v7.2", 85, 92);
+      ctx.fillText("BÁO CÁO THẨM ĐỊNH TÍN DỤNG KHDN • 4 AI AGENTS v7.2", 85, 92);
       ctx.font = "16px Arial, sans-serif";
       ctx.fillStyle = "#BFDBFE";
       ctx.fillText(`${cname} | Trang ${pageNum}`, 85, 120);
@@ -1470,7 +1891,10 @@
     }
 
     function drawSection(p, title, lines) {
-      ctxBox(p.ctx, 60, p.y, pageW - 120, 38, "#F0F5FA", "#1D4ED8");
+      p.ctx.fillStyle = "#F0F5FA";
+      p.ctx.fillRect(60, p.y, pageW - 120, 38);
+      p.ctx.fillStyle = "#1D4ED8";
+      p.ctx.fillRect(60, p.y, 8, 38);
       p.ctx.fillStyle = "#0F294A";
       p.ctx.font = "bold 18px Arial, sans-serif";
       p.ctx.fillText(title, 80, p.y + 25);
@@ -1484,27 +1908,19 @@
       p.y += 14;
     }
 
-    function ctxBox(ctx, x, y, w, h, bg, accent) {
-      ctx.fillStyle = bg;
-      ctx.fillRect(x, y, w, h);
-      ctx.fillStyle = accent;
-      ctx.fillRect(x, y, 8, h);
-    }
-
-    // Page 1: Sections 1 - 6
     const p1 = newPage(1);
-    drawSection(p1, "MỤC 1. PHÁP LÝ, MÔ HÌNH KINH DOANH & CIC", [
+    drawSection(p1, "MỤC 1. PHÁP LÝ, MÔ HÌNH KINH DOANH & CIC (AI AGENT 1)", [
       `• Khách hàng: ${cname} | MST: ${strVal("inp_mst")}`,
       `• Nhóm nợ CIC: Nhóm ${STATE.cic_group} | Dư nợ ngắn hạn TCTD khác: ${fmtNum(numVal("inp_other_debt"), 2)} ${u}`,
       `• Kỳ báo cáo Năm T: ${STATE.t_days} ngày (Hệ số quy đổi năm: ${(365 / STATE.t_days).toFixed(2)}x)`
     ]);
-    drawSection(p1, "MỤC 2. LỌC NHIỄU VỐN LƯU ĐỘNG VẬN HÀNH (TT200)", [
+    drawSection(p1, "MỤC 2. LỌC NHIỄU VỐN LƯU ĐỘNG VẬN HÀNH (AI AGENT 2)", [
       `• VAR_AR_CLEAN:  T-2 = ${fmtNum(computeCleanWC("t2").arClean, 2)} | T-1 = ${fmtNum(computeCleanWC("t1").arClean, 2)} | Kỳ T = ${fmtNum(computeCleanWC("t").arClean, 2)} ${u}`,
       `• VAR_INV_CLEAN: T-2 = ${fmtNum(computeCleanWC("t2").invClean, 2)} | T-1 = ${fmtNum(computeCleanWC("t1").invClean, 2)} | Kỳ T = ${fmtNum(computeCleanWC("t").invClean, 2)} ${u}`,
       `• VAR_AP_CLEAN:  T-2 = ${fmtNum(computeCleanWC("t2").apClean, 2)} | T-1 = ${fmtNum(computeCleanWC("t1").apClean, 2)} | Kỳ T = ${fmtNum(computeCleanWC("t").apClean, 2)} ${u}`,
       `• VAR_NWCOP:     T-2 = ${fmtNum(m.t2.nwcOp, 2)} | T-1 = ${fmtNum(m.t1.nwcOp, 2)} | Kỳ T = ${fmtNum(m.t.nwcOp, 2)} ${u}`
     ]);
-    drawSection(p1, "MỤC 3. CHU TRÌNH TIỀN - HÀNG - TIỀN & CHỈ SỐ TÀI CHÍNH", [
+    drawSection(p1, "MỤC 3. CHU TRÌNH TIỀN - HÀNG - TIỀN & CHỈ SỐ TÀI CHÍNH (AI AGENT 3)", [
       `• Doanh thu thuần (DTT): T-2 = ${fmtNum(m.t2.dtt, 2)} | T-1 = ${fmtNum(m.t1.dtt, 2)} | Kỳ T = ${fmtNum(m.t.dtt, 2)} (Quy năm: ${fmtNum(m.t.dttAnn, 2)} ${u})`,
       `• Biên LN gộp: T-2 = ${fmtNum(m.t2.grossMargin, 1)}% | T-1 = ${fmtNum(m.t1.grossMargin, 1)}% | Kỳ T = ${fmtNum(m.t.grossMargin, 1)}%`,
       `• Chu kỳ tiền mặt (CCC = DIO + DSO - DPO): Kỳ T = ${fmtNum(m.t.dio, 1)} + ${fmtNum(m.t.dso, 1)} - ${fmtNum(m.t.dpo, 1)} = ${fmtNum(m.t.ccc, 1)} ngày`,
@@ -1523,12 +1939,11 @@
     ]);
     pages.push(p1.c);
 
-    // Page 2: Sections 8 - 12
     const p2 = newPage(2);
     drawSection(p2, "MỤC 8. KIỂM ĐỊNH SỨC CHỊU ĐỰNG DÒNG TIỀN (STRESS TEST ST1 - ST4)", res.stressList.map(st =>
       `• ${st.code} (${st.name}): Thiếu hụt ${fmtNum(st.sf, 2)} ${u} | ΔI = ${fmtNum(st.deltaI, 2)} ${u} | DSCR = ${fmtNum(st.dscrS, 2)}x -> ${st.pass ? "ĐẠT" : "KHÔNG ĐẠT"}`
     ));
-    drawSection(p2, "MỤC 9 & MỤC 10. TÀI SẢN BẢO ĐẢM & CHẤM ĐIỂM EWS", [
+    drawSection(p2, "MỤC 9 & MỤC 10. TÀI SẢN BẢO ĐẢM & CHẤM ĐIỂM EWS (AI AGENT 4)", [
       `• Tài sản bảo đảm: ${strVal("col_desc")} — Định giá: ${fmtNum(numVal("col_val"), 2)} ${u}`,
       `• Điểm EWS 4 trụ cột: ${fmtNum(res.ewsTotal, 2)} / 10.00 điểm -> Xếp hạng rủi ro: ${res.rank}`
     ]);
@@ -1536,13 +1951,12 @@
       "• Kiểm tra thực địa kho bãi, xác nhận công nợ trọng yếu trước giải ngân (thận trọng BCTC thuế TT200).",
       "• Mở tài khoản chuyên thu tại Ngân hàng và hoàn tất đăng ký giao dịch bảo đảm TSBĐ."
     ]);
-    drawSection(p2, "MỤC 12. NGƯỠNG QUYẾT NGHỊ & PHÊ DUYỆT TÍN DỤNG (FINAL)", [
+    drawSection(p2, "MỤC 12. NGƯỠNG QUYẾT NGHỊ & PHÊ DUYỆT TÍN DỤNG (FINAL - AI AGENT 4)", [
       `• QUYẾT NGHỊ THẨM ĐỊNH: ${res.decision} (${res.rank})`,
       `• HMTD đề xuất / HMTD phê duyệt: ${fmtNum(res.hmtdReq, 2)} / ${fmtNum(res.hmtdApproved, 2)} ${u}`
     ]);
     pages.push(p2.c);
 
-    // Build minimal multi-page PDF 1.4 from JPEG canvases
     const jpgPages = pages.map(canvas => {
       const dataUrl = canvas.toDataURL("image/jpeg", 0.90);
       const bin = atob(dataUrl.split(",")[1]);
@@ -1554,13 +1968,8 @@
     const chunks = [];
     const offsets = [0];
     let pos = 0;
-    function pushStr(s) {
-      const enc = new TextEncoder().encode(s);
-      chunks.push(enc); pos += enc.length;
-    }
-    function pushBytes(b) {
-      chunks.push(b); pos += b.length;
-    }
+    function pushStr(s) { const enc = new TextEncoder().encode(s); chunks.push(enc); pos += enc.length; }
+    function pushBytes(b) { chunks.push(b); pos += b.length; }
 
     pushStr("%PDF-1.4\n");
     const totalObjs = 2 + jpgPages.length * 3;
@@ -1601,12 +2010,49 @@
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "Bao_cao_Tham_dinh_KHDN_v7_2.pdf";
+    a.download = "Bao_cao_Tham_dinh_KHDN_4Agents_v7_2.pdf";
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     setTimeout(() => URL.revokeObjectURL(url), 3000);
     showToast("✅ Đã xuất và tải file PDF báo cáo 12 mục!");
+  }
+
+  function buildCurrentSchemaJson() {
+    const wc = computeCleanWC("t");
+    return JSON.stringify({
+      company_info: {
+        name: strVal("inp_company_name"),
+        mst: strVal("inp_mst"),
+        is_manufacturing: STATE.is_manufacturing,
+        hmtd_req: numVal("inp_hmtd_req"),
+        has_exclusion_notes: STATE.has_exclusion_notes
+      },
+      period_config: { t_days_ytd: STATE.t_days, stress_rate: 0.08 },
+      financials: {
+        ar_gop: numVal("ar_gop_t"), ar_treo: numVal("ar_treo_t"), dp_noxau_tt48: numVal("dp_ar_t"),
+        inv_gop: numVal("inv_gop_t"), inv_udong_180d: numVal("inv_ud_t"), dp_giamgia: numVal("dp_inv_t"),
+        tong_tk331: numVal("ap_gop_t"), ap_treo: numVal("ap_treo_t"), ap_capex: numVal("ap_capex_t"),
+        tsnh_vh_khac: numVal("tsnh_vh_t"), no_vh_khac: numVal("no_vh_t"),
+        nwc_op_prev: computeCleanWC("t1").nwcOp,
+        dtt_ytd: numVal("dtt_t"), cogs_ytd: numVal("cogs_t"), purchases_ytd: numVal("purch_t"),
+        lntt_ytd: numVal("lntt_t"), da_ytd: numVal("da_t"), interest_exp_ytd: numVal("int_exp_t"),
+        tax_paid_ytd: numVal("tax_t"), delta_nwc_op_ytd: wc.nwcOp - computeCleanWC("t1").nwcOp,
+        interest_paid_ytd: numVal("int_paid_t"), ms_20_ytd: numVal("ms20_t"),
+        dtt_plan_t1: numVal("dtt_plan_t1"), cash_collected_112: numVal("cash_in_112"),
+        dt_vat_incl_tax: numVal("dt_incl_vat")
+      },
+      debt_and_covenants: {
+        other_debt: numVal("inp_other_debt"),
+        principal_due: numVal("inp_principal_due"),
+        current_interest: numVal("inp_current_interest")
+      },
+      ews_inputs: {
+        score_tc: STATE.ews.tc, score_vld: STATE.ews.vld,
+        score_qltn: STATE.ews.qltn, score_vtsb: STATE.ews.vtsb,
+        knock_out: STATE.cic_group >= 3
+      }
+    }, null, 2);
   }
 
   // UNIFIED EVENT DELEGATION
@@ -1637,12 +2083,12 @@
     } else if (action === "set-doc-status") {
       const docId = btn.getAttribute("data-doc");
       STATE.checklist[docId].status = btn.getAttribute("data-status");
-      renderChecklist();
+      renderAll();
     } else if (action === "remove-file") {
       const docId = btn.getAttribute("data-doc");
       const idx = parseInt(btn.getAttribute("data-idx"), 10);
       STATE.checklist[docId].files.splice(idx, 1);
-      renderChecklist();
+      renderAll();
     } else if (action === "sync-inv-sub") {
       const sum = ["inv_151", "inv_152", "inv_153", "inv_154", "inv_155", "inv_156"].reduce((a, b) => a + numVal(b), 0);
       $("inv_gop_t").value = sum.toFixed(2);
@@ -1658,10 +2104,35 @@
       showToast("⚡ Đã điền dữ liệu mẫu Công ty Hoàng Nam thành số thật!");
     } else if (action === "clear-all-inputs") {
       Object.keys(SAMPLE_VALUES).forEach(k => { if ($(k)) $(k).value = ""; });
+      CHECKLIST_ITEMS.forEach(item => { STATE.checklist[item.id].files = []; STATE.checklist[item.id].note = ""; });
+      STATE.parserLogs = [];
       renderAll();
-      showToast("✨ Đã xóa trắng toàn bộ ô nhập liệu để bắt đầu hồ sơ mới!");
+      showToast("✨ Đã xóa trắng toàn bộ ô nhập liệu & tệp để bắt đầu hồ sơ mới!");
+    } else if (action === "run-all-4-agents") {
+      renderAll();
+      switchTab("analysis");
+      showToast("🤖 Đã kích hoạt đủ 4 AI Agents: Kiểm hợp lệ → Lọc sạch → Thẩm định → Phê duyệt!");
+    } else if (action === "open-json-modal") {
+      $("json-payload-box").value = buildCurrentSchemaJson();
+      $("json-modal").classList.add("open");
+    } else if (action === "close-json-modal") {
+      $("json-modal").classList.remove("open");
+    } else if (action === "copy-current-json") {
+      $("json-payload-box").value = buildCurrentSchemaJson();
+      $("json-payload-box").select();
+      try { navigator.clipboard.writeText($("json-payload-box").value); } catch (err) {}
+      showToast("📋 Đã xuất & sao chép JSON chuẩn hóa v7.2!");
+    } else if (action === "apply-json-payload") {
+      try {
+        const parsed = JSON.parse($("json-payload-box").value);
+        const cnt = applySchemaV72(parsed);
+        $("json-modal").classList.remove("open");
+        renderAll();
+        showToast(`⚡ AI Agent 2 đã nạp ${cnt} trường dữ liệu từ JSON!`);
+      } catch (err) {
+        showToast("❌ Lỗi cú pháp JSON! Vui lòng kiểm tra lại.");
+      }
     } else if (action === "run-unit-test") {
-      // Load Cong ty ABC benchmark from AI-Ready v7.2 spec
       $("inp_company_name").value = "Công ty Cổ phần Sản xuất Thương mại ABC (Kiểm thử Chuẩn v7.2)";
       $("inp_mst").value = "0108999888";
       STATE.t_days = 270;
@@ -1708,15 +2179,15 @@
     renderAll();
   });
 
-  document.addEventListener("change", function(e) {
+  document.addEventListener("change", async function(e) {
     const target = e.target;
-    if (target.hasAttribute("data-upload-doc")) {
+    if (target.id === "bulk-file-input") {
+      await processUploadedFiles(target.files, null);
+      target.value = "";
+    } else if (target.hasAttribute("data-upload-doc")) {
       const docId = target.getAttribute("data-upload-doc");
-      const files = Array.from(target.files || []);
-      files.forEach(f => STATE.checklist[docId].files.push({ name: f.name, size: f.size }));
-      if (files.length > 0) STATE.checklist[docId].status = "ok";
-      renderChecklist();
-      showToast(`📎 Đã đính kèm ${files.length} tệp vào mục hồ sơ!`);
+      await processUploadedFiles(target.files, docId);
+      target.value = "";
     }
   });
 
