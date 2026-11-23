@@ -3,36 +3,47 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
-  <title>CreditFlow Pro v7.2 – Hệ thống Thẩm định Tín dụng KHDN (TT200 &amp; VAS 24)</title>
+  <title>CreditFlow Pro v7.2 – Hệ thống Thẩm định Tín dụng KHDN (TT200 / VAS 24)</title>
   <style>
-    /* ===================================================================
-       1. HỆ THỐNG BIẾN MÀU & RESET CƠ BẢN (100% TỰ CHỨA - KHÔNG PHỤ THUỘC CDN)
-       =================================================================== */
+    /* =========================================================================
+       1. HỆ THỐNG MÀU SẮC & THIẾT KẾ CHUẨN NGÂN HÀNG (100% ĐỘC LẬP - ZERO CDN)
+       ========================================================================= */
     :root {
-      --navy: #1B365D;
-      --navy-dark: #102340;
-      --blue: #2B6CB0;
-      --blue-hover: #1D4ED8;
-      --blue-soft: #F0F4F8;
-      --blue-tint: #EFF6FF;
+      --navy-900: #0F294A;
+      --navy-800: #1B365D;
+      --blue-700: #1D4ED8;
+      --blue-600: #2563EB;
+      --blue-100: #DBEAFE;
+      --blue-50: #EFF6FF;
+      --ice-bg: #F0F5FA;
+      --page-bg: #EEF2F6;
+      --card-bg: #FFFFFF;
       --border: #CBD5E1;
-      --border-light: #E2E8F0;
-      --bg-page: #F1F5F9;
-      --bg-card: #FFFFFF;
+      --border-soft: #E2E8F0;
       --text-main: #0F172A;
-      --text-sub: #475569;
+      --text-sub: #334155;
       --text-muted: #64748B;
-      --ok-bg: #ECFDF5;
-      --ok-text: #065F46;
-      --ok-border: #A7F3D0;
-      --warn-bg: #FFFBEB;
-      --warn-text: #92400E;
-      --warn-border: #FDE68A;
-      --flag-bg: #FEF2F2;
-      --flag-text: #991B1B;
-      --flag-border: #FECACA;
-      --radius: 12px;
-      --shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+
+      --emerald-600: #059669;
+      --emerald-700: #047857;
+      --emerald-50: #ECFDF5;
+      --emerald-200: #A7F3D0;
+
+      --amber-600: #D97706;
+      --amber-700: #B45309;
+      --amber-50: #FFFBEB;
+      --amber-200: #FDE68A;
+
+      --crimson-600: #DC2626;
+      --crimson-700: #B91C1C;
+      --crimson-50: #FEF2F2;
+      --crimson-200: #FECACA;
+
+      --radius-lg: 12px;
+      --radius-md: 9px;
+      --radius-sm: 7px;
+      --shadow-sm: 0 1px 3px rgba(15, 41, 74, 0.08);
+      --shadow-md: 0 4px 12px rgba(15, 41, 74, 0.10);
     }
 
     *, *::before, *::after {
@@ -42,11 +53,11 @@
     html, body {
       margin: 0;
       padding: 0;
-      background-color: var(--bg-page);
+      background-color: var(--page-bg);
       color: var(--text-main);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      font-size: 14px;
-      line-height: 1.5;
+      font-size: 13.5px;
+      line-height: 1.48;
       -webkit-text-size-adjust: 100%;
     }
 
@@ -55,16 +66,10 @@
       font-variant-numeric: tabular-nums;
     }
 
-    /* Chữ mờ cho dữ liệu giả định (Placeholder) */
     input::placeholder {
       color: #64748B;
       font-style: italic;
-      opacity: 0.9;
-    }
-
-    input, select, button, textarea {
-      font-family: inherit;
-      font-size: 13px;
+      opacity: 0.92;
     }
 
     input[type="text"],
@@ -72,10 +77,12 @@
     select {
       width: 100%;
       border: 1px solid var(--border);
-      border-radius: 9px;
-      padding: 7px 10px;
+      border-radius: var(--radius-sm);
+      padding: 6px 9px;
       background-color: #F8FAFC;
       color: var(--text-main);
+      font-family: inherit;
+      font-size: 13px;
       transition: border-color 0.15s, background-color 0.15s, box-shadow 0.15s;
     }
 
@@ -83,62 +90,148 @@
     input[type="number"]:focus,
     select:focus {
       outline: none;
-      border-color: var(--blue);
+      border-color: var(--blue-600);
       background-color: #FFFFFF;
-      box-shadow: 0 0 0 3px rgba(43, 108, 176, 0.15);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.16);
     }
 
     button {
+      font-family: inherit;
       cursor: pointer;
       border: 1px solid transparent;
-      border-radius: 10px;
+      border-radius: var(--radius-md);
       font-weight: 600;
-      transition: transform 0.08s ease, background-color 0.15s ease, border-color 0.15s ease;
+      transition: all 0.14s ease;
     }
     button:active {
       transform: scale(0.98);
     }
 
+    /* =========================================================================
+       2. HỆ THỐNG NÚT LỰA CHỌN CÓ MÀU SẮC (COLORED CHOICE PILLS & ACTION BUTTONS)
+       ========================================================================= */
     .btn-navy {
-      background-color: var(--navy);
+      background: linear-gradient(180deg, #1B365D 0%, #0F294A 100%);
       color: #FFFFFF;
       padding: 8px 13px;
+      box-shadow: var(--shadow-sm);
     }
-    .btn-navy:hover { background-color: var(--navy-dark); }
+    .btn-navy:hover { background: #0F294A; }
 
-    .btn-blue {
-      background-color: var(--blue);
+    .btn-royal {
+      background: linear-gradient(180deg, #2563EB 0%, #1D4ED8 100%);
       color: #FFFFFF;
       padding: 8px 13px;
+      box-shadow: var(--shadow-sm);
     }
-    .btn-blue:hover { background-color: var(--blue-hover); }
+    .btn-royal:hover { background: #1D4ED8; }
 
-    .btn-green {
-      background-color: #047857;
+    .btn-emerald {
+      background: linear-gradient(180deg, #059669 0%, #047857 100%);
       color: #FFFFFF;
       padding: 8px 13px;
+      box-shadow: var(--shadow-sm);
     }
-    .btn-green:hover { background-color: #065F46; }
+    .btn-emerald:hover { background: #047857; }
 
-    .btn-outline {
-      background-color: #FFFFFF;
+    .btn-amber {
+      background: #FFFBEB;
+      color: #92400E;
+      border-color: #F59E0B;
+      padding: 7px 12px;
+    }
+    .btn-amber:hover { background: #FEF3C7; }
+
+    .btn-ice {
+      background: var(--blue-50);
+      color: var(--navy-800);
+      border-color: #93C5FD;
+      padding: 7px 12px;
+    }
+    .btn-ice:hover { background: var(--blue-100); }
+
+    .btn-white {
+      background: #FFFFFF;
       color: var(--text-main);
       border-color: var(--border);
       padding: 7px 11px;
     }
-    .btn-outline:hover { background-color: #F8FAFC; }
+    .btn-white:hover { background: #F8FAFC; border-color: #94A3B8; }
 
-    .btn-soft-blue {
-      background-color: var(--blue-tint);
-      color: var(--navy);
-      border-color: #BFDBFE;
-      padding: 7px 11px;
+    /* Nhóm nút lựa chọn dạng viên thuốc có màu (Segmented Choice Pills) */
+    .choice-group {
+      display: inline-flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      align-items: center;
     }
-    .btn-soft-blue:hover { background-color: #DBEAFE; }
 
-    /* ===================================================================
-       2. BỐ CỤC CHÍNH & NHẬN DIỆN THIẾT BỊ (DESKTOP VS MOBILE)
-       =================================================================== */
+    .choice-btn {
+      padding: 5px 10px;
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: 8px;
+      background-color: #F1F5F9;
+      color: #334155;
+      border: 1px solid #CBD5E1;
+      line-height: 1.25;
+    }
+    .choice-btn:hover {
+      background-color: #E2E8F0;
+      border-color: #94A3B8;
+    }
+
+    /* Các trạng thái màu khi nút được chọn */
+    .choice-btn.active-navy {
+      background-color: var(--navy-800);
+      color: #FFFFFF;
+      border-color: var(--navy-900);
+      box-shadow: 0 1px 2px rgba(15, 41, 74, 0.25);
+    }
+    .choice-btn.active-blue {
+      background-color: var(--blue-600);
+      color: #FFFFFF;
+      border-color: var(--blue-700);
+      box-shadow: 0 1px 2px rgba(29, 78, 216, 0.25);
+    }
+    .choice-btn.active-emerald {
+      background-color: var(--emerald-600);
+      color: #FFFFFF;
+      border-color: var(--emerald-700);
+      box-shadow: 0 1px 2px rgba(4, 120, 87, 0.25);
+    }
+    .choice-btn.active-amber {
+      background-color: var(--amber-600);
+      color: #FFFFFF;
+      border-color: var(--amber-700);
+      box-shadow: 0 1px 2px rgba(180, 83, 9, 0.25);
+    }
+    .choice-btn.active-crimson {
+      background-color: var(--crimson-600);
+      color: #FFFFFF;
+      border-color: var(--crimson-700);
+      box-shadow: 0 1px 2px rgba(185, 28, 28, 0.25);
+    }
+
+    /* Huy hiệu trạng thái */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 9px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      border: 1px solid transparent;
+    }
+    .badge-navy { background: #E0E7FF; color: #1E3A8A; border-color: #C7D2FE; }
+    .badge-ghost { background: #FFFBEB; color: #92400E; border-color: #FDE68A; }
+    .badge-real { background: #ECFDF5; color: #065F46; border-color: #A7F3D0; }
+    .badge-blank { background: #F1F5F9; color: #334155; border-color: #CBD5E1; }
+
+    /* =========================================================================
+       3. BỐ CỤC CHÍNH & NHẬN DIỆN THIẾT BỊ (DESKTOP WORKSTATION VS MOBILE)
+       ========================================================================= */
     #app-shell {
       min-height: 100vh;
     }
@@ -149,14 +242,14 @@
     }
 
     body.mode-desktop #desktop-sidebar {
-      width: 268px;
+      width: 264px;
       flex-shrink: 0;
       background-color: #FFFFFF;
-      border-right: 1px solid var(--border-light);
+      border-right: 1px solid var(--border);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      padding: 16px;
+      padding: 14px;
     }
 
     body.mode-desktop #workspace-wrap {
@@ -168,15 +261,15 @@
 
     body.mode-desktop #main-grid {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) 310px;
+      grid-template-columns: minmax(0, 1fr) 316px;
       flex: 1;
     }
 
     body.mode-desktop #desktop-right-panel {
       display: block;
       background-color: #F8FAFC;
-      border-left: 1px solid var(--border-light);
-      padding: 16px;
+      border-left: 1px solid var(--border);
+      padding: 14px;
     }
 
     body.mode-desktop #mobile-sticky-summary,
@@ -187,8 +280,8 @@
 
     /* Chế độ Điện thoại (Mobile Touch-First) */
     body.mode-mobile {
-      font-size: 15px;
-      padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+      font-size: 14.5px;
+      padding-bottom: calc(82px + env(safe-area-inset-bottom, 0px));
     }
 
     body.mode-mobile #desktop-sidebar,
@@ -210,22 +303,25 @@
     body.mode-mobile input[type="text"],
     body.mode-mobile input[type="number"],
     body.mode-mobile select {
-      min-height: 44px;
-      font-size: 15px;
-    }
-
-    body.mode-mobile button {
       min-height: 42px;
+      font-size: 14.5px;
     }
 
-    /* Top Header */
+    body.mode-mobile .choice-btn {
+      min-height: 36px;
+      padding: 6px 10px;
+      font-size: 12px;
+    }
+
+    /* Thanh Topbar */
     #topbar {
       position: sticky;
       top: 0;
       z-index: 30;
-      background-color: rgba(255, 255, 255, 0.96);
-      border-bottom: 1px solid var(--border-light);
-      padding: 12px 16px;
+      background-color: #FFFFFF;
+      border-bottom: 2px solid var(--navy-800);
+      padding: 10px 16px;
+      box-shadow: var(--shadow-sm);
     }
 
     .topbar-row {
@@ -234,42 +330,6 @@
       align-items: center;
       justify-content: space-between;
       gap: 10px;
-    }
-
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      padding: 3px 9px;
-      border-radius: 7px;
-      font-size: 11px;
-      font-weight: 700;
-      border: 1px solid transparent;
-    }
-    .badge-device { background: #EEF2FF; color: #3730A3; border-color: #C7D2FE; }
-    .badge-ghost { background: #FFFBEB; color: #92400E; border-color: #FDE68A; }
-    .badge-real { background: #ECFDF5; color: #065F46; border-color: #A7F3D0; }
-    .badge-blank { background: #F1F5F9; color: #334155; border-color: #CBD5E1; }
-
-    .dev-switcher {
-      display: inline-flex;
-      background: #F1F5F9;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 2px;
-      gap: 2px;
-    }
-    .dev-switcher button {
-      background: transparent;
-      color: var(--text-sub);
-      padding: 5px 9px;
-      font-size: 11px;
-      border-radius: 8px;
-      min-height: auto !important;
-    }
-    .dev-switcher button.active {
-      background: var(--navy);
-      color: #FFFFFF;
     }
 
     .action-group {
@@ -283,43 +343,69 @@
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 8px;
-      margin-top: 10px;
+      margin-top: 9px;
     }
     .stage-pill {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: #F8FAFC;
-      border: 1px solid var(--border-light);
-      border-radius: 9px;
-      padding: 6px 10px;
+      background: var(--ice-bg);
+      border: 1px solid #BFDBFE;
+      border-radius: 8px;
+      padding: 5px 10px;
       font-size: 12px;
-      color: var(--text-main);
-    }
-    .stage-pill.done {
-      background: #ECFDF5;
-      border-color: #A7F3D0;
-      color: #065F46;
+      color: var(--navy-900);
     }
 
-    /* Main Content & Cards */
+    /* Sidebar Navigation Buttons */
+    .nav-item {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #F8FAFC;
+      color: var(--text-sub);
+      border: 1px solid var(--border-soft);
+      padding: 9px 11px;
+      border-radius: 10px;
+      text-align: left;
+      font-size: 12.5px;
+      margin-bottom: 6px;
+    }
+    .nav-item:hover {
+      background: var(--blue-50);
+      border-color: #93C5FD;
+    }
+    .nav-item.active {
+      background: linear-gradient(90deg, #1B365D 0%, #2563EB 100%);
+      color: #FFFFFF;
+      font-weight: 700;
+      border-color: var(--navy-900);
+      box-shadow: var(--shadow-sm);
+    }
+    .nav-item.active .nav-tag {
+      background: rgba(255, 255, 255, 0.22) !important;
+      color: #FFFFFF !important;
+    }
+
+    /* Main Workspace & Cards */
     main {
-      padding: 16px;
+      padding: 14px 16px;
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 14px;
     }
     body.mode-mobile main {
-      padding: 12px;
+      padding: 10px 12px;
       gap: 12px;
     }
 
     .card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-light);
-      border-radius: var(--radius);
-      padding: 16px;
-      box-shadow: var(--shadow);
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 14px 16px;
+      box-shadow: var(--shadow-sm);
     }
 
     .card-header {
@@ -328,108 +414,170 @@
       align-items: center;
       justify-content: space-between;
       gap: 8px;
+      padding-bottom: 9px;
       margin-bottom: 12px;
+      border-bottom: 1.5px solid #E2E8F0;
     }
 
     .card-title {
       font-size: 14px;
-      font-weight: 700;
-      color: var(--navy);
+      font-weight: 800;
+      color: var(--navy-800);
       margin: 0;
+      text-transform: uppercase;
+      letter-spacing: 0.01em;
     }
 
-    .grid-2 {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 10px;
-    }
-    .grid-3 {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 10px;
-    }
-    .grid-4 {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 10px;
-    }
-    .span-2 {
-      grid-column: span 2;
-    }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
 
     body.mode-mobile .grid-2,
-    body.mode-mobile .grid-3 {
-      grid-template-columns: 1fr;
-    }
-    body.mode-mobile .grid-4 {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-    body.mode-mobile .span-2 {
-      grid-column: span 1;
-    }
+    body.mode-mobile .grid-3 { grid-template-columns: 1fr; }
+    body.mode-mobile .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
     .field-label {
       display: block;
-      font-size: 11.5px;
-      font-weight: 600;
-      color: var(--text-sub);
-      margin-bottom: 4px;
-    }
-
-    /* Sidebar Navigation */
-    .nav-item {
-      width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: transparent;
-      color: var(--text-sub);
-      padding: 9px 11px;
-      border-radius: 10px;
-      text-align: left;
-      font-size: 12.5px;
-      margin-bottom: 4px;
-    }
-    .nav-item:hover { background: #F1F5F9; }
-    .nav-item.active {
-      background: var(--blue-tint);
-      color: var(--navy);
+      font-size: 11px;
       font-weight: 700;
-      border: 1px solid #BFDBFE;
+      color: var(--text-sub);
+      margin-bottom: 3px;
     }
 
-    /* ===================================================================
-       BẢNG CHECKLIST HỒ SƠ ĐẦU VÀO CHUẨN HÓA (10 MỤC + NÚT TẢI PDF/EXCEL)
-       =================================================================== */
-    table.checklist-table {
+    /* =========================================================================
+       4. HỆ THỐNG BẢNG BIỂU NGÂN HÀNG (FORM TABLE, CHECKLIST, MATRIX)
+       ========================================================================= */
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #FFFFFF;
+    }
+
+    table.bank-table {
       width: 100%;
       border-collapse: collapse;
       font-size: 12.5px;
     }
-    table.checklist-table th {
-      background-color: var(--navy);
+
+    table.bank-table th {
+      background-color: var(--navy-800);
       color: #FFFFFF;
       font-weight: 700;
-      padding: 9px 10px;
+      padding: 8px 10px;
       text-align: left;
       border: 1px solid #1E3A8A;
+      white-space: nowrap;
     }
-    table.checklist-table td {
-      padding: 9px 10px;
-      border: 1px solid var(--border-light);
+
+    table.bank-table td {
+      padding: 7px 9px;
+      border: 1px solid var(--border-soft);
       vertical-align: middle;
     }
-    table.checklist-table tr.chk-group-row td {
-      background-color: #EFF6FF;
-      color: var(--navy);
-      font-weight: 800;
+
+    table.bank-table tbody tr:nth-child(even) {
+      background-color: #FAFCFF;
     }
-    table.checklist-table tr.chk-sub-row td {
+
+    table.bank-table tr.row-group td {
+      background-color: var(--blue-50) !important;
+      color: var(--navy-900) !important;
+      font-weight: 800;
+      font-size: 12px;
+      border-top: 1.5px solid #93C5FD;
+      border-bottom: 1.5px solid #93C5FD;
+    }
+
+    table.bank-table tr.row-sub td {
       background-color: #F8FAFC;
     }
-    .chk-sub-indent {
-      padding-left: 18px;
-      border-left: 3px solid var(--blue);
+
+    table.bank-table tr.row-total td {
+      background-color: #DBEAFE !important;
+      color: var(--navy-900) !important;
+      font-weight: 800;
+    }
+
+    /* Bảng Form 2/4 cột trình bày cấu hình tham số dạng bảng */
+    table.form-grid-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+    }
+    table.form-grid-table td.lbl-cell {
+      width: 21%;
+      background-color: var(--ice-bg);
+      color: var(--navy-900);
+      font-weight: 700;
+      padding: 8px 10px;
+      border: 1px solid var(--border-soft);
+    }
+    table.form-grid-table td.val-cell {
+      width: 29%;
+      background-color: #FFFFFF;
+      padding: 7px 9px;
+      border: 1px solid var(--border-soft);
+    }
+
+    body.mode-mobile table.form-grid-table,
+    body.mode-mobile table.form-grid-table tbody,
+    body.mode-mobile table.form-grid-table tr,
+    body.mode-mobile table.form-grid-table td {
+      display: block;
+      width: 100% !important;
+    }
+    body.mode-mobile table.form-grid-table td.lbl-cell {
+      border-bottom: none;
+      padding-bottom: 3px;
+    }
+    body.mode-mobile table.form-grid-table td.val-cell {
+      border-top: none;
+      padding-top: 3px;
+      margin-bottom: 6px;
+    }
+
+    /* Bảng Checklist responsive sang thẻ trên Mobile */
+    body.mode-mobile table.responsive-cards,
+    body.mode-mobile table.responsive-cards thead,
+    body.mode-mobile table.responsive-cards tbody,
+    body.mode-mobile table.responsive-cards tr,
+    body.mode-mobile table.responsive-cards td {
+      display: block;
+      width: 100%;
+    }
+    body.mode-mobile table.responsive-cards thead { display: none; }
+    body.mode-mobile table.responsive-cards tr {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 9px;
+      margin-bottom: 8px;
+      background: #FFFFFF;
+    }
+    body.mode-mobile table.responsive-cards tr.row-group {
+      background: var(--blue-50);
+      padding: 7px 10px;
+    }
+    body.mode-mobile table.responsive-cards td {
+      border: none;
+      padding: 4px 0;
+      text-align: left !important;
+    }
+    body.mode-mobile table.responsive-cards td::before {
+      content: attr(data-label);
+      display: block;
+      font-size: 10.5px;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+
+    .num { text-align: right !important; }
+    .center { text-align: center !important; }
+
+    .sub-indent {
+      padding-left: 14px;
+      border-left: 3px solid var(--blue-600);
     }
 
     .upload-pill-btn {
@@ -439,37 +587,30 @@
       gap: 5px;
       padding: 6px 11px;
       border-radius: 8px;
-      border: 1px solid #1D4ED8;
-      background: linear-gradient(180deg, #2B6CB0 0%, #1B365D 100%);
+      border: 1px solid var(--blue-700);
+      background: linear-gradient(180deg, #2563EB 0%, #1B365D 100%);
       color: #FFFFFF;
       font-size: 11.5px;
       font-weight: 700;
       cursor: pointer;
       white-space: nowrap;
-      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.12);
+      box-shadow: var(--shadow-sm);
     }
-    .upload-pill-btn:hover {
-      background: #1D4ED8;
-    }
-    body.mode-mobile .upload-pill-btn {
-      width: 100%;
-      min-height: 40px;
-      font-size: 13px;
-    }
+    .upload-pill-btn:hover { background: var(--blue-700); }
 
     .file-chip-list {
       display: flex;
       flex-wrap: wrap;
-      gap: 5px;
+      gap: 4px;
       margin-top: 5px;
     }
     .file-chip {
       display: inline-flex;
       align-items: center;
       gap: 5px;
-      background: #EFF6FF;
-      border: 1px solid #BFDBFE;
-      color: #1E3A8A;
+      background: var(--blue-50);
+      border: 1px solid #93C5FD;
+      color: var(--navy-900);
       border-radius: 6px;
       padding: 2px 7px;
       font-size: 11px;
@@ -478,142 +619,29 @@
     .file-chip-del {
       background: none;
       border: none;
-      color: #B91C1C;
+      color: var(--crimson-700);
       font-weight: 800;
       padding: 0 2px;
       font-size: 12px;
       cursor: pointer;
-      min-height: auto !important;
-    }
-
-    .doc-status-sel {
-      width: auto !important;
-      padding: 5px 8px !important;
-      font-size: 11.5px !important;
-      min-height: auto !important;
-    }
-    .doc-month-sel {
-      width: auto !important;
-      padding: 5px 8px !important;
-      font-size: 11.5px !important;
-      font-weight: 700 !important;
-      color: #1B365D !important;
-      background: #FFFFFF !important;
-      border-color: #60A5FA !important;
-      min-height: auto !important;
-    }
-
-    /* Chuyển Bảng Checklist thành thẻ cảm ứng trên Mobile */
-    body.mode-mobile table.checklist-table,
-    body.mode-mobile table.checklist-table thead,
-    body.mode-mobile table.checklist-table tbody,
-    body.mode-mobile table.checklist-table tr,
-    body.mode-mobile table.checklist-table td {
-      display: block;
-      width: 100%;
-    }
-    body.mode-mobile table.checklist-table thead { display: none; }
-    body.mode-mobile table.checklist-table tr {
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 10px;
-      margin-bottom: 9px;
-      background: #FFFFFF;
-    }
-    body.mode-mobile table.checklist-table tr.chk-group-row {
-      background: #EFF6FF;
-      padding: 8px 10px;
-    }
-    body.mode-mobile table.checklist-table td {
-      border: none;
-      padding: 4px 0;
-      text-align: left !important;
-    }
-
-    /* Bảng dữ liệu chung */
-    .table-wrap {
-      overflow-x: auto;
-      border: 1px solid var(--border-light);
-      border-radius: 10px;
-    }
-    table.data-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 12.5px;
-    }
-    table.data-table th,
-    table.data-table td {
-      padding: 8px 10px;
-      border-bottom: 1px solid var(--border-light);
-      text-align: left;
-      vertical-align: middle;
-    }
-    table.data-table th {
-      background: #F8FAFC;
-      color: var(--text-sub);
-      font-weight: 700;
-    }
-    .num { text-align: right !important; }
-    .center { text-align: center !important; }
-
-    tr.ratio-group-row td {
-      background-color: #EFF6FF !important;
-      color: #1B365D !important;
-      font-weight: 800;
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.02em;
-      border-top: 1.5px solid #93C5FD;
-      border-bottom: 1.5px solid #93C5FD;
-    }
-
-    /* Xếp thẻ bảng lọc nhiễu trên Mobile */
-    body.mode-mobile table.mobile-cards,
-    body.mode-mobile table.mobile-cards thead,
-    body.mode-mobile table.mobile-cards tbody,
-    body.mode-mobile table.mobile-cards tr,
-    body.mode-mobile table.mobile-cards td {
-      display: block;
-      width: 100%;
-    }
-    body.mode-mobile table.mobile-cards thead { display: none; }
-    body.mode-mobile table.mobile-cards tr {
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 10px;
-      margin-bottom: 10px;
-      background: #F8FAFC;
-    }
-    body.mode-mobile table.mobile-cards td {
-      border: none;
-      padding: 4px 0;
-      text-align: left !important;
-    }
-    body.mode-mobile table.mobile-cards td::before {
-      content: attr(data-label);
-      display: block;
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--text-muted);
-      margin-bottom: 2px;
     }
 
     /* Right Panel KPI Cards */
     .kpi-card {
       background: #FFFFFF;
-      border: 1px solid var(--border-light);
-      border-radius: 11px;
-      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 9px 11px;
     }
     .kpi-label {
       font-size: 11px;
       color: var(--text-muted);
-      font-weight: 600;
+      font-weight: 700;
     }
     .kpi-val {
       font-size: 15px;
       font-weight: 800;
-      color: var(--navy);
+      color: var(--navy-800);
       margin-top: 2px;
     }
     .kpi-sub {
@@ -625,12 +653,12 @@
     /* Mobile Sticky Summary & Bottom Nav */
     #mobile-sticky-summary {
       background: #FFFFFF;
-      border-bottom: 1px solid var(--border-light);
-      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      padding: 9px 12px;
     }
     #mobile-quick-actions {
-      background: #F8FAFC;
-      border-bottom: 1px solid var(--border-light);
+      background: var(--ice-bg);
+      border-bottom: 1px solid var(--border);
       padding: 8px 12px;
     }
     #mobile-bottom-nav {
@@ -641,9 +669,9 @@
       z-index: 40;
       grid-template-columns: repeat(4, 1fr);
       background: #FFFFFF;
-      border-top: 1px solid var(--border);
-      padding: 6px 6px calc(6px + env(safe-area-inset-bottom, 0px)) 6px;
-      box-shadow: 0 -2px 10px rgba(15, 23, 42, 0.08);
+      border-top: 2px solid var(--navy-800);
+      padding: 5px 6px calc(5px + env(safe-area-inset-bottom, 0px)) 6px;
+      box-shadow: 0 -2px 10px rgba(15, 23, 42, 0.12);
     }
     .mob-nav-btn {
       display: flex;
@@ -653,21 +681,21 @@
       background: transparent;
       color: var(--text-sub);
       padding: 5px 4px;
-      border-radius: 9px;
+      border-radius: 8px;
       font-size: 11px;
-      min-height: 46px !important;
+      min-height: 44px !important;
     }
     .mob-nav-btn.active {
-      background: var(--blue-tint);
-      color: var(--navy);
-      font-weight: 800;
+      background: var(--navy-800);
+      color: #FFFFFF;
+      font-weight: 700;
     }
 
     .hidden { display: none !important; }
 
-    /* ===================================================================
-       3. ĐỊNH DẠNG BÁO CÁO CHUẨN MẪU 12 MỤC (MÀN HÌNH & IN PDF A4)
-       =================================================================== */
+    /* =========================================================================
+       5. ĐỊNH DẠNG BÁO CÁO CHUẨN MẪU 12 MỤC (XEM TRƯỚC & IN PDF A4)
+       ========================================================================= */
     .memo-sheet {
       background: #FFFFFF;
       color: #1E293B;
@@ -793,21 +821,21 @@
       font-weight: 800;
       color: #1B365D;
     }
-    .st-ok { color: #15803D; font-weight: 700; }
+    .st-ok { color: #047857; font-weight: 700; }
     .st-warn { color: #B45309; font-weight: 700; }
     .st-flag { color: #B91C1C; font-weight: 700; }
 
-    /* Modal Xem Trước Báo Cáo */
+    /* Modal Xem Trước */
     #preview-modal {
       position: fixed;
       inset: 0;
       z-index: 60;
-      background: rgba(15, 23, 42, 0.72);
+      background: rgba(15, 23, 42, 0.76);
       display: flex;
       flex-direction: column;
     }
     .modal-bar {
-      background: #1B365D;
+      background: var(--navy-900);
       color: #FFFFFF;
       padding: 10px 16px;
       display: flex;
@@ -871,8 +899,8 @@
     <div class="modal-bar">
       <div style="font-weight:700; font-size:13px;">Bản Xem Trước Báo Cáo Thẩm Định Tín Dụng (Chuẩn A4 – 12 Mục)</div>
       <div class="action-group">
-        <button id="btn-modal-print" type="button" class="btn-green">🖨️ In / Lưu File PDF</button>
-        <button id="btn-modal-close" type="button" class="btn-outline">✕ Đóng</button>
+        <button id="btn-modal-print" type="button" class="btn-emerald">🖨️ In / Lưu File PDF</button>
+        <button id="btn-modal-close" type="button" class="btn-white">✕ Đóng</button>
       </div>
     </div>
     <div class="modal-body">
@@ -888,63 +916,55 @@
     <!-- SIDEBAR TRÁI (MÁY TÍNH) -->
     <aside id="desktop-sidebar">
       <div>
-        <div style="display:flex; align-items:center; gap:10px; padding-bottom:12px; border-bottom:1px solid #E2E8F0; margin-bottom:12px;">
-          <div style="width:38px; height:38px; border-radius:10px; background:#1B365D; color:#FFF; display:flex; align-items:center; justify-content:center; font-weight:800;">CF</div>
+        <div style="display:flex; align-items:center; gap:10px; padding-bottom:12px; border-bottom:1.5px solid #E2E8F0; margin-bottom:12px;">
+          <div style="width:38px; height:38px; border-radius:10px; background:linear-gradient(135deg,#1B365D,#2563EB); color:#FFF; display:flex; align-items:center; justify-content:center; font-weight:800;">CF</div>
           <div>
-            <div style="font-weight:800; font-size:14px; color:#1B365D;">CreditFlow Pro v7.2</div>
+            <div style="font-weight:800; font-size:14px; color:#0F294A;">CreditFlow Pro v7.2</div>
             <div style="font-size:11px; color:#64748B;">Thẩm định KHDN • TT200 / VAS 24</div>
           </div>
         </div>
 
-        <!-- Nút Khởi tạo Dữ liệu Mới & Nạp lại Dữ liệu Giả định -->
-        <div style="background:#EFF6FF; border:1px solid #BFDBFE; border-radius:11px; padding:10px; margin-bottom:14px; display:flex; flex-direction:column; gap:6px;">
+        <!-- Khối Nút Khởi tạo Hồ sơ Mới & Nạp Mẫu -->
+        <div style="background:#F0F5FA; border:1px solid #BFDBFE; border-radius:11px; padding:10px; margin-bottom:12px; display:flex; flex-direction:column; gap:6px;">
           <button id="btn-init-new-side" type="button" class="btn-navy" style="width:100%;">✨ Bắt đầu Khởi tạo Dữ liệu Mới</button>
-          <button id="btn-restore-ghost-side" type="button" class="btn-outline" style="width:100%; font-size:11.5px;">↺ Nạp lại Dữ liệu Giả định (Chữ mờ)</button>
+          <button id="btn-restore-ghost-side" type="button" class="btn-amber" style="width:100%; font-size:11.5px;">↺ Nạp lại Dữ liệu Giả định (Chữ mờ)</button>
         </div>
 
         <!-- Điều hướng 4 Phân hệ -->
-        <div style="font-size:10.5px; font-weight:700; text-transform:uppercase; color:#64748B; margin-bottom:6px; padding-left:4px;">Phân hệ Thẩm định</div>
+        <div style="font-size:10.5px; font-weight:800; text-transform:uppercase; color:#64748B; margin-bottom:6px; padding-left:4px;">Phân hệ Nghiệp vụ</div>
         <button type="button" data-desk-view="workspace" class="nav-item active">
-          <span>1. Checklist Hồ sơ &amp; Nhập liệu</span>
-          <span style="font-size:10px; background:#DBEAFE; padding:2px 6px; border-radius:6px;">Mục 1–3</span>
+          <span>1. Checklist &amp; Nhập liệu 3 Kỳ</span>
+          <span class="nav-tag" style="font-size:10px; background:#DBEAFE; color:#1E3A8A; padding:2px 6px; border-radius:6px;">Mục 1–3</span>
         </button>
         <button type="button" data-desk-view="analysis" class="nav-item">
-          <span>2. Phân tích 3 Kỳ, Stress &amp; EWS</span>
-          <span style="font-size:10px; background:#E2E8F0; padding:2px 6px; border-radius:6px;">Mục 4–11</span>
+          <span>2. Phân tích 19 Chỉ số &amp; Stress</span>
+          <span class="nav-tag" style="font-size:10px; background:#E2E8F0; color:#334155; padding:2px 6px; border-radius:6px;">Mục 4–11</span>
         </button>
         <button type="button" data-desk-view="report" class="nav-item">
           <span>3. Tờ trình 12 Mục &amp; Phê duyệt</span>
-          <span style="font-size:10px; background:#E2E8F0; padding:2px 6px; border-radius:6px;">Mục 12</span>
+          <span class="nav-tag" style="font-size:10px; background:#E2E8F0; color:#334155; padding:2px 6px; border-radius:6px;">Mục 12</span>
         </button>
         <button type="button" data-desk-view="json" class="nav-item">
-          <span>4. Nhật ký &amp; Dữ liệu JSON</span>
-          <span style="font-size:10px; background:#E2E8F0; padding:2px 6px; border-radius:6px;">Export</span>
+          <span>4. Xuất Dữ liệu Chuẩn (JSON)</span>
+          <span class="nav-tag" style="font-size:10px; background:#E2E8F0; color:#334155; padding:2px 6px; border-radius:6px;">Data</span>
         </button>
 
         <!-- Nạp Nhanh Tệp CSV / JSON -->
-        <div style="margin-top:14px; border:1px solid #E2E8F0; background:#F8FAFC; border-radius:11px; padding:10px;">
+        <div style="margin-top:12px; border:1px solid #CBD5E1; background:#F8FAFC; border-radius:11px; padding:10px;">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-            <span style="font-size:11px; font-weight:700; color:#334155;">Nạp Dữ Liệu Hàng Loạt</span>
-            <button id="btn-dl-csv-sample" type="button" style="background:none; color:#2B6CB0; padding:0; font-size:11px; text-decoration:underline;">⬇ File mẫu CSV</button>
+            <span style="font-size:11px; font-weight:700; color:#0F294A;">Nạp Dữ Liệu Hàng Loạt</span>
+            <button id="btn-dl-csv-sample" type="button" style="background:none; color:#1D4ED8; padding:0; font-size:11px; text-decoration:underline;">⬇ File mẫu CSV</button>
           </div>
           <label for="quick-file-input" class="upload-pill-btn" style="width:100%; padding:8px;">
             📂 Chọn tệp CSV / JSON / TXT
           </label>
           <input id="quick-file-input" type="file" accept=".json,.csv,.txt" style="display:none;" />
-          <div style="display:flex; align-items:center; justify-content:space-between; gap:6px; margin-top:8px; font-size:11px;">
-            <span style="color:#64748B;">Đơn vị gốc:</span>
-            <select id="unit-scale" style="width:130px; padding:4px 6px; font-size:11px;">
-              <option value="1">Tỷ đồng (1:1)</option>
-              <option value="1000">Triệu đồng (÷ 1.000)</option>
-              <option value="1000000000">VNĐ (÷ 1 tỷ)</option>
-            </select>
-          </div>
         </div>
       </div>
 
       <div style="padding-top:10px; border-top:1px solid #E2E8F0; display:flex; gap:6px;">
-        <button id="btn-save-local" type="button" class="btn-outline" style="flex:1; font-size:11.5px;">💾 Lưu hồ sơ</button>
-        <button id="btn-load-local" type="button" class="btn-outline" style="flex:1; font-size:11.5px;">📂 Mở đã lưu</button>
+        <button id="btn-save-local" type="button" class="btn-ice" style="flex:1; font-size:11.5px;">💾 Lưu hồ sơ</button>
+        <button id="btn-load-local" type="button" class="btn-white" style="flex:1; font-size:11.5px;">📂 Mở đã lưu</button>
       </div>
     </aside>
 
@@ -955,7 +975,7 @@
         <div class="topbar-row">
           <div style="min-width:0; flex:1;">
             <div style="display:flex; flex-wrap:wrap; align-items:center; gap:6px;">
-              <span id="device-badge" class="badge badge-device">🖥️ Giao diện Máy tính</span>
+              <span id="device-badge" class="badge badge-navy">🖥️ Giao diện Máy tính</span>
               <span id="data-mode-badge" class="badge badge-ghost">Dữ liệu giả định (Chữ mờ)</span>
             </div>
             <div id="header-title" style="font-size:15px; font-weight:800; color:#0F172A; margin-top:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
@@ -964,24 +984,25 @@
           </div>
 
           <div class="action-group">
-            <div class="dev-switcher" title="Chuyển chế độ hiển thị Máy tính / Điện thoại">
-              <button type="button" data-dev="auto" class="active">Tự động</button>
-              <button type="button" data-dev="desktop">🖥️ PC</button>
-              <button type="button" data-dev="mobile">📱 Mobile</button>
+            <!-- Nút chọn chế độ hiển thị Thiết bị -->
+            <div id="device-choice-group" class="choice-group" title="Chọn chế độ giao diện hiển thị">
+              <button type="button" data-dev="auto" class="choice-btn active-navy">Tự động</button>
+              <button type="button" data-dev="desktop" class="choice-btn">🖥️ Máy tính</button>
+              <button type="button" data-dev="mobile" class="choice-btn">📱 Điện thoại</button>
             </div>
 
-            <button id="btn-init-new-top" type="button" class="btn-soft-blue">✨ Dữ liệu mới</button>
-            <button id="btn-run-all" type="button" class="btn-blue desktop-only">▶ Chạy Thẩm định</button>
-            <button id="btn-preview-pdf" type="button" class="btn-soft-blue desktop-only">👁 Xem trước</button>
-            <button id="btn-export-pdf" type="button" class="btn-green">📄 Xuất PDF</button>
+            <button id="btn-init-new-top" type="button" class="btn-ice">✨ Dữ liệu mới</button>
+            <button id="btn-run-all" type="button" class="btn-royal desktop-only">▶ Tính &amp; Cập nhật</button>
+            <button id="btn-preview-pdf" type="button" class="btn-navy desktop-only">👁 Xem trước 12 Mục</button>
+            <button id="btn-export-pdf" type="button" class="btn-emerald">📄 Xuất PDF</button>
           </div>
         </div>
 
         <div id="desktop-stage-pills" class="stage-pills">
-          <div id="stage-1" class="stage-pill done"><span>1. Checklist Hồ sơ</span><strong class="mono">Sẵn sàng</strong></div>
-          <div id="stage-2" class="stage-pill done"><span>2. Lọc nhiễu TT200</span><strong class="mono">Sẵn sàng</strong></div>
-          <div id="stage-3" class="stage-pill done"><span>3. Phân tích &amp; Stress</span><strong class="mono">Sẵn sàng</strong></div>
-          <div id="stage-4" class="stage-pill done"><span>4. Phê duyệt tín dụng</span><strong class="mono">Sẵn sàng</strong></div>
+          <div class="stage-pill"><span>1. Tiếp nhận &amp; Checklist</span><strong id="st-pill-1" class="mono">9/11 hồ sơ</strong></div>
+          <div class="stage-pill"><span>2. Chuẩn hóa TT200</span><strong id="st-pill-2" class="mono">NWC_op: 87.00 tỷ</strong></div>
+          <div class="stage-pill"><span>3. Dòng tiền &amp; Stress</span><strong id="st-pill-3" class="mono">DSCR T+1: 2.01x</strong></div>
+          <div class="stage-pill"><span>4. Xếp hạng &amp; Quyết nghị</span><strong id="st-pill-4" class="mono">Hạng C • 29.00 tỷ</strong></div>
         </div>
       </header>
 
@@ -993,281 +1014,325 @@
               <span id="mob-rank" class="badge badge-ghost">Hạng C</span>
               <strong id="mob-decision" style="font-size:12.5px; color:#0F172A;">PHÊ DUYỆT CÓ ĐIỀU KIỆN</strong>
             </div>
-            <div style="font-size:12px; color:#475569; margin-top:3px;">
+            <div style="font-size:12px; color:#334155; margin-top:3px;">
               Duyệt: <strong id="mob-limit" class="mono" style="color:#1B365D;">29.00 tỷ</strong> •
               OCF: <strong id="mob-ocf" class="mono">-9.80 tỷ</strong> •
               DSCR: <strong id="mob-dscr" class="mono">2.01x</strong>
             </div>
           </div>
-          <button id="btn-mob-expand" type="button" class="btn-outline" style="padding:5px 9px; font-size:11.5px;">Chi tiết ▾</button>
+          <button id="btn-mob-expand" type="button" class="btn-ice" style="padding:5px 9px; font-size:11.5px;">Chi tiết ▾</button>
         </div>
         <div id="mob-drawer" class="hidden" style="margin-top:8px; padding-top:8px; border-top:1px solid #E2E8F0; font-size:12px;">
           <div class="grid-2" style="margin-bottom:6px;">
             <div class="kpi-card"><div class="kpi-label">Vòng quay VLĐ</div><div id="mob-vq" class="kpi-val mono">4.17 vòng</div></div>
             <div class="kpi-card"><div class="kpi-label">Trần VAR_HMTD_MAX</div><div id="mob-hmtd-max" class="kpi-val mono">29.07 tỷ</div></div>
           </div>
-          <div id="mob-flags" style="color:#475569;"></div>
+          <div id="mob-flags" style="color:#334155;"></div>
         </div>
       </section>
 
       <!-- THANH THAO TÁC NHANH TRÊN ĐIỆN THOẠI -->
       <section id="mobile-quick-actions" class="hidden">
         <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:6px;">
-          <button id="btn-mob-run" type="button" class="btn-blue" style="font-size:12px; padding:7px 6px;">▶ Tính toán</button>
-          <button id="btn-mob-preview" type="button" class="btn-soft-blue" style="font-size:12px; padding:7px 6px;">👁 Xem Tờ trình</button>
-          <button id="btn-mob-ghost" type="button" class="btn-outline" style="font-size:12px; padding:7px 6px;">↺ Mẫu giả định</button>
+          <button id="btn-mob-run" type="button" class="btn-royal" style="font-size:12px; padding:7px 6px;">▶ Tính toán</button>
+          <button id="btn-mob-preview" type="button" class="btn-navy" style="font-size:12px; padding:7px 6px;">👁 Xem Tờ trình</button>
+          <button id="btn-mob-ghost" type="button" class="btn-amber" style="font-size:12px; padding:7px 6px;">↺ Mẫu giả định</button>
         </div>
       </section>
 
       <!-- LƯỚI NỘI DUNG + CỘT PHẢI -->
       <div id="main-grid">
         <main>
-          <!-- Hướng dẫn chế độ dữ liệu -->
-          <div id="helper-banner" style="background:#FFFBEB; border:1px solid #FDE68A; border-left:4px solid #D97706; border-radius:10px; padding:10px 12px; font-size:12.5px; color:#78350F;">
-            <strong>Chế độ Dữ liệu Giả định (Chữ mờ):</strong> Hệ thống đang nạp sẵn số liệu giả định 3 kỳ (Năm T−2, Năm T−1, Kỳ T) và Doanh thu dự phóng Năm T+1 (chữ mờ in nghiêng trong từng ô) để bạn kiểm tra chỉ số và xuất thử <strong>Báo cáo PDF 12 Mục</strong>. Bấm <strong>"✨ Dữ liệu mới"</strong> để khởi tạo hồ sơ trống.
+          <!-- Banner chế độ dữ liệu giả định -->
+          <div id="helper-banner" style="background:#FFFBEB; border:1px solid #FDE68A; border-left:4px solid #D97706; border-radius:10px; padding:9px 12px; font-size:12.5px; color:#78350F;">
+            <strong>Chế độ Dữ liệu Giả định (Chữ mờ):</strong> Hệ thống đang nạp sẵn số liệu giả định 3 kỳ (Năm T−2, Năm T−1, Kỳ T) và Kế hoạch Năm T+1 để bạn đối chiếu chỉ số và xuất thử <strong>Báo cáo PDF 12 Mục</strong>. Bấm <strong>"✨ Dữ liệu mới"</strong> để khởi tạo hồ sơ trống.
           </div>
 
-          <!-- MỤC NHẬP LIỆU ĐẦU VÀO -->
+          <!-- ===============================================================
+               PHÂN KHU NHẬP LIỆU ĐẦU VÀO (DẠNG BẢNG + NÚT LỰA CHỌN MÀU)
+               =============================================================== -->
           <section id="sec-inputs" style="display:flex; flex-direction:column; gap:14px;">
-            <!-- PHẦN 1: BẢNG CHECKLIST HỒ SƠ ĐẦU VÀO CHUẨN HÓA (10 HẠNG MỤC + TẢI FILE PDF / EXCEL) -->
+            <!-- BẢNG I: THÔNG TIN DOANH NGHIỆP & CẤU HÌNH THAM SỐ BẰNG NÚT MÀU -->
+            <div class="card">
+              <div class="card-header">
+                <h2 class="card-title">I. Thông tin Khách hàng &amp; Cấu hình Kỳ Thẩm định (Dạng Bảng)</h2>
+                <span class="badge badge-navy">Chuẩn Mapping TT200</span>
+              </div>
+
+              <div class="table-wrap">
+                <table class="form-grid-table">
+                  <tbody>
+                    <tr>
+                      <td class="lbl-cell">Tên Doanh nghiệp / KH</td>
+                      <td class="val-cell"><input id="inp-company" data-field="companyName" type="text" /></td>
+                      <td class="lbl-cell">Mã số thuế (MST)</td>
+                      <td class="val-cell"><input id="inp-taxcode" data-field="taxCode" type="text" /></td>
+                    </tr>
+                    <tr>
+                      <td class="lbl-cell">Kỳ báo cáo Kỳ T (Tháng X)</td>
+                      <td class="val-cell" colspan="3">
+                        <div id="period-choice-group" class="choice-group">
+                          <button type="button" data-month="3" class="choice-btn">Tháng 3 / Năm T (90 ngày)</button>
+                          <button type="button" data-month="6" class="choice-btn">Tháng 6 / Năm T (180 ngày)</button>
+                          <button type="button" data-month="9" class="choice-btn active-blue">Tháng 9 / Năm T (270 ngày)</button>
+                          <button type="button" data-month="12" class="choice-btn">Cả năm T (365 ngày)</button>
+                        </div>
+                        <input id="inp-tdays" data-field="tDays" type="hidden" value="270" />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="lbl-cell">Đơn vị tiền tệ nạp tệp</td>
+                      <td class="val-cell">
+                        <div id="unit-choice-group" class="choice-group">
+                          <button type="button" data-scale="1" class="choice-btn active-navy">Tỷ đồng</button>
+                          <button type="button" data-scale="1000" class="choice-btn">Triệu đồng</button>
+                          <button type="button" data-scale="1000000000" class="choice-btn">VNĐ</button>
+                        </div>
+                        <input id="unit-scale" type="hidden" value="1" />
+                      </td>
+                      <td class="lbl-cell">Hạn mức đề xuất (VAR_HMTD_REQ)</td>
+                      <td class="val-cell"><input id="inp-hmtd-req" data-field="hmtdReq" type="number" inputmode="decimal" step="0.01" /></td>
+                    </tr>
+                    <tr>
+                      <td class="lbl-cell">Nhóm ngành đặc thù</td>
+                      <td class="val-cell" colspan="3">
+                        <div id="sector-choice-group" class="choice-group">
+                          <button type="button" data-sector="Xây lắp" data-mfg="0" class="choice-btn active-blue">Xây lắp Công trình</button>
+                          <button type="button" data-sector="Sản xuất" data-mfg="1" class="choice-btn">Sản xuất Công nghiệp</button>
+                          <button type="button" data-sector="Thương mại FMCG" data-mfg="0" class="choice-btn">Thương mại / FMCG</button>
+                          <button type="button" data-sector="Dược phẩm & Y tế" data-mfg="0" class="choice-btn">Dược phẩm &amp; TBYT</button>
+                          <button type="button" data-sector="XNK Thủy sản" data-mfg="1" class="choice-btn">XNK Thủy sản</button>
+                          <button type="button" data-sector="Dịch vụ & Logistics" data-mfg="0" class="choice-btn">Dịch vụ / Logistics</button>
+                        </div>
+                        <input id="inp-industry" data-field="industry" type="text" style="margin-top:6px;" />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="lbl-cell">Mục đích &amp; Thời hạn vay</td>
+                      <td class="val-cell"><input id="inp-purpose" data-field="purpose" type="text" /></td>
+                      <td class="lbl-cell">Lãi suất Stress Test (%/năm)</td>
+                      <td class="val-cell"><input id="inp-stress-rate" data-field="stressRatePct" type="number" inputmode="decimal" step="0.1" /></td>
+                    </tr>
+                    <tr>
+                      <td class="lbl-cell">Tài sản bảo đảm (TSBĐ) &amp; LTV</td>
+                      <td class="val-cell" colspan="3"><input id="inp-collateral" data-field="collateral" type="text" /></td>
+                    </tr>
+                    <tr>
+                      <td class="lbl-cell">Tình trạng Nợ CIC</td>
+                      <td class="val-cell" colspan="3">
+                        <div id="cic-choice-group" class="choice-group">
+                          <button type="button" data-cic="1" class="choice-btn active-emerald">Nhóm 1 – Đủ tiêu chuẩn</button>
+                          <button type="button" data-cic="2" class="choice-btn">Nhóm 2 – Nợ cần chú ý</button>
+                          <button type="button" data-cic="3" class="choice-btn">Nhóm 3–5 – Nợ xấu (Kích hoạt Knock-out)</button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="lbl-cell">Tùy chọn Bóc tách Thuyết minh</td>
+                      <td class="val-cell" colspan="3">
+                        <div class="choice-group">
+                          <button type="button" id="btn-toggle-mfg" class="choice-btn">Loại hình: Thương mại / Xây lắp</button>
+                          <button type="button" id="btn-toggle-breakdown" class="choice-btn">Thuyết minh Giá vốn: Chưa tách KH &amp; NCTT</button>
+                          <button type="button" id="btn-toggle-notes" class="choice-btn">Thuyết minh Tuổi nợ / Kho: Thiếu chi tiết</button>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- BẢNG II: BẢNG CHECKLIST HỒ SƠ ĐẦU VÀO CHUẨN HÓA (11 MỤC + TẢI PDF/EXCEL + NÚT TRẠNG THÁI MÀU) -->
             <div id="sec-docs" class="card">
               <div class="card-header">
                 <div>
-                  <h2 class="card-title">I. Bảng Checklist Hồ sơ Đầu vào Chuẩn hóa &amp; Tải Tệp (PDF / Excel)</h2>
-                  <div style="font-size:11.5px; color:#64748B;">Hỗ trợ tải trực tiếp tệp định dạng <strong>PDF, Excel (.xlsx, .xls, .csv)</strong> từ máy tính hoặc điện thoại ngay bên cạnh từng hạng mục (cho phép chọn nhiều tệp).</div>
+                  <h2 class="card-title">II. Bảng Checklist Hồ sơ Đầu vào Chuẩn hóa &amp; Tải Tệp (PDF / Excel)</h2>
+                  <div style="font-size:11.5px; color:#64748B;">Chọn trạng thái bằng nút màu và tải trực tiếp tệp <strong>PDF, Excel (.xlsx, .xls, .csv)</strong> từ máy tính hoặc điện thoại cho từng hạng mục.</div>
                 </div>
                 <span id="doc-count-badge" class="badge badge-real">8/11 đầy đủ</span>
               </div>
 
               <div class="table-wrap">
-                <table class="checklist-table">
+                <table class="bank-table responsive-cards">
                   <thead>
                     <tr>
-                      <th class="center" style="width:7%;">STT</th>
-                      <th style="width:41%;">Hạng mục Hồ sơ Đầu vào Chuẩn hóa</th>
-                      <th style="width:22%;">Tải File (PDF / Excel)</th>
-                      <th style="width:14%;">Trạng thái</th>
-                      <th style="width:16%;">Ghi chú Kiểm soát</th>
+                      <th class="center" style="width:6%;">STT</th>
+                      <th style="width:38%;">Hạng mục Hồ sơ Đầu vào Chuẩn hóa</th>
+                      <th style="width:18%;">Tải Tệp (PDF / Excel)</th>
+                      <th style="width:22%;">Trạng thái Kiểm soát (Chọn màu)</th>
+                      <th style="width:16%;">Ghi chú Đối chiếu</th>
                     </tr>
                   </thead>
                   <tbody id="checklist-tbody"></tbody>
                 </table>
               </div>
 
-              <!-- Chi tiết tiểu khoản Hàng tồn kho (Mục 6) -->
-              <div style="margin-top:12px; padding:10px 12px; background:#F8FAFC; border:1px solid #CBD5E1; border-radius:10px;">
-                <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:6px; margin-bottom:8px;">
-                  <span style="font-size:12px; font-weight:700; color:#1B365D;">Chi tiết Tiểu khoản Hàng tồn kho Kỳ T (Mục 6: TK 152, TK 153, TK 155, TK 156 – tỷ đồng)</span>
-                  <span class="mono" style="font-size:11.5px; color:#475569;">Tổng tiểu khoản: <strong id="inv-sub-sum">74.00</strong> tỷ</span>
+              <!-- Bảng con Chi tiết Tiểu khoản Hàng tồn kho (Mục 6) -->
+              <div style="margin-top:12px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                  <strong style="font-size:12px; color:#0F294A;">Bảng Chi tiết Tiểu khoản Hàng tồn kho Kỳ T (Mục 6: TK 152, 153, 154, 155, 156, 157 – tỷ đồng)</strong>
+                  <span class="badge badge-navy mono">Tổng tiểu khoản: <span id="inv-sub-sum">74.00</span> tỷ</span>
                 </div>
-                <div class="grid-3">
-                  <div><label class="field-label">TK 152 (Nguyên liệu, vật liệu)</label><input id="inp-tk152" data-field="tk152" type="number" inputmode="decimal" step="0.01" /></div>
-                  <div><label class="field-label">TK 153 (Công cụ, dụng cụ)</label><input id="inp-tk153" data-field="tk153" type="number" inputmode="decimal" step="0.01" /></div>
-                  <div><label class="field-label">TK 154 (Chi phí SXKD dở dang)</label><input id="inp-tk154" data-field="tk154" type="number" inputmode="decimal" step="0.01" /></div>
-                  <div><label class="field-label">TK 155 (Thành phẩm)</label><input id="inp-tk155" data-field="tk155" type="number" inputmode="decimal" step="0.01" /></div>
-                  <div><label class="field-label">TK 156 (Hàng hóa)</label><input id="inp-tk156" data-field="tk156" type="number" inputmode="decimal" step="0.01" /></div>
-                  <div><label class="field-label">TK 157 (Hàng gửi đi bán)</label><input id="inp-tk157" data-field="tk157" type="number" inputmode="decimal" step="0.01" /></div>
+                <div class="table-wrap">
+                  <table class="bank-table">
+                    <thead>
+                      <tr>
+                        <th class="center">TK 152 (NVL)</th>
+                        <th class="center">TK 153 (CCDC)</th>
+                        <th class="center">TK 154 (Dở dang)</th>
+                        <th class="center">TK 155 (Thành phẩm)</th>
+                        <th class="center">TK 156 (Hàng hóa)</th>
+                        <th class="center">TK 157 (Gửi bán)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td><input id="inp-tk152" data-field="tk152" type="number" inputmode="decimal" step="0.01" style="text-align:right;" /></td>
+                        <td><input id="inp-tk153" data-field="tk153" type="number" inputmode="decimal" step="0.01" style="text-align:right;" /></td>
+                        <td><input id="inp-tk154" data-field="tk154" type="number" inputmode="decimal" step="0.01" style="text-align:right;" /></td>
+                        <td><input id="inp-tk155" data-field="tk155" type="number" inputmode="decimal" step="0.01" style="text-align:right;" /></td>
+                        <td><input id="inp-tk156" data-field="tk156" type="number" inputmode="decimal" step="0.01" style="text-align:right;" /></td>
+                        <td><input id="inp-tk157" data-field="tk157" type="number" inputmode="decimal" step="0.01" style="text-align:right;" /></td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
               </div>
             </div>
 
-            <!-- PHẦN 2: THÔNG TIN DOANH NGHIỆP & ĐỀ XUẤT CẤP TÍN DỤNG -->
+            <!-- BẢNG III: BÓC TÁCH & LỌC NHIỄU VỐN LƯU ĐỘNG VẬN HÀNH 3 KỲ (T-2, T-1, KỲ T) -->
             <div class="card">
               <div class="card-header">
-                <h2 class="card-title">II. Thông tin Doanh nghiệp &amp; Đề xuất Cấp tín dụng (Đơn vị: Tỷ đồng)</h2>
-              </div>
-              <div class="grid-3">
-                <div class="span-2">
-                  <label class="field-label">Tên Doanh nghiệp / Khách hàng</label>
-                  <input id="inp-company" data-field="companyName" type="text" />
-                </div>
-                <div>
-                  <label class="field-label">Mã số thuế (MST)</label>
-                  <input id="inp-taxcode" data-field="taxCode" type="text" />
-                </div>
-                <div>
-                  <label class="field-label">Ngành nghề kinh doanh chính</label>
-                  <input id="inp-industry" data-field="industry" type="text" />
-                </div>
-                <div>
-                  <label class="field-label">Độ dài kỳ báo cáo Kỳ T (T_ngày)</label>
-                  <input id="inp-tdays" data-field="tDays" type="number" inputmode="numeric" />
-                </div>
-                <div>
-                  <label class="field-label">Hạn mức đề xuất (VAR_HMTD_REQ – tỷ)</label>
-                  <input id="inp-hmtd-req" data-field="hmtdReq" type="number" inputmode="decimal" step="0.01" />
-                </div>
-                <div>
-                  <label class="field-label">Mục đích &amp; Thời hạn vay</label>
-                  <input id="inp-purpose" data-field="purpose" type="text" />
-                </div>
-                <div>
-                  <label class="field-label">NWC_op bình quân nhập trực tiếp (0 = tự tính)</label>
-                  <input id="inp-nwcop-avg" data-field="nwcOpAvg" type="number" inputmode="decimal" step="0.01" />
-                </div>
-                <div>
-                  <label class="field-label">Lãi suất Stress Test (%/năm)</label>
-                  <input id="inp-stress-rate" data-field="stressRatePct" type="number" inputmode="decimal" step="0.1" />
-                </div>
-                <div class="span-2">
-                  <label class="field-label">Tài sản bảo đảm (TSBĐ) &amp; Tỷ lệ LTV</label>
-                  <input id="inp-collateral" data-field="collateral" type="text" />
-                </div>
-              </div>
-              <div style="display:flex; flex-wrap:wrap; gap:14px; margin-top:10px; font-size:12px; color:#334155;">
-                <label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer;"><input id="inp-ismfg" type="checkbox" /> Doanh nghiệp Sản xuất</label>
-                <label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer;"><input id="inp-breakdown" type="checkbox" /> Có thuyết minh bóc tách khấu hao &amp; NCTT trong giá vốn</label>
-                <label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer;"><input id="inp-notes" type="checkbox" /> Đầy đủ thuyết minh tuổi nợ &amp; tuổi hàng tồn kho</label>
-              </div>
-            </div>
-
-            <!-- PHẦN 3: BẢNG CÂN ĐỐI VỐN LƯU ĐỘNG VẬN HÀNH 3 KỲ (NĂM T-2, NĂM T-1 & KỲ T) -->
-            <div class="card">
-              <div class="card-header">
-                <h2 class="card-title">III. Bóc tách &amp; Lọc nhiễu Vốn lưu động Vận hành: Năm T−2, Năm T−1 &amp; Kỳ T</h2>
+                <h2 class="card-title">III. Bảng Bóc tách &amp; Lọc nhiễu Vốn lưu động Vận hành (Năm T−2, Năm T−1 &amp; Kỳ T)</h2>
                 <span style="font-size:11px; color:#64748B;">Chống trừ trùng bằng hàm max(Treo, Dự phòng)</span>
               </div>
+
               <div class="table-wrap">
-                <table class="data-table mobile-cards">
+                <table class="bank-table responsive-cards">
                   <thead>
                     <tr>
-                      <th style="width:16%;">Khoản mục</th>
+                      <th style="width:16%;">Khoản mục TT200</th>
                       <th class="num" style="width:9%;">Gộp T−2</th>
                       <th class="num" style="width:10%;">Treo / DP T−2</th>
-                      <th class="num" style="width:9%; color:#475569;">Sạch T−2</th>
+                      <th class="num" style="width:9%;">Sạch T−2</th>
                       <th class="num" style="width:9%;">Gộp T−1</th>
                       <th class="num" style="width:10%;">Treo / DP T−1</th>
-                      <th class="num" style="width:9%; color:#475569;">Sạch T−1</th>
+                      <th class="num" style="width:9%;">Sạch T−1</th>
                       <th class="num" style="width:9%;">Gộp Kỳ T</th>
                       <th class="num" style="width:10%;">Treo / DP Kỳ T</th>
-                      <th class="num" style="width:9%; color:#1B365D;">Sạch Kỳ T</th>
+                      <th class="num" style="width:9%;">Sạch Kỳ T</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr>
-                      <td data-label="Khoản mục BCTC"><strong>Phải thu KH (MS 131 / TK 2293)</strong></td>
+                      <td data-label="Khoản mục"><strong>Phải thu KH (MS 131 / TK 2293)</strong></td>
                       <td data-label="Gộp T−2" class="num"><input id="inp-ar-gop-t2" data-field="arGopT2" type="number" inputmode="decimal" step="0.01" style="text-align:right;" /></td>
                       <td data-label="Treo & DP T−2" class="num">
                         <input id="inp-ar-treo-t2" data-field="arTreoT2" type="number" inputmode="decimal" step="0.01" style="text-align:right; margin-bottom:4px;" />
                         <input id="inp-dp-noxau-t2" data-field="dpNoXauT2" type="number" inputmode="decimal" step="0.01" style="text-align:right;" />
                       </td>
-                      <td data-label="Phải thu Sạch T−2" id="live-ar-t2" class="num mono" style="font-weight:800; color:#475569;">38.00</td>
+                      <td data-label="Sạch T−2" id="live-ar-t2" class="num mono" style="font-weight:800; color:#334155;">38.00</td>
                       <td data-label="Gộp T−1" class="num"><input id="inp-ar-gop-t1" data-field="arGopT1" type="number" inputmode="decimal" step="0.01" style="text-align:right;" /></td>
                       <td data-label="Treo & DP T−1" class="num">
                         <input id="inp-ar-treo-t1" data-field="arTreoT1" type="number" inputmode="decimal" step="0.01" style="text-align:right; margin-bottom:4px;" />
                         <input id="inp-dp-noxau-t1" data-field="dpNoXauT1" type="number" inputmode="decimal" step="0.01" style="text-align:right;" />
                       </td>
-                      <td data-label="Phải thu Sạch T−1" id="live-ar-t1" class="num mono" style="font-weight:800; color:#475569;">46.00</td>
+                      <td data-label="Sạch T−1" id="live-ar-t1" class="num mono" style="font-weight:800; color:#334155;">46.00</td>
                       <td data-label="Gộp Kỳ T" class="num"><input id="inp-ar-gop" data-field="arGop" type="number" inputmode="decimal" step="0.01" style="text-align:right;" /></td>
                       <td data-label="Treo & DP Kỳ T" class="num">
                         <input id="inp-ar-treo" data-field="arTreo" type="number" inputmode="decimal" step="0.01" style="text-align:right; margin-bottom:4px;" />
                         <input id="inp-dp-noxau" data-field="dpNoXau" type="number" inputmode="decimal" step="0.01" style="text-align:right;" />
                       </td>
-                      <td data-label="Phải thu Sạch Kỳ T" id="live-ar" class="num mono" style="font-weight:800; color:#1B365D;">61.50</td>
+                      <td data-label="Sạch Kỳ T" id="live-ar" class="num mono" style="font-weight:800; color:#1D4ED8;">61.50</td>
                     </tr>
                     <tr>
-                      <td data-label="Khoản mục BCTC"><strong>Hàng tồn kho (MS 141 / TK 2294)</strong></td>
+                      <td data-label="Khoản mục"><strong>Hàng tồn kho (MS 141 / TK 2294)</strong></td>
                       <td data-label="Gộp T−2" class="num"><input id="inp-inv-gop-t2" data-field="invGopT2" type="number" inputmode="decimal" step="0.01" style="text-align:right;" /></td>
                       <td data-label="Ứ đọng & DP T−2" class="num">
                         <input id="inp-inv-udong-t2" data-field="invUDongT2" type="number" inputmode="decimal" step="0.01" style="text-align:right; margin-bottom:4px;" />
                         <input id="inp-dp-giamgia-t2" data-field="dpGiamGiaT2" type="number" inputmode="decimal" step="0.01" style="text-align:right;" />
                       </td>
-                      <td data-label="Tồn kho Sạch T−2" id="live-inv-t2" class="num mono" style="font-weight:800; color:#475569;">43.20</td>
+                      <td data-label="Sạch T−2" id="live-inv-t2" class="num mono" style="font-weight:800; color:#334155;">43.20</td>
                       <td data-label="Gộp T−1" class="num"><input id="inp-inv-gop-t1" data-field="invGopT1" type="number" inputmode="decimal" step="0.01" style="text-align:right;" /></td>
                       <td data-label="Ứ đọng & DP T−1" class="num">
                         <input id="inp-inv-udong-t1" data-field="invUDongT1" type="number" inputmode="decimal" step="0.01" style="text-align:right; margin-bottom:4px;" />
                         <input id="inp-dp-giamgia-t1" data-field="dpGiamGiaT1" type="number" inputmode="decimal" step="0.01" style="text-align:right;" />
                       </td>
-                      <td data-label="Tồn kho Sạch T−1" id="live-inv-t1" class="num mono" style="font-weight:800; color:#475569;">51.00</td>
+                      <td data-label="Sạch T−1" id="live-inv-t1" class="num mono" style="font-weight:800; color:#334155;">51.00</td>
                       <td data-label="Gộp Kỳ T" class="num"><input id="inp-inv-gop" data-field="invGop" type="number" inputmode="decimal" step="0.01" style="text-align:right;" /></td>
                       <td data-label="Ứ đọng & DP Kỳ T" class="num">
                         <input id="inp-inv-udong" data-field="invUDong" type="number" inputmode="decimal" step="0.01" style="text-align:right; margin-bottom:4px;" />
                         <input id="inp-dp-giamgia" data-field="dpGiamGia" type="number" inputmode="decimal" step="0.01" style="text-align:right;" />
                       </td>
-                      <td data-label="Tồn kho Sạch Kỳ T" id="live-inv" class="num mono" style="font-weight:800; color:#1B365D;">72.50</td>
+                      <td data-label="Sạch Kỳ T" id="live-inv" class="num mono" style="font-weight:800; color:#1D4ED8;">72.50</td>
                     </tr>
                     <tr>
-                      <td data-label="Khoản mục BCTC"><strong>Phải trả NCC (MS 311 / Treo &amp; CapEx)</strong></td>
+                      <td data-label="Khoản mục"><strong>Phải trả NCC (MS 311 / Treo &amp; CapEx)</strong></td>
                       <td data-label="Tổng TK 331 T−2" class="num"><input id="inp-tong-331-t2" data-field="tong331T2" type="number" inputmode="decimal" step="0.01" style="text-align:right;" /></td>
                       <td data-label="Treo & CapEx T−2" class="num">
                         <input id="inp-ap-treo-t2" data-field="apTreoT2" type="number" inputmode="decimal" step="0.01" style="text-align:right; margin-bottom:4px;" />
                         <input id="inp-ap-capex-t2" data-field="apCapExT2" type="number" inputmode="decimal" step="0.01" style="text-align:right;" />
                       </td>
-                      <td data-label="Phải trả Sạch T−2" id="live-ap-t2" class="num mono" style="font-weight:800; color:#475569;">28.50</td>
+                      <td data-label="Sạch T−2" id="live-ap-t2" class="num mono" style="font-weight:800; color:#334155;">28.50</td>
                       <td data-label="Tổng TK 331 T−1" class="num"><input id="inp-tong-331-t1" data-field="tong331T1" type="number" inputmode="decimal" step="0.01" style="text-align:right;" /></td>
                       <td data-label="Treo & CapEx T−1" class="num">
                         <input id="inp-ap-treo-t1" data-field="apTreoT1" type="number" inputmode="decimal" step="0.01" style="text-align:right; margin-bottom:4px;" />
                         <input id="inp-ap-capex-t1" data-field="apCapExT1" type="number" inputmode="decimal" step="0.01" style="text-align:right;" />
                       </td>
-                      <td data-label="Phải trả Sạch T−1" id="live-ap-t1" class="num mono" style="font-weight:800; color:#475569;">34.00</td>
+                      <td data-label="Sạch T−1" id="live-ap-t1" class="num mono" style="font-weight:800; color:#334155;">34.00</td>
                       <td data-label="Tổng TK 331 Kỳ T" class="num"><input id="inp-tong-331" data-field="tong331" type="number" inputmode="decimal" step="0.01" style="text-align:right;" /></td>
                       <td data-label="Treo & CapEx Kỳ T" class="num">
                         <input id="inp-ap-treo" data-field="apTreo" type="number" inputmode="decimal" step="0.01" style="text-align:right; margin-bottom:4px;" />
                         <input id="inp-ap-capex" data-field="apCapEx" type="number" inputmode="decimal" step="0.01" style="text-align:right;" />
                       </td>
-                      <td data-label="Phải trả Sạch Kỳ T" id="live-ap" class="num mono" style="font-weight:800; color:#1B365D;">42.00</td>
+                      <td data-label="Sạch Kỳ T" id="live-ap" class="num mono" style="font-weight:800; color:#1D4ED8;">42.00</td>
+                    </tr>
+                    <tr>
+                      <td data-label="Khoản mục"><strong>TSNH Vận hành khác hợp lệ</strong></td>
+                      <td colspan="2"></td>
+                      <td data-label="TSNH VH khác T−2" class="num"><input id="inp-tsnh-khac-t2" data-field="tsnhKhacT2" type="number" inputmode="decimal" step="0.01" style="text-align:right;" /></td>
+                      <td colspan="2"></td>
+                      <td data-label="TSNH VH khác T−1" class="num"><input id="inp-tsnh-khac-t1" data-field="tsnhKhacT1" type="number" inputmode="decimal" step="0.01" style="text-align:right;" /></td>
+                      <td colspan="2"></td>
+                      <td data-label="TSNH VH khác Kỳ T" class="num"><input id="inp-tsnh-khac" data-field="tsnhKhac" type="number" inputmode="decimal" step="0.01" style="text-align:right;" /></td>
+                    </tr>
+                    <tr>
+                      <td data-label="Khoản mục"><strong>Nợ NH Vận hành khác hợp lệ</strong></td>
+                      <td colspan="2"></td>
+                      <td data-label="Nợ VH khác T−2" class="num"><input id="inp-no-khac-t2" data-field="noKhacT2" type="number" inputmode="decimal" step="0.01" style="text-align:right;" /></td>
+                      <td colspan="2"></td>
+                      <td data-label="Nợ VH khác T−1" class="num"><input id="inp-no-khac-t1" data-field="noKhacT1" type="number" inputmode="decimal" step="0.01" style="text-align:right;" /></td>
+                      <td colspan="2"></td>
+                      <td data-label="Nợ VH khác Kỳ T" class="num"><input id="inp-no-khac" data-field="noKhac" type="number" inputmode="decimal" step="0.01" style="text-align:right;" /></td>
+                    </tr>
+                    <tr class="row-total">
+                      <td data-label="Chỉ tiêu tổng hợp"><strong>(=) Vốn lưu động vận hành (NWC_op)</strong></td>
+                      <td colspan="2" class="num" style="font-weight:600; font-size:11.5px;">Cuối Năm T−2:</td>
+                      <td data-label="NWC_op T−2" id="live-nwcop-t2" class="num mono">49.60 tỷ</td>
+                      <td colspan="2" class="num" style="font-weight:600; font-size:11.5px;">Cuối Năm T−1:</td>
+                      <td data-label="NWC_op T−1" id="live-nwcop-t1" class="num mono">59.00 tỷ</td>
+                      <td colspan="2" class="num" style="font-weight:600; font-size:11.5px;">ΔNWC_op: <span id="live-delta-nwcop">+28.00</span></td>
+                      <td data-label="NWC_op Kỳ T" id="live-nwcop" class="num mono">87.00 tỷ</td>
                     </tr>
                   </tbody>
                 </table>
               </div>
-
-              <div class="grid-3" style="margin-top:10px;">
-                <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:9px; padding:8px;">
-                  <div style="font-size:11.5px; font-weight:700; color:#334155; margin-bottom:6px;">Năm T−2 (TSNH / Nợ VH khác)</div>
-                  <div class="grid-2">
-                    <div><label class="field-label">TSNH VH khác T−2</label><input id="inp-tsnh-khac-t2" data-field="tsnhKhacT2" type="number" inputmode="decimal" step="0.01" /></div>
-                    <div><label class="field-label">Nợ NH VH khác T−2</label><input id="inp-no-khac-t2" data-field="noKhacT2" type="number" inputmode="decimal" step="0.01" /></div>
-                  </div>
-                </div>
-                <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:9px; padding:8px;">
-                  <div style="font-size:11.5px; font-weight:700; color:#334155; margin-bottom:6px;">Năm T−1 (TSNH / Nợ VH khác)</div>
-                  <div class="grid-2">
-                    <div><label class="field-label">TSNH VH khác T−1</label><input id="inp-tsnh-khac-t1" data-field="tsnhKhacT1" type="number" inputmode="decimal" step="0.01" /></div>
-                    <div><label class="field-label">Nợ NH VH khác T−1</label><input id="inp-no-khac-t1" data-field="noKhacT1" type="number" inputmode="decimal" step="0.01" /></div>
-                  </div>
-                </div>
-                <div style="background:#EFF6FF; border:1px solid #BFDBFE; border-radius:9px; padding:8px;">
-                  <div style="font-size:11.5px; font-weight:700; color:#1B365D; margin-bottom:6px;">Kỳ T (TSNH / Nợ VH khác)</div>
-                  <div class="grid-2">
-                    <div><label class="field-label">TSNH VH khác Kỳ T</label><input id="inp-tsnh-khac" data-field="tsnhKhac" type="number" inputmode="decimal" step="0.01" /></div>
-                    <div><label class="field-label">Nợ NH VH khác Kỳ T</label><input id="inp-no-khac" data-field="noKhac" type="number" inputmode="decimal" step="0.01" /></div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="grid-4" style="margin-top:10px;">
-                <div style="background:#F8FAFC; border:1px solid #CBD5E1; border-radius:9px; padding:7px 10px;">
-                  <div style="font-size:11px; color:#475569; font-weight:600;">NWC_op Năm T−2</div>
-                  <div id="live-nwcop-t2" class="mono" style="font-size:14.5px; font-weight:800; color:#334155;">49.60 tỷ</div>
-                </div>
-                <div style="background:#F8FAFC; border:1px solid #CBD5E1; border-radius:9px; padding:7px 10px;">
-                  <div style="font-size:11px; color:#475569; font-weight:600;">NWC_op Năm T−1</div>
-                  <div id="live-nwcop-t1" class="mono" style="font-size:14.5px; font-weight:800; color:#334155;">59.00 tỷ</div>
-                </div>
-                <div style="background:#EFF6FF; border:1px solid #BFDBFE; border-radius:9px; padding:7px 10px;">
-                  <div style="font-size:11px; color:#1D4ED8; font-weight:600;">NWC_op Kỳ T</div>
-                  <div id="live-nwcop" class="mono" style="font-size:14.5px; font-weight:800; color:#1B365D;">87.00 tỷ</div>
-                </div>
-                <div style="background:#ECFDF5; border:1px solid #A7F3D0; border-radius:9px; padding:7px 10px;">
-                  <div style="font-size:11px; color:#065F46; font-weight:600;">Biến động ΔNWC_op (T vs T−1)</div>
-                  <div id="live-delta-nwcop" class="mono" style="font-size:14.5px; font-weight:800; color:#047857;">+28.00 tỷ</div>
-                </div>
-              </div>
             </div>
 
-            <!-- PHẦN 4: KQKD, DÒNG TIỀN & CÂN ĐỐI TỔNG HỢP (NĂM T-2, NĂM T-1 & KỲ T) -->
+            <!-- BẢNG IV: KQKD, LƯU CHUYỂN TIỀN TỆ & CÂN ĐỐI TỔNG HỢP (3 KỲ + KẾ HOẠCH T+1) -->
             <div class="card">
               <div class="card-header">
-                <h2 class="card-title">IV. Kết quả Kinh doanh, Dòng tiền VAS 24 &amp; Cân đối Tổng hợp: Năm T−2, Năm T−1 &amp; Kỳ T</h2>
+                <h2 class="card-title">IV. Bảng Kết quả Kinh doanh, Dòng tiền &amp; Cân đối Tổng hợp (Năm T−2, Năm T−1, Kỳ T &amp; T+1)</h2>
               </div>
+
               <div class="table-wrap">
-                <table class="data-table">
+                <table class="bank-table">
                   <thead>
                     <tr>
-                      <th style="width:37%;">Chỉ tiêu B02-DN, B03-DN &amp; B01-DN (tỷ đồng)</th>
-                      <th class="num" style="width:21%;">Năm T−2 (365 ngày)</th>
-                      <th class="num" style="width:21%;">Năm T−1 (365 ngày)</th>
-                      <th class="num" style="width:21%;">Kỳ T (Thời điểm xét)</th>
+                      <th style="width:40%;">Chỉ tiêu B02-DN, B03-DN &amp; B01-DN (tỷ đồng)</th>
+                      <th class="num" style="width:20%;">Năm T−2 (365d)</th>
+                      <th class="num" style="width:20%;">Năm T−1 (365d)</th>
+                      <th class="num" style="width:20%;">Kỳ T (Thời điểm xét)</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1331,7 +1396,7 @@
                       <td class="num"><input id="inp-ms20-t1" data-field="ms20T1" type="number" inputmode="decimal" step="0.01" style="text-align:right;" /></td>
                       <td class="num"><input id="inp-ms20" data-field="ms20" type="number" inputmode="decimal" step="0.01" style="text-align:right;" /></td>
                     </tr>
-                    <tr class="ratio-group-row">
+                    <tr class="row-group">
                       <td colspan="4">Bảng Cân đối Kế toán Tổng hợp (B01-DN)</td>
                     </tr>
                     <tr>
@@ -1374,50 +1439,131 @@
                 </table>
               </div>
 
-              <!-- Khung Dự nhập Doanh thu Dự phóng Năm T+1 & Cơ sở Xác định HMTD -->
-              <div style="margin-top:12px; background:#F0F9FF; border:1px solid #BAE6FD; border-left:4px solid #0284C7; border-radius:10px; padding:11px;">
-                <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:6px; margin-bottom:8px;">
-                  <strong style="font-size:12.5px; color:#0369A1;">Dữ liệu Dự phóng Năm T+1 — Cơ sở Xác định Nhu cầu VLĐ &amp; Trần Hạn Mức Tín Dụng (VAR_HMTD_MAX)</strong>
-                  <span class="mono" style="font-size:11.5px; font-weight:700; color:#0F172A;">Nhu cầu VLĐ T+1: <span id="live-nhucau-t1">81.53</span> tỷ | Trần HMTD: <span id="live-hmtd-max-box" style="color:#0284C7;">29.07</span> tỷ</span>
-                </div>
-                <div class="grid-3">
-                  <div>
-                    <label class="field-label" style="color:#0C4A6E;">Doanh thu thuần dự phóng Năm T+1 (VAR_DT_KH_T+1 – tỷ đồng)</label>
-                    <input id="inp-dtt-plan" data-field="dttPlan" type="number" inputmode="decimal" step="0.01" style="background:#FFFFFF; border-color:#7DD3FC; font-weight:700;" />
-                  </div>
-                  <div>
-                    <label class="field-label">Dư nợ NH khác hiện hữu (tỷ đồng)</label>
-                    <input id="inp-other-debt" data-field="otherDebt" type="number" inputmode="decimal" step="0.01" style="background:#FFFFFF;" />
-                  </div>
-                  <div>
-                    <label class="field-label">Nghĩa vụ Gốc + Lãi đến hạn (tỷ đồng)</label>
-                    <input id="inp-debt-service" data-field="debtService" type="number" inputmode="decimal" step="0.01" style="background:#FFFFFF;" />
-                  </div>
-                </div>
+              <!-- Bảng Kế hoạch Kinh doanh & Đối soát Dòng tiền -->
+              <div style="margin-top:12px;" class="table-wrap">
+                <table class="form-grid-table">
+                  <tbody>
+                    <tr>
+                      <td class="lbl-cell">Doanh thu dự phóng T+1 (VAR_DT_KH_T+1)</td>
+                      <td class="val-cell"><input id="inp-dtt-plan" data-field="dttPlan" type="number" inputmode="decimal" step="0.01" style="font-weight:700; border-color:#60A5FA;" /></td>
+                      <td class="lbl-cell">Nhu cầu VLĐ &amp; Trần HMTD T+1</td>
+                      <td class="val-cell mono" style="background:#EFF6FF;">
+                        NC VLĐ: <strong id="live-nhucau-t1">81.53</strong> tỷ • Trần HMTD: <strong id="live-hmtd-max-box" style="color:#1D4ED8;">29.07</strong> tỷ
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="lbl-cell">Dư nợ NH khác hiện hữu (tỷ)</td>
+                      <td class="val-cell"><input id="inp-other-debt" data-field="otherDebt" type="number" inputmode="decimal" step="0.01" /></td>
+                      <td class="lbl-cell">Nghĩa vụ Gốc + Lãi đến hạn T+1 (tỷ)</td>
+                      <td class="val-cell"><input id="inp-debt-service" data-field="debtService" type="number" inputmode="decimal" step="0.01" /></td>
+                    </tr>
+                    <tr>
+                      <td class="lbl-cell">Tiền thực về TK 112 Kỳ T (tỷ)</td>
+                      <td class="val-cell"><input id="inp-cash-112" data-field="cash112" type="number" inputmode="decimal" step="0.01" /></td>
+                      <td class="lbl-cell">Doanh thu VAT (gồm VAT) Kỳ T (tỷ)</td>
+                      <td class="val-cell"><input id="inp-dt-vat" data-field="dtVat" type="number" inputmode="decimal" step="0.01" /></td>
+                    </tr>
+                    <tr>
+                      <td class="lbl-cell">NWC_op bình quân nhập trực tiếp (0 = tự tính)</td>
+                      <td class="val-cell" colspan="3"><input id="inp-nwcop-avg" data-field="nwcOpAvg" type="number" inputmode="decimal" step="0.01" /></td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
+            </div>
 
-              <div class="grid-2" style="margin-top:10px;">
-                <div><label class="field-label">Tiền thực về TK 112 Kỳ T (tỷ)</label><input id="inp-cash-112" data-field="cash112" type="number" inputmode="decimal" step="0.01" /></div>
-                <div><label class="field-label">DT_VAT (gồm VAT) Kỳ T (tỷ)</label><input id="inp-dt-vat" data-field="dtVat" type="number" inputmode="decimal" step="0.01" /></div>
+            <!-- BẢNG V: CHẤM ĐIỂM CẢNH BÁO SỚM EWS BẰNG NÚT MÀU TRONG BẢNG -->
+            <div class="card">
+              <div class="card-header">
+                <h2 class="card-title">V. Bảng Chấm điểm Cảnh báo Sớm EWS (Chọn Điểm Nhanh Bằng Nút Màu)</h2>
+                <span id="ews-header-badge" class="badge badge-ghost mono">6.28 / 10.00 (Hạng C)</span>
               </div>
-
-              <div style="margin-top:12px; padding-top:10px; border-top:1px solid #E2E8F0;">
-                <div style="font-size:12px; font-weight:700; color:#1B365D; margin-bottom:8px;">Chấm điểm EWS 4 Trụ cột (Thang 0–10) &amp; Điều kiện Knock-out</div>
-                <div class="grid-4">
-                  <div><label class="field-label">1. TC &amp; Dòng tiền (30%)</label><input id="inp-ews-tc" data-field="ewsTc" type="number" inputmode="decimal" step="0.1" min="0" max="10" /></div>
-                  <div><label class="field-label">2. Quản trị VLĐ (20%)</label><input id="inp-ews-vld" data-field="ewsVld" type="number" inputmode="decimal" step="0.1" min="0" max="10" /></div>
-                  <div><label class="field-label">3. Quản trị &amp; Uy tín (25%)</label><input id="inp-ews-qltn" data-field="ewsQltn" type="number" inputmode="decimal" step="0.1" min="0" max="10" /></div>
-                  <div><label class="field-label">4. Ngành &amp; TSBĐ (25%)</label><input id="inp-ews-vtsb" data-field="ewsVtsb" type="number" inputmode="decimal" step="0.1" min="0" max="10" /></div>
-                </div>
-                <label style="display:flex; align-items:center; gap:8px; margin-top:10px; background:#FEF2F2; border:1px solid #FECACA; border-radius:9px; padding:8px 10px; font-size:12px; font-weight:600; color:#991B1B; cursor:pointer;">
-                  <input id="inp-knockout" type="checkbox" />
-                  <span>Kích hoạt Knock-out (Nợ xấu nhóm 3–5 CIC / Gian lận hóa đơn / Rút vốn / Ngừng SX)</span>
-                </label>
+              <div class="table-wrap">
+                <table class="bank-table">
+                  <thead>
+                    <tr>
+                      <th style="width:30%;">Trụ cột Đánh giá EWS</th>
+                      <th class="center" style="width:10%;">Trọng số</th>
+                      <th style="width:44%;">Chọn Nhanh Mức Điểm (0 – 10)</th>
+                      <th class="num" style="width:16%;">Điểm Thô / Quy đổi</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><strong>1. Sức khỏe Tài chính &amp; Dòng tiền</strong></td>
+                      <td class="center mono">30%</td>
+                      <td>
+                        <div class="choice-group" data-ews-group="ewsTc">
+                          <button type="button" data-val="4.0" class="choice-btn">4.0 (Yếu)</button>
+                          <button type="button" data-val="5.5" class="choice-btn active-amber">5.5 (TB)</button>
+                          <button type="button" data-val="7.0" class="choice-btn">7.0 (Khá)</button>
+                          <button type="button" data-val="8.5" class="choice-btn">8.5 (Tốt)</button>
+                        </div>
+                        <input id="inp-ews-tc" data-field="ewsTc" type="hidden" />
+                      </td>
+                      <td class="num mono"><strong id="ews-val-1">5.50</strong> → <strong id="ews-w-1" style="color:#1D4ED8;">1.65</strong></td>
+                    </tr>
+                    <tr>
+                      <td><strong>2. Hiệu quả Quản trị Vốn lưu động (CCC)</strong></td>
+                      <td class="center mono">20%</td>
+                      <td>
+                        <div class="choice-group" data-ews-group="ewsVld">
+                          <button type="button" data-val="4.0" class="choice-btn">4.0 (Yếu)</button>
+                          <button type="button" data-val="5.0" class="choice-btn active-amber">5.0 (TB)</button>
+                          <button type="button" data-val="7.0" class="choice-btn">7.0 (Khá)</button>
+                          <button type="button" data-val="8.5" class="choice-btn">8.5 (Tốt)</button>
+                        </div>
+                        <input id="inp-ews-vld" data-field="ewsVld" type="hidden" />
+                      </td>
+                      <td class="num mono"><strong id="ews-val-2">5.00</strong> → <strong id="ews-w-2" style="color:#1D4ED8;">1.00</strong></td>
+                    </tr>
+                    <tr>
+                      <td><strong>3. Năng lực Quản trị &amp; Uy tín Chủ DN</strong></td>
+                      <td class="center mono">25%</td>
+                      <td>
+                        <div class="choice-group" data-ews-group="ewsQltn">
+                          <button type="button" data-val="4.5" class="choice-btn">4.5 (Yếu)</button>
+                          <button type="button" data-val="6.0" class="choice-btn">6.0 (TB)</button>
+                          <button type="button" data-val="7.5" class="choice-btn active-blue">7.5 (Khá)</button>
+                          <button type="button" data-val="9.0" class="choice-btn">9.0 (Tốt)</button>
+                        </div>
+                        <input id="inp-ews-qltn" data-field="ewsQltn" type="hidden" />
+                      </td>
+                      <td class="num mono"><strong id="ews-val-3">7.50</strong> → <strong id="ews-w-3" style="color:#1D4ED8;">1.88</strong></td>
+                    </tr>
+                    <tr>
+                      <td><strong>4. Vị thế Ngành &amp; Tài sản Bảo đảm</strong></td>
+                      <td class="center mono">25%</td>
+                      <td>
+                        <div class="choice-group" data-ews-group="ewsVtsb">
+                          <button type="button" data-val="4.5" class="choice-btn">4.5 (Yếu)</button>
+                          <button type="button" data-val="6.0" class="choice-btn">6.0 (TB)</button>
+                          <button type="button" data-val="7.0" class="choice-btn active-blue">7.0 (Khá)</button>
+                          <button type="button" data-val="8.5" class="choice-btn">8.5 (Tốt)</button>
+                        </div>
+                        <input id="inp-ews-vtsb" data-field="ewsVtsb" type="hidden" />
+                      </td>
+                      <td class="num mono"><strong id="ews-val-4">7.00</strong> → <strong id="ews-w-4" style="color:#1D4ED8;">1.75</strong></td>
+                    </tr>
+                    <tr class="row-total">
+                      <td><strong>KIỂM TRA ĐIỀU KIỆN KNOCK-OUT</strong></td>
+                      <td class="center">—</td>
+                      <td colspan="2">
+                        <div id="ko-choice-group" class="choice-group">
+                          <button type="button" data-ko="0" class="choice-btn active-emerald">Không vi phạm Knock-out</button>
+                          <button type="button" data-ko="1" class="choice-btn">Vi phạm Knock-out (Từ chối ngay)</button>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </div>
           </section>
 
-          <!-- PHÂN KHU 3: KẾT QUẢ PHÂN TÍCH, STRESS TEST & EWS -->
+          <!-- ===============================================================
+               PHÂN KHU PHÂN TÍCH 3 KỲ, 19 CHỈ SỐ, STRESS TEST & EWS
+               =============================================================== -->
           <section id="sec-analysis" class="hidden" style="display:flex; flex-direction:column; gap:14px;">
             <div class="card">
               <div class="card-header">
@@ -1425,26 +1571,26 @@
                   <h2 class="card-title">Cơ sở Xác định HMTD từ Doanh thu Dự phóng Năm T+1</h2>
                   <div style="font-size:11.5px; color:#64748B;">Liên kết trực tiếp Doanh thu thuần dự phóng Năm T+1 (VAR_DT_KH_T+1) với Vòng quay VLĐ quy chuẩn năm.</div>
                 </div>
-                <span id="analysis-dtt-plan-badge" class="badge badge-device mono">DTT Dự phóng T+1: 340.00 tỷ</span>
+                <span id="analysis-dtt-plan-badge" class="badge badge-navy mono">DTT Dự phóng T+1: 340.00 tỷ</span>
               </div>
               <div class="grid-4">
                 <div class="kpi-card"><div class="kpi-label">DTT Dự phóng T+1</div><div id="an-dtt-plan" class="kpi-val mono">340.00 tỷ</div><div class="kpi-sub">VAR_DT_KH_T+1</div></div>
                 <div class="kpi-card"><div class="kpi-label">Nhu cầu VLĐ T+1</div><div id="an-nhucau-t1" class="kpi-val mono">81.53 tỷ</div><div class="kpi-sub">DTT_T+1 ÷ VQ_VLĐ</div></div>
                 <div class="kpi-card"><div class="kpi-label">Vốn tự có tối thiểu (30%)</div><div id="an-vtc-min" class="kpi-val mono">24.46 tỷ</div><div class="kpi-sub">30.0% Nhu cầu VLĐ</div></div>
-                <div class="kpi-card"><div class="kpi-label">Trần VAR_HMTD_MAX</div><div id="an-hmtd-max" class="kpi-val mono" style="color:#0284C7;">29.07 tỷ</div><div class="kpi-sub">min(ĐK1, ĐK2)</div></div>
+                <div class="kpi-card"><div class="kpi-label">Trần VAR_HMTD_MAX</div><div id="an-hmtd-max" class="kpi-val mono" style="color:#1D4ED8;">29.07 tỷ</div><div class="kpi-sub">min(ĐK1, ĐK2)</div></div>
               </div>
             </div>
 
             <div class="card">
               <div class="card-header">
                 <div>
-                  <h2 class="card-title">Bảng Toàn diện Chỉ số Tài chính Doanh nghiệp: Năm T−2, Năm T−1 &amp; Kỳ T (Chuẩn TT200)</h2>
-                  <div style="font-size:11.5px; color:#64748B;">So sánh đầy đủ 3 kỳ: Năm T−2 (365 ngày), Năm T−1 (365 ngày) và Thời điểm xét duyệt Kỳ T (quy chuẩn năm theo 365 / T_ngày).</div>
+                  <h2 class="card-title">Bảng Toàn diện 19 Chỉ số Tài chính Doanh nghiệp (Năm T−2, Năm T−1 &amp; Kỳ T)</h2>
+                  <div style="font-size:11.5px; color:#64748B;">Phân chia 4 nhóm chuẩn mực TT200, tự động quy chuẩn năm theo 365 / T_ngày cho Kỳ T.</div>
                 </div>
-                <span id="ratio-ann-badge" class="badge badge-device mono">Hệ số quy năm Kỳ T: 1.3519x</span>
+                <span id="ratio-ann-badge" class="badge badge-navy mono">Hệ số quy năm Kỳ T: 1.3519x</span>
               </div>
               <div class="table-wrap">
-                <table class="data-table">
+                <table class="bank-table">
                   <thead>
                     <tr>
                       <th style="width:24%;">Tên Chỉ số &amp; Ký hiệu</th>
@@ -1465,7 +1611,7 @@
                 <h2 class="card-title">Bảng Kiểm định Sức chịu đựng Stress Test (ST1 – ST4)</h2>
               </div>
               <div class="table-wrap">
-                <table class="data-table">
+                <table class="bank-table">
                   <thead>
                     <tr>
                       <th>Kịch bản</th>
@@ -1486,7 +1632,7 @@
                 <h2 class="card-title">Bảng Tổng hợp Điểm Cảnh báo Sớm EWS</h2>
               </div>
               <div class="table-wrap">
-                <table class="data-table">
+                <table class="bank-table">
                   <thead>
                     <tr>
                       <th>Trụ cột EWS</th>
@@ -1502,43 +1648,47 @@
             </div>
           </section>
 
-          <!-- PHÂN KHU 4: TỜ TRÌNH THẨM ĐỊNH 12 MỤC & NGHỊ QUYẾT -->
+          <!-- ===============================================================
+               PHÂN KHU TỜ TRÌNH THẨM ĐỊNH 12 MỤC & NGHỊ QUYẾT
+               =============================================================== -->
           <section id="sec-report" class="hidden">
             <div class="card" style="padding:0; overflow:hidden;">
-              <div style="background:#F8FAFC; border-bottom:1px solid #E2E8F0; padding:10px 14px; display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:8px;">
-                <strong style="font-size:13px; color:#1B365D;">Báo cáo Thẩm định Tín dụng KHDN Đầy đủ 12 Mục</strong>
+              <div style="background:#F0F5FA; border-bottom:1.5px solid #CBD5E1; padding:10px 14px; display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:8px;">
+                <strong style="font-size:13px; color:#0F294A;">Báo cáo Thẩm định Tín dụng KHDN Đầy đủ 12 Mục (Chuẩn Ngân hàng)</strong>
                 <div class="action-group">
-                  <button id="btn-rep-preview" type="button" class="btn-soft-blue" style="font-size:12px;">👁 Xem khổ A4</button>
-                  <button id="btn-rep-print" type="button" class="btn-green" style="font-size:12px;">📄 Xuất File PDF</button>
+                  <button id="btn-rep-preview" type="button" class="btn-navy" style="font-size:12px;">👁 Xem khổ A4</button>
+                  <button id="btn-rep-print" type="button" class="btn-emerald" style="font-size:12px;">📄 Xuất File PDF</button>
                 </div>
               </div>
               <div id="inline-report-container"></div>
             </div>
           </section>
 
-          <!-- PHÂN KHU 5: NHẬT KÝ & DỮ LIỆU JSON -->
+          <!-- ===============================================================
+               PHÂN KHU DỮ LIỆU JSON
+               =============================================================== -->
           <section id="sec-json" class="hidden">
             <div class="card">
               <div class="card-header">
                 <h2 class="card-title">Dữ liệu Kết quả Chuẩn hóa (JSON)</h2>
-                <button id="btn-copy-json" type="button" class="btn-soft-blue" style="font-size:12px;">📋 Sao chép JSON</button>
+                <button id="btn-copy-json" type="button" class="btn-ice" style="font-size:12px;">📋 Sao chép JSON</button>
               </div>
-              <pre id="json-output" class="mono" style="background:#0F172A; color:#E2E8F0; padding:12px; border-radius:10px; overflow-x:auto; font-size:11.5px; max-height:420px;"></pre>
+              <pre id="json-output" class="mono" style="background:#0F172A; color:#E2E8F0; padding:12px; border-radius:10px; overflow-x:auto; font-size:11.5px; max-height:460px;"></pre>
             </div>
           </section>
         </main>
 
         <!-- CỘT TÓM TẮT ĐIỀU HÀNH BÊN PHẢI (MÁY TÍNH) -->
         <aside id="desktop-right-panel">
-          <div style="font-size:11px; font-weight:800; text-transform:uppercase; color:#64748B; margin-bottom:10px;">Bảng Tổng Hợp Phán Quyết</div>
+          <div style="font-size:11px; font-weight:800; text-transform:uppercase; color:#64748B; margin-bottom:8px;">Bảng Tổng Hợp Phán Quyết</div>
 
-          <div style="background:#1B365D; color:#FFFFFF; border-radius:12px; padding:14px; margin-bottom:12px;">
+          <div style="background:linear-gradient(135deg,#0F294A 0%,#1B365D 100%); color:#FFFFFF; border-radius:12px; padding:14px; margin-bottom:12px; box-shadow:var(--shadow-md);">
             <div style="display:flex; justify-content:space-between; align-items:center;">
-              <span style="font-size:11px; opacity:0.85;">Nghị quyết Phê duyệt</span>
-              <span id="sum-rank" style="background:rgba(255,255,255,0.18); padding:2px 8px; border-radius:6px; font-size:11px; font-weight:700;">Hạng C</span>
+              <span style="font-size:11px; opacity:0.88;">Nghị quyết Cấp tín dụng</span>
+              <span id="sum-rank" style="background:rgba(255,255,255,0.2); padding:2px 8px; border-radius:6px; font-size:11px; font-weight:700;">Hạng C</span>
             </div>
             <div id="sum-decision" style="font-size:14.5px; font-weight:800; margin-top:6px;">PHÊ DUYỆT CÓ ĐIỀU KIỆN</div>
-            <div style="margin-top:8px; padding-top:8px; border-top:1px solid rgba(255,255,255,0.18); font-size:12px;">
+            <div style="margin-top:8px; padding-top:8px; border-top:1px solid rgba(255,255,255,0.2); font-size:12px;">
               Hạn mức duyệt: <strong id="sum-limit" class="mono" style="font-size:15px;">29.00 tỷ đồng</strong>
             </div>
           </div>
@@ -1567,12 +1717,12 @@
           </div>
 
           <div class="kpi-card" style="margin-bottom:10px;">
-            <div style="font-size:12px; font-weight:700; color:#1B365D; margin-bottom:6px;">Điểm Lưu ý &amp; Phản biện</div>
+            <div style="font-size:12px; font-weight:800; color:#0F294A; margin-bottom:6px;">Điểm Lưu ý &amp; Cảnh báo Rủi ro</div>
             <div id="sum-flags" style="font-size:11.5px; color:#334155; display:flex; flex-direction:column; gap:4px;"></div>
           </div>
 
           <div class="kpi-card">
-            <div style="font-size:12px; font-weight:700; color:#1B365D; margin-bottom:6px;">Điều kiện Cấp tín dụng</div>
+            <div style="font-size:12px; font-weight:800; color:#0F294A; margin-bottom:6px;">Điều kiện Cấp tín dụng</div>
             <div id="sum-covenants" style="font-size:11.5px; color:#334155; display:flex; flex-direction:column; gap:4px;"></div>
           </div>
         </aside>
@@ -1607,8 +1757,8 @@
       /* =================================================================
          1. TIỆN ÍCH AN TOÀN (STORAGE, DOM, SỐ HỌC)
          ================================================================= */
-      var STORAGE_CASE_KEY = "cf_pro_v72_case";
-      var STORAGE_DEV_KEY = "cf_pro_v72_dev";
+      var STORAGE_CASE_KEY = "cf_pro_v72_case_v2";
+      var STORAGE_DEV_KEY = "cf_pro_v72_dev_v2";
 
       function safeGetStorage(key) {
         try { return window.localStorage.getItem(key); } catch (e) { return null; }
@@ -1640,7 +1790,7 @@
           var box = $("toast-box");
           if (!box) return;
           var item = document.createElement("div");
-          item.style.cssText = "background:#1B365D;color:#fff;padding:9px 13px;border-radius:10px;font-size:12.5px;font-weight:600;box-shadow:0 6px 18px rgba(0,0,0,0.22);max-width:320px;";
+          item.style.cssText = "background:#0F294A;color:#fff;padding:9px 13px;border-radius:10px;font-size:12.5px;font-weight:600;box-shadow:0 6px 18px rgba(0,0,0,0.24);max-width:330px;";
           item.textContent = msg;
           box.appendChild(item);
           setTimeout(function () {
@@ -1650,26 +1800,27 @@
       }
 
       /* =================================================================
-         2. DỮ LIỆU GIẢ ĐỊNH CHUẨN & BẢNG CHECKLIST 10 HẠNG MỤC HỒ SƠ
+         2. DỮ LIỆU GIẢ ĐỊNH CHUẨN & BẢNG CHECKLIST 11 HẠNG MỤC HỒ SƠ
          ================================================================= */
       var DOC_ITEMS_META = [
         { id: "1", stt: "1", title: "1. Đăng ký kinh doanh / Hồ sơ pháp lý", isSub: false },
         { id: "2", stt: "2", title: "2. Thông tin CIC", isSub: false },
         { id: "3_header", stt: "3", title: "3. Báo cáo tài chính", isSub: false, isGroupHeader: true },
         { id: "3_t1", stt: "3.1", title: "BCTC năm T−1 (Số liệu đầu kỳ là năm T−2, cuối kỳ là năm T−1)", isSub: true },
-        { id: "3_t", stt: "3.2", title: "BCTC đến Tháng X/năm T (Tháng 3; 6; 9)", isSub: true, hasMonthSelect: true },
+        { id: "3_t", stt: "3.2", title: "BCTC đến Tháng X/năm T (Tháng 3; 6; 9; 12)", isSub: true, hasMonthSelect: true },
         { id: "4", stt: "4", title: "4. Sổ chi tiết bán hàng năm T; T−1", isSub: false },
         { id: "5", stt: "5", title: "5. Sổ chi tiết tài khoản ngân hàng năm T; T−1", isSub: false },
         { id: "6", stt: "6", title: "6. Chi tiết tồn kho năm T; T−1 (TK 152, 153, 155, 156)", isSub: false },
         { id: "7", stt: "7", title: "7. Chi tiết phải thu năm T; T−1", isSub: false },
         { id: "8", stt: "8", title: "8. Chi tiết phải trả năm T; T−1", isSub: false },
         { id: "9", stt: "9", title: "9. Tờ khai VAT", isSub: false },
-        { id: "10", stt: "10", title: "10. Sổ phụ ngân hàng", isSub: false }
+        { id: "10", stt: "10", title: "10. Sổ phụ ngân hàng", isSub: false },
+        { id: "11", stt: "11", title: "11. Kế hoạch Kinh doanh & Doanh thu Dự phóng Năm T+1 (Chi tiết Doanh thu / Giá vốn / Chi phí / Thuế TNDN / Lợi nhuận)", isSub: false, isPlanT1: true }
       ];
 
       var GHOST_SAMPLE = {
         companyName: "Công ty TNHH Thương mại & Xây lắp Hoàng Nam",
-        industry: "Thương mại vật tư & Xây lắp công trình",
+        industry: "Xây lắp Công trình",
         taxCode: "0108924561",
         purpose: "Bổ sung vốn lưu động (12 tháng)",
         collateral: "BĐS thương mại định giá 45.00 tỷ (LTV 64.4%) + Hàng tồn kho luân chuyển",
@@ -1683,107 +1834,36 @@
         hasNotesDetail: false,
         knockout: false,
 
-        // Năm T-2 (Đầu kỳ của BCTC T-1)
-        arGopT2: 40.00,
-        arTreoT2: 0.00,
-        dpNoXauT2: 2.00,
-        invGopT2: 44.00,
-        invUDongT2: 0.00,
-        dpGiamGiaT2: 0.80,
-        tong331T2: 28.50,
-        apTreoT2: 0.00,
-        apCapExT2: 0.00,
-        tsnhKhacT2: 3.90,
-        noKhacT2: 7.00,
-        dttT2: 240.00,
-        cogsT2: 204.00,
-        lnttT2: 11.20,
-        citExpT2: 2.24,
-        daT2: 5.20,
-        intExpT2: 3.40,
-        taxPaidT2: 2.10,
-        deltaNwcOpT2: 7.40,
-        intPaidT2: 3.40,
-        ms20T2: 10.30,
-        cashEqT2: 16.50,
-        totalCaT2: 112.00,
-        totalAssetsT2: 185.00,
-        totalClT2: 82.00,
-        totalLiabT2: 115.00,
-        equityT2: 70.00,
+        // Năm T-2
+        arGopT2: 40.00, arTreoT2: 0.00, dpNoXauT2: 2.00,
+        invGopT2: 44.00, invUDongT2: 0.00, dpGiamGiaT2: 0.80,
+        tong331T2: 28.50, apTreoT2: 0.00, apCapExT2: 0.00,
+        tsnhKhacT2: 3.90, noKhacT2: 7.00,
+        dttT2: 240.00, cogsT2: 204.00, lnttT2: 11.20, citExpT2: 2.24,
+        daT2: 5.20, intExpT2: 3.40, taxPaidT2: 2.10, deltaNwcOpT2: 7.40, intPaidT2: 3.40, ms20T2: 10.30,
+        cashEqT2: 16.50, totalCaT2: 112.00, totalAssetsT2: 185.00, totalClT2: 82.00, totalLiabT2: 115.00, equityT2: 70.00,
 
-        // Năm T-1 (Cuối kỳ của BCTC T-1)
-        arGopT1: 48.00,
-        arTreoT1: 0.00,
-        dpNoXauT1: 2.00,
-        invGopT1: 52.00,
-        invUDongT1: 0.00,
-        dpGiamGiaT1: 1.00,
-        tong331T1: 34.00,
-        apTreoT1: 0.00,
-        apCapExT1: 0.00,
-        tsnhKhacT1: 4.00,
-        noKhacT1: 8.00,
-        dttT1: 280.00,
-        cogsT1: 235.00,
-        lnttT1: 15.80,
-        citExpT1: 3.16,
-        daT1: 5.80,
-        intExpT1: 3.90,
-        taxPaidT1: 2.90,
-        deltaNwcOpT1: 9.50,
-        intPaidT1: 3.90,
-        ms20T1: 13.50,
-        cashEqT1: 21.00,
-        totalCaT1: 132.00,
-        totalAssetsT1: 210.00,
-        totalClT1: 95.00,
-        totalLiabT1: 127.00,
-        equityT1: 83.00,
+        // Năm T-1
+        arGopT1: 48.00, arTreoT1: 0.00, dpNoXauT1: 2.00,
+        invGopT1: 52.00, invUDongT1: 0.00, dpGiamGiaT1: 1.00,
+        tong331T1: 34.00, apTreoT1: 0.00, apCapExT1: 0.00,
+        tsnhKhacT1: 4.00, noKhacT1: 8.00,
+        dttT1: 280.00, cogsT1: 235.00, lnttT1: 15.80, citExpT1: 3.16,
+        daT1: 5.80, intExpT1: 3.90, taxPaidT1: 2.90, deltaNwcOpT1: 9.50, intPaidT1: 3.90, ms20T1: 13.50,
+        cashEqT1: 21.00, totalCaT1: 132.00, totalAssetsT1: 210.00, totalClT1: 95.00, totalLiabT1: 127.00, equityT1: 83.00,
 
-        // Kỳ T (Lũy kế đến Tháng X/năm T)
-        arGop: 65.00,
-        arTreo: 0.00,
-        dpNoXau: 3.50,
-        invGop: 74.00,
-        invUDong: 0.00,
-        dpGiamGia: 1.50,
-        tk152: 28.50,
-        tk153: 4.50,
-        tk154: 0.00,
-        tk155: 12.00,
-        tk156: 29.00,
-        tk157: 0.00,
-        tong331: 42.00,
-        apTreo: 0.00,
-        apCapEx: 0.00,
-        tsnhKhac: 6.00,
-        noKhac: 11.00,
-        dttYtd: 225.00,
-        cogsYtd: 189.00,
-        dttPlan: 340.00,
-        lntt: 12.60,
-        citExp: 2.52,
-        da: 4.50,
-        intExp: 3.20,
-        taxPaid: 2.10,
-        deltaNwcOp: 28.00,
-        intPaid: 3.20,
-        ms20: -6.80,
-        otherDebt: 28.00,
-        debtService: 12.20,
-        cash112: 182.00,
-        dtVat: 239.76,
-        cashEq: 18.50,
-        totalCa: 165.00,
-        totalAssets: 245.00,
-        totalCl: 118.00,
-        totalLiab: 152.00,
-        equity: 93.00,
-        ewsTc: 5.5,
-        ewsVld: 5.0,
-        ewsQltn: 7.5,
-        ewsVtsb: 7.0
+        // Kỳ T
+        arGop: 65.00, arTreo: 0.00, dpNoXau: 3.50,
+        invGop: 74.00, invUDong: 0.00, dpGiamGia: 1.50,
+        tk152: 28.50, tk153: 4.50, tk154: 0.00, tk155: 12.00, tk156: 29.00, tk157: 0.00,
+        tong331: 42.00, apTreo: 0.00, apCapEx: 0.00,
+        tsnhKhac: 6.00, noKhac: 11.00,
+        dttYtd: 225.00, cogsYtd: 189.00,
+        dttPlan: 340.00, cogsPlan: 285.60, opexPlan: 29.90, daPlan: 6.20, intPlan: 4.20, citPlan: 2.82, prinPlan: 8.00,
+        lntt: 12.60, citExp: 2.52, da: 4.50, intExp: 3.20, taxPaid: 2.10, deltaNwcOp: 28.00, intPaid: 3.20, ms20: -6.80,
+        otherDebt: 28.00, debtService: 12.20, cash112: 182.00, dtVat: 239.76,
+        cashEq: 18.50, totalCa: 165.00, totalAssets: 245.00, totalCl: 118.00, totalLiab: 152.00, equity: 93.00,
+        ewsTc: 5.5, ewsVld: 5.0, ewsQltn: 7.5, ewsVtsb: 7.0
       };
 
       var appState = {
@@ -1792,6 +1872,11 @@
         activeDevice: "desktop",
         desktopView: "workspace",
         mobileTab: "docs",
+        isMfg: false,
+        hasCostBreakdown: false,
+        hasNotesDetail: false,
+        knockout: false,
+        cicGroup: 1,
         docs: [],
         lastResult: null
       };
@@ -1800,35 +1885,29 @@
         var m = Number(monthVal);
         if (m === 3) return 90;
         if (m === 6) return 180;
+        if (m === 12) return 365;
         return 270;
       }
 
       function buildDefaultDocs(isGhost) {
         var ghostStatuses = {
-          "1": "ok",
-          "2": "ok",
-          "3_t1": "ok",
-          "3_t": "ok",
-          "4": "ok",
-          "5": "ok",
-          "6": "missing",
-          "7": "missing",
-          "8": "missing",
-          "9": "ok",
-          "10": "ok"
+          "1": "ok", "2": "ok", "3_t1": "ok", "3_t": "ok",
+          "4": "ok", "5": "ok", "6": "missing", "7": "missing",
+          "8": "missing", "9": "ok", "10": "ok", "11": "ok"
         };
         var ghostNotes = {
           "1": "ĐKDN & hồ sơ pháp lý hợp lệ",
           "2": "CIC Nhóm 1 (Dư nợ 28.00 tỷ)",
-          "3_t1": "Đầu kỳ Năm T−2 → Cuối kỳ Năm T−1 (365 ngày)",
-          "3_t": "Lũy kế đến Tháng 9/năm T (T_ngày = 270)",
+          "3_t1": "Đầu kỳ Năm T−2 → Cuối kỳ Năm T−1",
+          "3_t": "Lũy kế đến Tháng 9/năm T (270d)",
           "4": "Sổ chi tiết bán hàng năm T & T−1",
           "5": "Sổ chi tiết TK ngân hàng năm T & T−1",
           "6": "Chi tiết tồn kho TK 152, 153, 155, 156",
-          "7": "Chi tiết phải thu năm T & T−1 (thiếu tuổi nợ)",
-          "8": "Chi tiết phải trả năm T & T−1 (chưa lọc CapEx)",
+          "7": "Thiếu phân loại tuổi nợ TK 131",
+          "8": "Chưa tách nợ mua sắm TSCĐ",
           "9": "Tờ khai VAT năm T & T−1",
-          "10": "Sổ phụ ngân hàng đối chiếu dòng tiền về"
+          "10": "Sổ phụ ngân hàng đối chiếu dòng tiền",
+          "11": "DTT T+1: 340.00 tỷ; LNST: 11.28 tỷ"
         };
         return DOC_ITEMS_META.filter(function (m) { return !m.isGroupHeader; }).map(function (m) {
           return {
@@ -1837,6 +1916,8 @@
             title: m.title,
             isSub: !!m.isSub,
             hasMonthSelect: !!m.hasMonthSelect,
+            isPlanT1: !!m.isPlanT1,
+            planExpanded: false,
             monthT: 9,
             files: [],
             status: isGhost ? (ghostStatuses[m.id] || "ok") : "pending",
@@ -1864,7 +1945,6 @@
 
         if (isMob) {
           var t = appState.mobileTab;
-          // Trên Mobile: tab 1 hiển thị Bảng Checklist, tab 2 hiển thị các bảng nhập số liệu
           secInputs.classList.toggle("hidden", t !== "docs" && t !== "inputs");
           secDocs.classList.toggle("hidden", t !== "docs");
           var otherInputCards = secInputs.querySelectorAll(":scope > .card:not(#sec-docs)");
@@ -1878,8 +1958,7 @@
 
           var mobBtns = document.querySelectorAll(".mob-nav-btn");
           for (var i = 0; i < mobBtns.length; i++) {
-            var b = mobBtns[i];
-            b.classList.toggle("active", b.getAttribute("data-mob-tab") === t);
+            mobBtns[i].classList.toggle("active", mobBtns[i].getAttribute("data-mob-tab") === t);
           }
         } else {
           var v = appState.desktopView;
@@ -1896,8 +1975,7 @@
 
           var navBtns = document.querySelectorAll(".nav-item");
           for (var j = 0; j < navBtns.length; j++) {
-            var nb = navBtns[j];
-            nb.classList.toggle("active", nb.getAttribute("data-desk-view") === v);
+            navBtns[j].classList.toggle("active", navBtns[j].getAttribute("data-desk-view") === v);
           }
         }
       }
@@ -1921,21 +1999,22 @@
           }
         }
 
-        var swBtns = document.querySelectorAll(".dev-switcher button");
+        var swBtns = document.querySelectorAll("#device-choice-group .choice-btn");
         for (var i = 0; i < swBtns.length; i++) {
-          swBtns[i].classList.toggle("active", swBtns[i].getAttribute("data-dev") === appState.devicePref);
+          var isAct = swBtns[i].getAttribute("data-dev") === appState.devicePref;
+          swBtns[i].className = "choice-btn" + (isAct ? " active-navy" : "");
         }
 
         syncLayoutViews();
         if (showToast && changed) {
           notify(resolved === "mobile"
             ? "Đã chuyển sang Giao diện Điện thoại (1 cột tối ưu cảm ứng)."
-            : "Đã chuyển sang Giao diện Máy tính (3 cột đầy đủ).");
+            : "Đã chuyển sang Giao diện Máy tính (3 cột chuyên sâu).");
         }
       }
 
       /* =================================================================
-         4. ĐỒNG BỘ Ô NHẬP LIỆU, CHẾ ĐỘ CHỮ MỜ & KHỞI TẠO DỮ LIỆU MỚI
+         4. ĐỒNG BỘ Ô NHẬP LIỆU, NÚT LỰA CHỌN MÀU & KHỞI TẠO DỮ LIỆU MỚI
          ================================================================= */
       var FIELD_MAP = {
         companyName: "inp-company",
@@ -1947,109 +2026,128 @@
         hmtdReq: "inp-hmtd-req",
         stressRatePct: "inp-stress-rate",
         nwcOpAvg: "inp-nwcop-avg",
-        arGopT2: "inp-ar-gop-t2",
-        arTreoT2: "inp-ar-treo-t2",
-        dpNoXauT2: "inp-dp-noxau-t2",
-        invGopT2: "inp-inv-gop-t2",
-        invUDongT2: "inp-inv-udong-t2",
-        dpGiamGiaT2: "inp-dp-giamgia-t2",
-        tong331T2: "inp-tong-331-t2",
-        apTreoT2: "inp-ap-treo-t2",
-        apCapExT2: "inp-ap-capex-t2",
-        tsnhKhacT2: "inp-tsnh-khac-t2",
-        noKhacT2: "inp-no-khac-t2",
-        dttT2: "inp-dtt-t2",
-        cogsT2: "inp-cogs-t2",
-        lnttT2: "inp-lntt-t2",
-        citExpT2: "inp-cit-exp-t2",
-        daT2: "inp-da-t2",
-        intExpT2: "inp-int-exp-t2",
-        taxPaidT2: "inp-tax-paid-t2",
-        deltaNwcOpT2: "inp-delta-nwcop-t2",
-        intPaidT2: "inp-int-paid-t2",
-        ms20T2: "inp-ms20-t2",
-        cashEqT2: "inp-cash-eq-t2",
-        totalCaT2: "inp-total-ca-t2",
-        totalAssetsT2: "inp-total-assets-t2",
-        totalClT2: "inp-total-cl-t2",
-        totalLiabT2: "inp-total-liab-t2",
-        equityT2: "inp-equity-t2",
-        arGopT1: "inp-ar-gop-t1",
-        arTreoT1: "inp-ar-treo-t1",
-        dpNoXauT1: "inp-dp-noxau-t1",
-        invGopT1: "inp-inv-gop-t1",
-        invUDongT1: "inp-inv-udong-t1",
-        dpGiamGiaT1: "inp-dp-giamgia-t1",
-        tong331T1: "inp-tong-331-t1",
-        apTreoT1: "inp-ap-treo-t1",
-        apCapExT1: "inp-ap-capex-t1",
-        tsnhKhacT1: "inp-tsnh-khac-t1",
-        noKhacT1: "inp-no-khac-t1",
-        dttT1: "inp-dtt-t1",
-        cogsT1: "inp-cogs-t1",
-        lnttT1: "inp-lntt-t1",
-        citExpT1: "inp-cit-exp-t1",
-        daT1: "inp-da-t1",
-        intExpT1: "inp-int-exp-t1",
-        taxPaidT1: "inp-tax-paid-t1",
-        deltaNwcOpT1: "inp-delta-nwcop-t1",
-        intPaidT1: "inp-int-paid-t1",
-        ms20T1: "inp-ms20-t1",
-        cashEqT1: "inp-cash-eq-t1",
-        totalCaT1: "inp-total-ca-t1",
-        totalAssetsT1: "inp-total-assets-t1",
-        totalClT1: "inp-total-cl-t1",
-        totalLiabT1: "inp-total-liab-t1",
-        equityT1: "inp-equity-t1",
-        arGop: "inp-ar-gop",
-        arTreo: "inp-ar-treo",
-        dpNoXau: "inp-dp-noxau",
-        invGop: "inp-inv-gop",
-        invUDong: "inp-inv-udong",
-        dpGiamGia: "inp-dp-giamgia",
-        tk152: "inp-tk152",
-        tk153: "inp-tk153",
-        tk154: "inp-tk154",
-        tk155: "inp-tk155",
-        tk156: "inp-tk156",
-        tk157: "inp-tk157",
-        tong331: "inp-tong-331",
-        apTreo: "inp-ap-treo",
-        apCapEx: "inp-ap-capex",
-        tsnhKhac: "inp-tsnh-khac",
-        noKhac: "inp-no-khac",
-        dttYtd: "inp-dtt-ytd",
-        cogsYtd: "inp-cogs-ytd",
-        dttPlan: "inp-dtt-plan",
-        lntt: "inp-lntt",
-        citExp: "inp-cit-exp",
-        da: "inp-da",
-        intExp: "inp-int-exp",
-        taxPaid: "inp-tax-paid",
-        deltaNwcOp: "inp-delta-nwcop",
-        intPaid: "inp-int-paid",
-        ms20: "inp-ms20",
-        otherDebt: "inp-other-debt",
-        debtService: "inp-debt-service",
-        cash112: "inp-cash-112",
-        dtVat: "inp-dt-vat",
-        cashEq: "inp-cash-eq",
-        totalCa: "inp-total-ca",
-        totalAssets: "inp-total-assets",
-        totalCl: "inp-total-cl",
-        totalLiab: "inp-total-liab",
-        equity: "inp-equity",
-        ewsTc: "inp-ews-tc",
-        ewsVld: "inp-ews-vld",
-        ewsQltn: "inp-ews-qltn",
-        ewsVtsb: "inp-ews-vtsb"
+        arGopT2: "inp-ar-gop-t2", arTreoT2: "inp-ar-treo-t2", dpNoXauT2: "inp-dp-noxau-t2",
+        invGopT2: "inp-inv-gop-t2", invUDongT2: "inp-inv-udong-t2", dpGiamGiaT2: "inp-dp-giamgia-t2",
+        tong331T2: "inp-tong-331-t2", apTreoT2: "inp-ap-treo-t2", apCapExT2: "inp-ap-capex-t2",
+        tsnhKhacT2: "inp-tsnh-khac-t2", noKhacT2: "inp-no-khac-t2",
+        dttT2: "inp-dtt-t2", cogsT2: "inp-cogs-t2", lnttT2: "inp-lntt-t2", citExpT2: "inp-cit-exp-t2",
+        daT2: "inp-da-t2", intExpT2: "inp-int-exp-t2", taxPaidT2: "inp-tax-paid-t2",
+        deltaNwcOpT2: "inp-delta-nwcop-t2", intPaidT2: "inp-int-paid-t2", ms20T2: "inp-ms20-t2",
+        cashEqT2: "inp-cash-eq-t2", totalCaT2: "inp-total-ca-t2", totalAssetsT2: "inp-total-assets-t2",
+        totalClT2: "inp-total-cl-t2", totalLiabT2: "inp-total-liab-t2", equityT2: "inp-equity-t2",
+        arGopT1: "inp-ar-gop-t1", arTreoT1: "inp-ar-treo-t1", dpNoXauT1: "inp-dp-noxau-t1",
+        invGopT1: "inp-inv-gop-t1", invUDongT1: "inp-inv-udong-t1", dpGiamGiaT1: "inp-dp-giamgia-t1",
+        tong331T1: "inp-tong-331-t1", apTreoT1: "inp-ap-treo-t1", apCapExT1: "inp-ap-capex-t1",
+        tsnhKhacT1: "inp-tsnh-khac-t1", noKhacT1: "inp-no-khac-t1",
+        dttT1: "inp-dtt-t1", cogsT1: "inp-cogs-t1", lnttT1: "inp-lntt-t1", citExpT1: "inp-cit-exp-t1",
+        daT1: "inp-da-t1", intExpT1: "inp-int-exp-t1", taxPaidT1: "inp-tax-paid-t1",
+        deltaNwcOpT1: "inp-delta-nwcop-t1", intPaidT1: "inp-int-paid-t1", ms20T1: "inp-ms20-t1",
+        cashEqT1: "inp-cash-eq-t1", totalCaT1: "inp-total-ca-t1", totalAssetsT1: "inp-total-assets-t1",
+        totalClT1: "inp-total-cl-t1", totalLiabT1: "inp-total-liab-t1", equityT1: "inp-equity-t1",
+        arGop: "inp-ar-gop", arTreo: "inp-ar-treo", dpNoXau: "inp-dp-noxau",
+        invGop: "inp-inv-gop", invUDong: "inp-inv-udong", dpGiamGia: "inp-dp-giamgia",
+        tk152: "inp-tk152", tk153: "inp-tk153", tk154: "inp-tk154",
+        tk155: "inp-tk155", tk156: "inp-tk156", tk157: "inp-tk157",
+        tong331: "inp-tong-331", apTreo: "inp-ap-treo", apCapEx: "inp-ap-capex",
+        tsnhKhac: "inp-tsnh-khac", noKhac: "inp-no-khac",
+        dttYtd: "inp-dtt-ytd", cogsYtd: "inp-cogs-ytd",
+        dttPlan: "inp-dtt-plan", cogsPlan: "inp-cogs-plan", opexPlan: "inp-opex-plan",
+        daPlan: "inp-da-plan", intPlan: "inp-int-plan", citPlan: "inp-cit-plan", prinPlan: "inp-prin-plan",
+        lntt: "inp-lntt", citExp: "inp-cit-exp", da: "inp-da", intExp: "inp-int-exp",
+        taxPaid: "inp-tax-paid", deltaNwcOp: "inp-delta-nwcop", intPaid: "inp-int-paid", ms20: "inp-ms20",
+        otherDebt: "inp-other-debt", debtService: "inp-debt-service", cash112: "inp-cash-112", dtVat: "inp-dt-vat",
+        cashEq: "inp-cash-eq", totalCa: "inp-total-ca", totalAssets: "inp-total-assets",
+        totalCl: "inp-total-cl", totalLiab: "inp-total-liab", equity: "inp-equity",
+        ewsTc: "inp-ews-tc", ewsVld: "inp-ews-vld", ewsQltn: "inp-ews-qltn", ewsVtsb: "inp-ews-vtsb"
       };
+
+      function syncChoiceButtonsUI() {
+        // 1. Nút kỳ báo cáo Tháng 3 / 6 / 9 / 12
+        var curDays = Number($("inp-tdays").value) || 270;
+        var pBtns = document.querySelectorAll("#period-choice-group .choice-btn");
+        for (var i = 0; i < pBtns.length; i++) {
+          var m = Number(pBtns[i].getAttribute("data-month"));
+          var active = monthToDays(m) === curDays;
+          pBtns[i].className = "choice-btn" + (active ? " active-blue" : "");
+        }
+
+        // 2. Nút đơn vị tiền tệ
+        var curScale = $("unit-scale").value;
+        var uBtns = document.querySelectorAll("#unit-choice-group .choice-btn");
+        for (var u = 0; u < uBtns.length; u++) {
+          var uAct = uBtns[u].getAttribute("data-scale") === curScale;
+          uBtns[u].className = "choice-btn" + (uAct ? " active-navy" : "");
+        }
+
+        // 3. Nút nhóm ngành
+        var curInd = ($("inp-industry").value || GHOST_SAMPLE.industry).toLowerCase();
+        var sBtns = document.querySelectorAll("#sector-choice-group .choice-btn");
+        for (var s = 0; s < sBtns.length; s++) {
+          var sec = sBtns[s].getAttribute("data-sector").toLowerCase();
+          var sAct = curInd.indexOf(sec.split(" ")[0]) !== -1;
+          sBtns[s].className = "choice-btn" + (sAct ? " active-blue" : "");
+        }
+
+        // 4. Nút tình trạng CIC
+        var cBtns = document.querySelectorAll("#cic-choice-group .choice-btn");
+        for (var c = 0; c < cBtns.length; c++) {
+          var cg = Number(cBtns[c].getAttribute("data-cic"));
+          var cAct = cg === appState.cicGroup;
+          var cls = "choice-btn";
+          if (cAct) {
+            cls += cg === 1 ? " active-emerald" : (cg === 2 ? " active-amber" : " active-crimson");
+          }
+          cBtns[c].className = cls;
+        }
+
+        // 5. Nút tùy chọn thuyết minh
+        var btnMfg = $("btn-toggle-mfg");
+        btnMfg.textContent = appState.isMfg ? "Loại hình: Doanh nghiệp Sản xuất ✓" : "Loại hình: Thương mại / Xây lắp";
+        btnMfg.className = "choice-btn" + (appState.isMfg ? " active-blue" : "");
+
+        var btnBrk = $("btn-toggle-breakdown");
+        btnBrk.textContent = appState.hasCostBreakdown ? "Thuyết minh Giá vốn: Đã tách KH & NCTT ✓" : "Thuyết minh Giá vốn: Chưa tách KH & NCTT";
+        btnBrk.className = "choice-btn" + (appState.hasCostBreakdown ? " active-emerald" : "");
+
+        var btnNotes = $("btn-toggle-notes");
+        btnNotes.textContent = appState.hasNotesDetail ? "Thuyết minh Tuổi nợ / Kho: Đầy đủ ✓" : "Thuyết minh Tuổi nợ / Kho: Thiếu chi tiết";
+        btnNotes.className = "choice-btn" + (appState.hasNotesDetail ? " active-emerald" : "");
+
+        // 6. Nút điểm EWS
+        var ewsGroups = document.querySelectorAll("[data-ews-group]");
+        for (var g = 0; g < ewsGroups.length; g++) {
+          var grp = ewsGroups[g];
+          var field = grp.getAttribute("data-ews-group");
+          var rawVal = $(FIELD_MAP[field]).value;
+          var val = rawVal !== "" ? Number(rawVal) : GHOST_SAMPLE[field];
+          var btns = grp.querySelectorAll(".choice-btn");
+          for (var b = 0; b < btns.length; b++) {
+            var bv = Number(btns[b].getAttribute("data-val"));
+            var bAct = Math.abs(bv - val) < 0.05;
+            var bCls = "choice-btn";
+            if (bAct) {
+              bCls += bv >= 8.0 ? " active-emerald" : (bv >= 7.0 ? " active-blue" : (bv >= 5.0 ? " active-amber" : " active-crimson"));
+            }
+            btns[b].className = bCls;
+          }
+        }
+
+        // 7. Nút Knock-out
+        var koBtns = document.querySelectorAll("#ko-choice-group .choice-btn");
+        for (var k = 0; k < koBtns.length; k++) {
+          var isKoBtn = koBtns[k].getAttribute("data-ko") === "1";
+          var kAct = isKoBtn === appState.knockout;
+          koBtns[k].className = "choice-btn" + (kAct ? (isKoBtn ? " active-crimson" : " active-emerald") : "");
+        }
+      }
 
       function applyGhostPlaceholders() {
         Object.keys(FIELD_MAP).forEach(function (key) {
           var el = $(FIELD_MAP[key]);
           if (el) el.setAttribute("placeholder", String(GHOST_SAMPLE[key]));
         });
+        var chkDtt = $("chk-dtt-plan");
+        if (chkDtt) chkDtt.setAttribute("placeholder", String(GHOST_SAMPLE.dttPlan));
       }
 
       function updateModeUI() {
@@ -2074,36 +2172,42 @@
 
       function activateGhostSampleMode() {
         appState.mode = "ghost";
-        applyGhostPlaceholders();
         Object.keys(FIELD_MAP).forEach(function (key) {
           var el = $(FIELD_MAP[key]);
           if (el) el.value = "";
         });
-        $("inp-ismfg").checked = GHOST_SAMPLE.isMfg;
-        $("inp-breakdown").checked = GHOST_SAMPLE.hasCostBreakdown;
-        $("inp-notes").checked = GHOST_SAMPLE.hasNotesDetail;
-        $("inp-knockout").checked = GHOST_SAMPLE.knockout;
+        $("inp-tdays").value = "270";
+        appState.isMfg = GHOST_SAMPLE.isMfg;
+        appState.hasCostBreakdown = GHOST_SAMPLE.hasCostBreakdown;
+        appState.hasNotesDetail = GHOST_SAMPLE.hasNotesDetail;
+        appState.knockout = GHOST_SAMPLE.knockout;
+        appState.cicGroup = 1;
 
         appState.docs = buildDefaultDocs(true);
         renderDocSlots();
+        applyGhostPlaceholders();
+        syncChoiceButtonsUI();
         updateModeUI();
         runAppraisalEngine(false);
       }
 
       function initializeNewBlankCase() {
         appState.mode = "blank";
-        applyGhostPlaceholders();
         Object.keys(FIELD_MAP).forEach(function (key) {
           var el = $(FIELD_MAP[key]);
           if (el) el.value = "";
         });
-        $("inp-ismfg").checked = false;
-        $("inp-breakdown").checked = false;
-        $("inp-notes").checked = false;
-        $("inp-knockout").checked = false;
+        $("inp-tdays").value = "270";
+        appState.isMfg = false;
+        appState.hasCostBreakdown = false;
+        appState.hasNotesDetail = false;
+        appState.knockout = false;
+        appState.cicGroup = 1;
 
         appState.docs = buildDefaultDocs(false);
         renderDocSlots();
+        applyGhostPlaceholders();
+        syncChoiceButtonsUI();
         updateModeUI();
         runAppraisalEngine(false);
 
@@ -2133,20 +2237,29 @@
           }
         });
 
-        data.isMfg = $("inp-ismfg").checked;
-        data.hasCostBreakdown = $("inp-breakdown").checked;
-        data.hasNotesDetail = $("inp-notes").checked;
-        data.knockout = $("inp-knockout").checked;
+        data.isMfg = appState.isMfg;
+        data.hasCostBreakdown = appState.hasCostBreakdown;
+        data.hasNotesDetail = appState.hasNotesDetail;
+        data.knockout = appState.knockout || appState.cicGroup === 3;
+        data.cicGroup = appState.cicGroup;
         if (!data.tDays || data.tDays <= 0) data.tDays = 365;
         return data;
       }
 
       /* =================================================================
-         5. RENDER BẢNG CHECKLIST HỒ SƠ ĐẦU VÀO (CÓ NÚT TẢI FILE PDF / EXCEL)
+         5. RENDER BẢNG CHECKLIST HỒ SƠ ĐẦU VÀO (NÚT TRẠNG THÁI MÀU + TẢI FILE)
          ================================================================= */
       function renderDocSlots() {
         var tbody = $("checklist-tbody");
         if (!tbody) return;
+
+        var curDttPlanVal = $("inp-dtt-plan") ? $("inp-dtt-plan").value : "";
+        var curCogsPlanVal = $("inp-cogs-plan") ? $("inp-cogs-plan").value : "";
+        var curOpexPlanVal = $("inp-opex-plan") ? $("inp-opex-plan").value : "";
+        var curDaPlanVal = $("inp-da-plan") ? $("inp-da-plan").value : "";
+        var curIntPlanVal = $("inp-int-plan") ? $("inp-int-plan").value : "";
+        var curCitPlanVal = $("inp-cit-plan") ? $("inp-cit-plan").value : "";
+        var curPrinPlanVal = $("inp-prin-plan") ? $("inp-prin-plan").value : "";
 
         var okCount = 0;
         var totalSlots = appState.docs.length;
@@ -2157,7 +2270,7 @@
           if (doc.id === "3_t1" && !renderedGroup3) {
             renderedGroup3 = true;
             rowsHtml.push(
-              '<tr class="chk-group-row">' +
+              '<tr class="row-group">' +
                 '<td class="center">3</td>' +
                 '<td colspan="4">3. Báo cáo tài chính (B01-DN, B02-DN, B03-DN &amp; Thuyết minh TT200)</td>' +
               '</tr>'
@@ -2166,15 +2279,14 @@
 
           if (doc.status === "ok") okCount++;
 
-          var monthSelectHtml = "";
+          var monthChoiceHtml = "";
           if (doc.hasMonthSelect) {
-            monthSelectHtml =
-              '<div style="margin-top:5px;">' +
-                '<select data-doc-idx="' + idx + '" class="doc-month-sel" title="Chọn kỳ báo cáo đến Tháng X/năm T">' +
-                  '<option value="3"' + (doc.monthT === 3 ? " selected" : "") + '>Kỳ đến Tháng 3/năm T (90 ngày)</option>' +
-                  '<option value="6"' + (doc.monthT === 6 ? " selected" : "") + '>Kỳ đến Tháng 6/năm T (180 ngày)</option>' +
-                  '<option value="9"' + (doc.monthT === 9 ? " selected" : "") + '>Kỳ đến Tháng 9/năm T (270 ngày)</option>' +
-                '</select>' +
+            monthChoiceHtml =
+              '<div class="choice-group" style="margin-top:6px;">' +
+                [3, 6, 9, 12].map(function (m) {
+                  var active = doc.monthT === m;
+                  return '<button type="button" data-doc-idx="' + idx + '" data-doc-month="' + m + '" class="choice-btn' + (active ? ' active-blue' : '') + '" style="padding:3px 8px; font-size:11px;">Tháng ' + m + '</button>';
+                }).join("") +
               '</div>';
           }
 
@@ -2187,34 +2299,76 @@
                 return (
                   '<span class="file-chip" title="' + esc(fObj.name) + '">' +
                     '<span>' + icon + ' ' + esc(fObj.name) + ' (' + esc(fObj.sizeLabel) + ')</span>' +
-                    '<button type="button" class="file-chip-del" data-doc-idx="' + idx + '" data-file-idx="' + fIdx + '" title="Gỡ tệp này">✕</button>' +
+                    '<button type="button" class="file-chip-del" data-doc-idx="' + idx + '" data-file-idx="' + fIdx + '" title="Gỡ tệp">✕</button>' +
                   '</span>'
                 );
               }).join("") +
             '</div>';
           }
 
+          var planQuickBoxHtml = "";
+          var uploadCellHtml = "";
+
+          if (doc.isPlanT1) {
+            planQuickBoxHtml =
+              '<div style="margin-top:7px; padding:8px 10px; background:#F0F9FF; border:1px solid #93C5FD; border-radius:9px;">' +
+                '<div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:6px;">' +
+                  '<div style="display:flex; align-items:center; gap:6px; flex:1; min-width:200px;">' +
+                    '<span style="font-size:11.5px; font-weight:700; color:#0F294A; white-space:nowrap;">Doanh thu dự phóng T+1 (tỷ):</span>' +
+                    '<input id="chk-dtt-plan" type="number" inputmode="decimal" step="0.01" value="' + esc(curDttPlanVal) + '" placeholder="' + GHOST_SAMPLE.dttPlan + '" style="width:110px; padding:4px 8px; font-weight:700; background:#FFFFFF; border-color:#60A5FA;" />' +
+                  '</div>' +
+                  '<button type="button" id="btn-toggle-plan-detail" data-doc-idx="' + idx + '" class="btn-ice" style="padding:4px 8px; font-size:11px;">' +
+                    (doc.planExpanded ? "Thu gọn chi tiết KQKD T+1 ▴" : "Chi tiết DT / GV / CP / Thuế / LN T+1 ▾") +
+                  '</button>' +
+                '</div>' +
+                '<div id="chk-plan-detail-box" class="' + (doc.planExpanded ? "" : "hidden") + '" style="margin-top:8px; padding-top:8px; border-top:1px dashed #93C5FD;">' +
+                  '<div class="grid-3" style="gap:6px;">' +
+                    '<div><label class="field-label" style="font-size:10.5px;">Giá vốn hàng bán T+1 (tỷ)</label><input id="inp-cogs-plan" data-field="cogsPlan" type="number" inputmode="decimal" step="0.01" value="' + esc(curCogsPlanVal) + '" placeholder="' + GHOST_SAMPLE.cogsPlan + '" style="padding:4px 7px; font-size:12px; background:#FFFFFF;" /></div>' +
+                    '<div><label class="field-label" style="font-size:10.5px;">Chi phí BH &amp; QLDN T+1 (tỷ)</label><input id="inp-opex-plan" data-field="opexPlan" type="number" inputmode="decimal" step="0.01" value="' + esc(curOpexPlanVal) + '" placeholder="' + GHOST_SAMPLE.opexPlan + '" style="padding:4px 7px; font-size:12px; background:#FFFFFF;" /></div>' +
+                    '<div><label class="field-label" style="font-size:10.5px;">Khấu hao TSCĐ T+1 (tỷ)</label><input id="inp-da-plan" data-field="daPlan" type="number" inputmode="decimal" step="0.01" value="' + esc(curDaPlanVal) + '" placeholder="' + GHOST_SAMPLE.daPlan + '" style="padding:4px 7px; font-size:12px; background:#FFFFFF;" /></div>' +
+                    '<div><label class="field-label" style="font-size:10.5px;">Chi phí lãi vay T+1 (tỷ)</label><input id="inp-int-plan" data-field="intPlan" type="number" inputmode="decimal" step="0.01" value="' + esc(curIntPlanVal) + '" placeholder="' + GHOST_SAMPLE.intPlan + '" style="padding:4px 7px; font-size:12px; background:#FFFFFF;" /></div>' +
+                    '<div><label class="field-label" style="font-size:10.5px;">Thuế TNDN dự kiến T+1 (tỷ)</label><input id="inp-cit-plan" data-field="citPlan" type="number" inputmode="decimal" step="0.01" value="' + esc(curCitPlanVal) + '" placeholder="' + GHOST_SAMPLE.citPlan + '" style="padding:4px 7px; font-size:12px; background:#FFFFFF;" /></div>' +
+                    '<div><label class="field-label" style="font-size:10.5px;">Nợ gốc DH đến hạn T+1 (tỷ)</label><input id="inp-prin-plan" data-field="prinPlan" type="number" inputmode="decimal" step="0.01" value="' + esc(curPrinPlanVal) + '" placeholder="' + GHOST_SAMPLE.prinPlan + '" style="padding:4px 7px; font-size:12px; background:#FFFFFF;" /></div>' +
+                  '</div>' +
+                  '<div style="margin-top:6px; font-size:11px; color:#0F172A; display:flex; flex-wrap:wrap; gap:10px; background:#FFFFFF; padding:5px 8px; border-radius:7px; border:1px solid #CBD5E1;">' +
+                    '<span>LNTT T+1: <strong id="chk-lntt-plan" class="mono">14.10</strong> tỷ</span>' +
+                    '<span>LNST T+1: <strong id="chk-lnst-plan" class="mono" style="color:#047857;">11.28</strong> tỷ</span>' +
+                    '<span>EBITDA T+1: <strong id="chk-ebitda-plan" class="mono" style="color:#1B365D;">24.50</strong> tỷ</span>' +
+                  '</div>' +
+                '</div>' +
+              '</div>';
+
+            uploadCellHtml =
+              '<div style="display:flex; flex-direction:column; gap:5px;">' +
+                '<label class="upload-pill-btn" for="doc-file-' + doc.id + '">📊 Tải Excel Kế hoạch T+1</label>' +
+                '<input id="doc-file-' + doc.id + '" data-doc-idx="' + idx + '" class="doc-file-inp" type="file" multiple accept=".xlsx,.xls,.csv,.pdf,.json,.txt" style="display:none;" />' +
+                '<button type="button" id="btn-dl-plan-template" class="btn-white" style="padding:4px 8px; font-size:11px; width:100%;">⬇ File mẫu Excel T+1</button>' +
+              '</div>';
+          } else {
+            uploadCellHtml =
+              '<label class="upload-pill-btn" for="doc-file-' + doc.id + '" style="width:100%;">📎 Tải PDF / Excel</label>' +
+              '<input id="doc-file-' + doc.id + '" data-doc-idx="' + idx + '" class="doc-file-inp" type="file" multiple accept=".pdf,.xlsx,.xls,.csv,.json,.txt" style="display:none;" />';
+          }
+
+          var statusButtonsHtml =
+            '<div class="choice-group">' +
+              '<button type="button" data-doc-idx="' + idx + '" data-doc-st="ok" class="choice-btn' + (doc.status === "ok" ? " active-emerald" : "") + '" style="padding:4px 7px; font-size:11px;">Đầy đủ</button>' +
+              '<button type="button" data-doc-idx="' + idx + '" data-doc-st="missing" class="choice-btn' + (doc.status === "missing" ? " active-amber" : "") + '" style="padding:4px 7px; font-size:11px;">Thiếu TM</button>' +
+              '<button type="button" data-doc-idx="' + idx + '" data-doc-st="pending" class="choice-btn' + (doc.status === "pending" ? " active-crimson" : "") + '" style="padding:4px 7px; font-size:11px;">Chưa có</button>' +
+            '</div>';
+
           var nameCellContent = doc.isSub
-            ? ('<div class="chk-sub-indent"><strong>' + esc(doc.title) + '</strong>' + monthSelectHtml + chipsHtml + '</div>')
-            : ('<div><strong>' + esc(doc.title) + '</strong>' + chipsHtml + '</div>');
+            ? ('<div class="sub-indent"><strong>' + esc(doc.title) + '</strong>' + monthChoiceHtml + chipsHtml + '</div>')
+            : ('<div><strong>' + esc(doc.title) + '</strong>' + planQuickBoxHtml + chipsHtml + '</div>');
 
           rowsHtml.push(
-            '<tr class="' + (doc.isSub ? "chk-sub-row" : "") + '">' +
-              '<td class="center mono" style="font-weight:700; color:#1B365D;">' + esc(doc.stt) + '</td>' +
-              '<td>' + nameCellContent + '</td>' +
-              '<td>' +
-                '<label class="upload-pill-btn" for="doc-file-' + doc.id + '">📎 Tải PDF / Excel</label>' +
-                '<input id="doc-file-' + doc.id + '" data-doc-idx="' + idx + '" class="doc-file-inp" type="file" multiple accept=".pdf,.xlsx,.xls,.csv,.json,.txt" style="display:none;" />' +
-              '</td>' +
-              '<td>' +
-                '<select data-doc-idx="' + idx + '" class="doc-status-sel">' +
-                  '<option value="pending"' + (doc.status === "pending" ? " selected" : "") + '>Chờ bổ sung</option>' +
-                  '<option value="ok"' + (doc.status === "ok" ? " selected" : "") + '>Đầy đủ</option>' +
-                  '<option value="missing"' + (doc.status === "missing" ? " selected" : "") + '>Thiếu chi tiết</option>' +
-                '</select>' +
-              '</td>' +
-              '<td>' +
-                '<input type="text" data-doc-idx="' + idx + '" class="doc-note-inp" value="' + esc(doc.note) + '" placeholder="Ghi chú kiểm soát..." style="padding:5px 8px; font-size:11.5px; min-height:auto;" />' +
+            '<tr class="' + (doc.isSub ? "row-sub" : "") + '">' +
+              '<td data-label="STT" class="center mono" style="font-weight:800; color:#0F294A;">' + esc(doc.stt) + '</td>' +
+              '<td data-label="Hạng mục Hồ sơ">' + nameCellContent + '</td>' +
+              '<td data-label="Tải Tệp">' + uploadCellHtml + '</td>' +
+              '<td data-label="Trạng thái Kiểm soát">' + statusButtonsHtml + '</td>' +
+              '<td data-label="Ghi chú">' +
+                '<input type="text" data-doc-idx="' + idx + '" class="doc-note-inp" value="' + esc(doc.note) + '" placeholder="Ghi chú kiểm soát..." style="padding:5px 8px; font-size:11.5px;" />' +
               '</td>' +
             '</tr>'
           );
@@ -2223,44 +2377,41 @@
         tbody.innerHTML = rowsHtml.join("");
         var badge = $("doc-count-badge");
         if (badge) badge.textContent = okCount + "/" + totalSlots + " đầy đủ";
+        var pill1 = $("st-pill-1");
+        if (pill1) pill1.textContent = okCount + "/" + totalSlots + " hồ sơ";
       }
 
       /* =================================================================
          6. ĐỘNG CƠ TÍNH TOÁN TÀI CHÍNH CHUẨN TT200 & VAS 24 (v7.2)
          ================================================================= */
       function computeCreditModel(d) {
-        // 1A. Lọc nhiễu Năm T-2 (365 ngày)
+        // 1A. Năm T-2 (365 ngày)
         var arCleanT2 = Math.max(0, d.arGopT2 - Math.max(d.arTreoT2, d.dpNoXauT2));
         var invCleanT2 = Math.max(0, d.invGopT2 - Math.max(d.invUDongT2, d.dpGiamGiaT2));
         var apCleanT2 = Math.max(0, d.tong331T2 - d.apTreoT2 - d.apCapExT2);
         var nwcOpT2 = (arCleanT2 + invCleanT2 + d.tsnhKhacT2) - (apCleanT2 + d.noKhacT2);
 
-        // 1B. Lọc nhiễu Năm T-1 (365 ngày)
+        // 1B. Năm T-1 (365 ngày)
         var arCleanT1 = Math.max(0, d.arGopT1 - Math.max(d.arTreoT1, d.dpNoXauT1));
         var invCleanT1 = Math.max(0, d.invGopT1 - Math.max(d.invUDongT1, d.dpGiamGiaT1));
         var apCleanT1 = Math.max(0, d.tong331T1 - d.apTreoT1 - d.apCapExT1);
         var nwcOpT1 = (arCleanT1 + invCleanT1 + d.tsnhKhacT1) - (apCleanT1 + d.noKhacT1);
 
-        // 1C. Lọc nhiễu Thời điểm xét duyệt Kỳ T
-        var arDeduct = Math.max(d.arTreo, d.dpNoXau);
-        var arClean = Math.max(0, d.arGop - arDeduct);
-
-        var invDeduct = Math.max(d.invUDong, d.dpGiamGia);
-        var invClean = Math.max(0, d.invGop - invDeduct);
-
+        // 1C. Kỳ T
+        var arClean = Math.max(0, d.arGop - Math.max(d.arTreo, d.dpNoXau));
+        var invClean = Math.max(0, d.invGop - Math.max(d.invUDong, d.dpGiamGia));
         var apClean = Math.max(0, d.tong331 - d.apTreo - d.apCapEx);
-
         var nwcOpEnd = (arClean + invClean + d.tsnhKhac) - (apClean + d.noKhac);
         var deltaNwcAuto = nwcOpEnd - nwcOpT1;
         var nwcOpAvg = d.nwcOpAvg !== 0 ? d.nwcOpAvg : ((nwcOpT1 + nwcOpEnd) / 2);
 
-        // 2. Quy chuẩn kỳ lẻ sang năm (Annualization)
+        // 2. Quy chuẩn kỳ lẻ sang năm
         var annFactor = 365 / d.tDays;
         var dttAnn = d.dttYtd * annFactor;
         var cogsAnn = d.cogsYtd * annFactor;
         var dpoFallback = (!d.isMfg || !d.hasCostBreakdown);
 
-        // 3A. Chỉ số Năm T-2 (365 ngày)
+        // 3A. Chỉ số Năm T-2
         var vqVldT2 = nwcOpT2 > 0 ? safeDiv(d.dttT2, nwcOpT2) : null;
         var arTurnoverT2 = arCleanT2 > 0 ? safeDiv(d.dttT2, arCleanT2) : null;
         var invTurnoverT2 = invCleanT2 > 0 ? safeDiv(d.cogsT2, invCleanT2) : null;
@@ -2291,7 +2442,7 @@
         var icrT2 = d.intExpT2 > 0 ? safeDiv(ebitT2, d.intExpT2) : null;
         var dscrT2 = (d.debtService > 0 && ocfT2 > 0) ? (ocfT2 / d.debtService) : null;
 
-        // 3B. Chỉ số Năm T-1 (365 ngày)
+        // 3B. Chỉ số Năm T-1
         var vqVldT1 = nwcOpT1 > 0 ? safeDiv(d.dttT1, nwcOpT1) : null;
         var arTurnoverT1 = arCleanT1 > 0 ? safeDiv(d.dttT1, arCleanT1) : null;
         var invTurnoverT1 = invCleanT1 > 0 ? safeDiv(d.cogsT1, invCleanT1) : null;
@@ -2322,7 +2473,7 @@
         var icrT1 = d.intExpT1 > 0 ? safeDiv(ebitT1, d.intExpT1) : null;
         var dscrT1 = (d.debtService > 0 && ocfT1 > 0) ? (ocfT1 / d.debtService) : null;
 
-        // 3C. Vòng quay & Chu kỳ tiền mặt CCC Kỳ T
+        // 3C. Chỉ số Kỳ T (Quy năm)
         var vqVld = nwcOpAvg > 0 ? safeDiv(dttAnn, nwcOpAvg) : null;
         var arTurnover = arClean > 0 ? safeDiv(dttAnn, arClean) : null;
         var invTurnover = invClean > 0 ? safeDiv(cogsAnn, invClean) : null;
@@ -2334,13 +2485,12 @@
         var dpo = cogsAnn > 0 ? (apClean / cogsAnn) * 365 : null;
         var ccc = (dso !== null && dio !== null && dpo !== null) ? (dio + dso - dpo) : null;
 
-        // 4. Dòng tiền HĐKD chuẩn VAS 24 (VAR_OCF) & Đối chiếu MS 20 Kỳ T
+        // 4. Dòng tiền OCF & Bộ 19 Chỉ số Tài chính
         var ocf = d.lntt + d.da + d.intExp - d.deltaNwcOp - d.taxPaid;
         var ocfAnn = ocf * annFactor;
         var ms20DiffPct = (Math.abs(ocf - d.ms20) / Math.max(Math.abs(d.ms20), 1)) * 100;
         var ms20Flag = ms20DiffPct > 5.0;
 
-        // 4B. Bộ chỉ số Tài chính 4 Nhóm (Chuẩn mực v7.2 – TT200)
         var currentRatio = d.totalCl > 0 ? safeDiv(d.totalCa, d.totalCl) : null;
         var quickRatio = d.totalCl > 0 ? safeDiv(d.totalCa - invClean, d.totalCl) : null;
         var cashRatio = d.totalCl > 0 ? safeDiv(d.cashEq, d.totalCl) : null;
@@ -2362,12 +2512,21 @@
         var debtToEquity = d.equity > 0 ? safeDiv(totalBankDebt, d.equity) : null;
         var icr = d.intExp > 0 ? safeDiv(ebit, d.intExp) : null;
 
-        // Đối soát tiền về TK 112
         var cashRatioPct = d.dtVat > 0 ? (d.cash112 / d.dtVat) * 100 : null;
         var cashFlag = cashRatioPct !== null && cashRatioPct < 70.0;
 
-        // 5. DSCR & Trần Hạn mức Tín dụng Tối đa năm T+1
-        var dscr = (d.debtService > 0 && ocf > 0) ? (ocf / d.debtService) : (d.debtService > 0 ? ((d.lntt + d.da + d.intExp) * annFactor) / d.debtService : null);
+        // 5. Kế hoạch T+1 & Trần HMTD
+        var ebitPlan = d.dttPlan - d.cogsPlan - d.opexPlan;
+        var lnttPlan = ebitPlan - d.intPlan;
+        var lnstPlan = lnttPlan - d.citPlan;
+        var ebitdaPlan = ebitPlan + d.daPlan;
+        var planHasBreakdown = (d.cogsPlan > 0 || d.opexPlan > 0 || d.daPlan > 0 || d.intPlan > 0 || d.citPlan > 0 || d.prinPlan > 0);
+        var effectiveDebtService = (planHasBreakdown && (d.prinPlan + d.intPlan) > 0) ? (d.prinPlan + d.intPlan) : d.debtService;
+
+        var dscr = (effectiveDebtService > 0 && ocf > 0)
+          ? (ocf / effectiveDebtService)
+          : (effectiveDebtService > 0 ? ((d.lntt + d.da + d.intExp) * annFactor) / effectiveDebtService : null);
+        var dscrPlanT1 = (effectiveDebtService > 0 && ebitdaPlan > 0) ? (ebitdaPlan / effectiveDebtService) : null;
 
         var ratioGroups = [
           {
@@ -2572,7 +2731,7 @@
         // 6. Stress Test ST1 - ST4
         var r = d.stressRatePct / 100;
         var baseCashFlow = Math.max(ocf, (d.lntt + d.da + d.intExp) * annFactor);
-        var dsBase = Math.max(d.debtService, 1);
+        var dsBase = Math.max(effectiveDebtService, 1);
 
         var st1Short = (dttAnn / 365) * 15;
         var st1Di = st1Short * r;
@@ -2597,7 +2756,7 @@
           { code: "ST4", desc: "Cú sốc kép doanh thu & thu hồi công nợ", shortVal: st4Short, dI: st4Di, minReq: 1.00, dscr: st4Dscr, pass: st4Dscr >= 1.00 }
         ];
 
-        // 7. Chấm điểm EWS (0.30 / 0.20 / 0.25 / 0.25)
+        // 7. Chấm điểm EWS
         var ewsW1 = d.ewsTc * 0.30;
         var ewsW2 = d.ewsVld * 0.20;
         var ewsW3 = d.ewsQltn * 0.25;
@@ -2610,13 +2769,14 @@
         else if (ewsTotal >= 6.5) rank = "Hạng B";
         else rank = "Hạng C";
 
-        // 8. Chẩn đoán kịch bản & Quyết nghị Phê duyệt
+        // 8. Chẩn đoán & Quyết nghị
         var scenario = "KB1: Tăng trưởng Bền vững";
         if (d.lntt < 0 && ocf < 0) scenario = "KB4: Khủng hoảng Thanh khoản";
         else if (ocf < 0 && d.deltaNwcOp > 0) scenario = "KB2: Tăng trưởng Nóng (Đọng vốn phải thu & tồn kho)";
         else if (d.dttYtd === 0) scenario = "Chưa có dữ liệu doanh thu";
 
         var flags = [];
+        if (d.cicGroup === 2) flags.push("Lịch sử CIC có nợ Nhóm 2 (Nợ cần chú ý) – cần rà soát nguyên nhân.");
         if (!d.hasNotesDetail) flags.push("Thiếu thuyết minh bóc tách tuổi nợ TK 131 & tuổi tồn kho TK 152–156.");
         if (dpoFallback) flags.push("Áp dụng DPO Fallback theo Giá vốn hàng bán do thiếu bóc tách chi phí.");
         if (ms20Flag) flags.push("Chênh lệch VAR_OCF so với MS_20 (B03-DN) là " + fmt(ms20DiffPct, 1) + "% (> 5%).");
@@ -2647,73 +2807,28 @@
         return {
           input: d,
           clean: {
-            arCleanT2: arCleanT2,
-            invCleanT2: invCleanT2,
-            apCleanT2: apCleanT2,
-            nwcOpT2: nwcOpT2,
-            arCleanT1: arCleanT1,
-            invCleanT1: invCleanT1,
-            apCleanT1: apCleanT1,
-            nwcOpT1: nwcOpT1,
-            arClean: arClean,
-            invClean: invClean,
-            apClean: apClean,
-            nwcOpEnd: nwcOpEnd,
-            deltaNwcAuto: deltaNwcAuto,
-            nwcOpAvg: nwcOpAvg,
-            annFactor: annFactor,
-            dttAnn: dttAnn,
-            cogsAnn: cogsAnn,
-            dpoFallback: dpoFallback
+            arCleanT2: arCleanT2, invCleanT2: invCleanT2, apCleanT2: apCleanT2, nwcOpT2: nwcOpT2,
+            arCleanT1: arCleanT1, invCleanT1: invCleanT1, apCleanT1: apCleanT1, nwcOpT1: nwcOpT1,
+            arClean: arClean, invClean: invClean, apClean: apClean, nwcOpEnd: nwcOpEnd,
+            deltaNwcAuto: deltaNwcAuto, nwcOpAvg: nwcOpAvg,
+            annFactor: annFactor, dttAnn: dttAnn, cogsAnn: cogsAnn, dpoFallback: dpoFallback
           },
           metrics: {
-            vqVldT2: vqVldT2,
-            vqVldT1: vqVldT1,
-            vqVld: vqVld,
-            arTurnover: arTurnover,
-            invTurnover: invTurnover,
-            apTurnover: apTurnover,
-            assetTurnover: assetTurnover,
-            dsoT2: dsoT2,
-            dioT2: dioT2,
-            dpoT2: dpoT2,
-            cccT2: cccT2,
-            dsoT1: dsoT1,
-            dioT1: dioT1,
-            dpoT1: dpoT1,
-            cccT1: cccT1,
-            dso: dso,
-            dio: dio,
-            dpo: dpo,
-            ccc: ccc,
-            ocfT2: ocfT2,
-            ocfT1: ocfT1,
-            ocf: ocf,
-            ocfAnn: ocfAnn,
-            ms20DiffPct: ms20DiffPct,
-            ms20Flag: ms20Flag,
-            cashRatioPct: cashRatioPct,
-            cashFlag: cashFlag,
-            currentRatio: currentRatio,
-            quickRatio: quickRatio,
-            cashRatio: cashRatio,
-            ocfToClRatio: ocfToClRatio,
-            grossMarginPct: grossMarginPct,
-            ebitMarginPct: ebitMarginPct,
-            netMarginPct: netMarginPct,
-            roaPct: roaPct,
-            roePct: roePct,
-            debtToAssets: debtToAssets,
-            debtToEquity: debtToEquity,
-            icr: icr,
-            dscrT2: dscrT2,
-            dscrT1: dscrT1,
-            dscr: dscr,
-            nhuCauT1: nhuCauT1,
-            vtcMin30: vtcMin30,
-            hmtdDk1: hmtdDk1,
-            hmtdDk2: hmtdDk2,
-            hmtdMax: hmtdMax
+            vqVldT2: vqVldT2, vqVldT1: vqVldT1, vqVld: vqVld,
+            arTurnover: arTurnover, invTurnover: invTurnover, apTurnover: apTurnover, assetTurnover: assetTurnover,
+            dsoT2: dsoT2, dioT2: dioT2, dpoT2: dpoT2, cccT2: cccT2,
+            dsoT1: dsoT1, dioT1: dioT1, dpoT1: dpoT1, cccT1: cccT1,
+            dso: dso, dio: dio, dpo: dpo, ccc: ccc,
+            ocfT2: ocfT2, ocfT1: ocfT1, ocf: ocf, ocfAnn: ocfAnn,
+            ms20DiffPct: ms20DiffPct, ms20Flag: ms20Flag,
+            cashRatioPct: cashRatioPct, cashFlag: cashFlag,
+            currentRatio: currentRatio, quickRatio: quickRatio, cashRatio: cashRatio, ocfToClRatio: ocfToClRatio,
+            grossMarginPct: grossMarginPct, ebitMarginPct: ebitMarginPct, netMarginPct: netMarginPct,
+            roaPct: roaPct, roePct: roePct, debtToAssets: debtToAssets, debtToEquity: debtToEquity, icr: icr,
+            dscrT2: dscrT2, dscrT1: dscrT1, dscr: dscr,
+            ebitPlan: ebitPlan, lnttPlan: lnttPlan, lnstPlan: lnstPlan, ebitdaPlan: ebitdaPlan,
+            effectiveDebtService: effectiveDebtService, dscrPlanT1: dscrPlanT1,
+            nhuCauT1: nhuCauT1, vtcMin30: vtcMin30, hmtdDk1: hmtdDk1, hmtdDk2: hmtdDk2, hmtdMax: hmtdMax
           },
           ratioGroups: ratioGroups,
           stressList: stressList,
@@ -2733,7 +2848,7 @@
       }
 
       /* =================================================================
-         7. HIỂN THỊ KẾT QUẢ RA GIAO DIỆN & BÁO CÁO 12 MỤC CHUẨN MẪU
+         7. HIỂN THỊ KẾT QUẢ RA GIAO DIỆN & BÁO CÁO 12 MỤC CHUẨN NGÂN HÀNG
          ================================================================= */
       function buildFormal12SectionMemo(res) {
         var d = res.input;
@@ -2743,8 +2858,8 @@
         var e = res.ews;
 
         var docRowsHtml = appState.docs.map(function (doc) {
-          var stText = doc.status === "ok" ? "Đầy đủ" : (doc.status === "missing" ? "Thiếu chi tiết" : "Chờ bổ sung");
-          var stClass = doc.status === "ok" ? "st-ok" : (doc.status === "missing" ? "st-warn" : "");
+          var stText = doc.status === "ok" ? "Đầy đủ" : (doc.status === "missing" ? "Thiếu chi tiết" : "Chưa cung cấp");
+          var stClass = doc.status === "ok" ? "st-ok" : (doc.status === "missing" ? "st-warn" : "st-flag");
           var filesStr = (doc.files && doc.files.length > 0)
             ? (" (<em>" + doc.files.map(function (f) { return esc(f.name); }).join(", ") + "</em>)")
             : "";
@@ -2794,7 +2909,7 @@
 
             '<h2>2. ĐÁNH GIÁ PHÁP LÝ &amp; DƯ NỢ TÍN DỤNG</h2>' +
             '<div class="memo-info-box"><div class="memo-box-title">Đánh giá Pháp lý &amp; Quan hệ Tín dụng</div>' +
-              '<p>Doanh nghiệp hoạt động hợp pháp theo Giấy chứng nhận ĐKDN, ngành nghề đăng ký phù hợp phương án vay vốn. Dư nợ ngắn hạn hiện hữu tại TCTD khác là <strong>' + fmt(d.otherDebt) + ' tỷ đồng</strong>, nghĩa vụ trả nợ gốc và lãi đến hạn là <strong>' + fmt(d.debtService) + ' tỷ đồng</strong>.</p>' +
+              '<p>Doanh nghiệp hoạt động hợp pháp theo Giấy chứng nhận ĐKDN, ngành nghề đăng ký phù hợp phương án vay vốn. Tình trạng quan hệ tín dụng trên CIC: <strong>Nhóm ' + d.cicGroup + '</strong>. Dư nợ ngắn hạn hiện hữu tại TCTD khác là <strong>' + fmt(d.otherDebt) + ' tỷ đồng</strong>, nghĩa vụ trả nợ gốc và lãi đến hạn là <strong>' + fmt(m.effectiveDebtService) + ' tỷ đồng</strong>.</p>' +
             '</div>' +
             '<div class="memo-conclusion-box"><div class="memo-box-title">Kết luận / Đánh giá Mục 2</div>Tư cách pháp lý đầy đủ, hợp lệ. Dư nợ vay ngắn hạn tại TCTD khác (' + fmt(d.otherDebt) + ' tỷ) được khấu trừ trực tiếp khi xác định trần hạn mức bổ sung tại Mục 7.</div>' +
 
@@ -2819,11 +2934,12 @@
               '<thead><tr><th style="width:40%;">Khoản mục (tỷ đồng)</th><th class="num" style="width:15%;">Năm T−2</th><th class="num" style="width:15%;">Năm T−1</th><th class="num" style="width:15%;">Kỳ T (' + d.tDays + 'd)</th><th class="num" style="width:15%;">Kế hoạch T+1</th></tr></thead>' +
               '<tbody>' +
                 '<tr><td>Doanh thu thuần / Dự phóng (DTT)</td><td class="num">' + fmt(d.dttT2) + '</td><td class="num">' + fmt(d.dttT1) + '</td><td class="num">' + fmt(d.dttYtd) + ' (Quy năm: ' + fmt(c.dttAnn) + ')</td><td class="num"><strong>' + fmt(d.dttPlan) + '</strong></td></tr>' +
+                '<tr><td>Giá vốn / Chi phí BH&amp;QLDN / LNST Kế hoạch T+1</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">GV: ' + fmt(d.cogsPlan) + ' | LNST: <strong>' + fmt(m.lnstPlan) + '</strong></td></tr>' +
                 '<tr><td>(+) Tài sản ngắn hạn vận hành sạch</td><td class="num">' + fmt(c.arCleanT2 + c.invCleanT2 + d.tsnhKhacT2) + '</td><td class="num">' + fmt(c.arCleanT1 + c.invCleanT1 + d.tsnhKhacT1) + '</td><td class="num">' + fmt(c.arClean + c.invClean + d.tsnhKhac) + '</td><td class="num">—</td></tr>' +
                 '<tr><td>(−) Nợ ngắn hạn vận hành sạch</td><td class="num">' + fmt(c.apCleanT2 + d.noKhacT2) + '</td><td class="num">' + fmt(c.apCleanT1 + d.noKhacT1) + '</td><td class="num">' + fmt(c.apClean + d.noKhac) + '</td><td class="num">—</td></tr>' +
                 '<tr class="memo-row-total"><td>(=) Vốn lưu động vận hành (NWC_op) / Nhu cầu T+1</td><td class="num">' + fmt(c.nwcOpT2) + '</td><td class="num">' + fmt(c.nwcOpT1) + '</td><td class="num">' + fmt(c.nwcOpEnd) + '</td><td class="num">' + (m.nhuCauT1 !== null ? fmt(m.nhuCauT1) : 'N/A') + '</td></tr>' +
-                '<tr><td>Dòng tiền hoạt động kinh doanh chuẩn (VAR_OCF)</td><td class="num">' + fmt(m.ocfT2) + '</td><td class="num">' + fmt(m.ocfT1) + '</td><td class="num">' + fmt(m.ocf) + '</td><td class="num">—</td></tr>' +
-                '<tr><td>Hệ số khả năng trả nợ (VAR_DSCR)</td><td class="num">' + (m.dscrT2 !== null ? fmt(m.dscrT2) + 'x' : 'N/A') + '</td><td class="num">' + (m.dscrT1 !== null ? fmt(m.dscrT1) + 'x' : 'N/A') + '</td><td class="num">' + (m.dscr !== null ? fmt(m.dscr) + 'x' : 'N/A') + '</td><td class="num">—</td></tr>' +
+                '<tr><td>Dòng tiền hoạt động kinh doanh (VAR_OCF) / EBITDA T+1</td><td class="num">' + fmt(m.ocfT2) + '</td><td class="num">' + fmt(m.ocfT1) + '</td><td class="num">' + fmt(m.ocf) + '</td><td class="num"><strong>' + fmt(m.ebitdaPlan) + '</strong> (EBITDA)</td></tr>' +
+                '<tr><td>Hệ số khả năng trả nợ (VAR_DSCR)</td><td class="num">' + (m.dscrT2 !== null ? fmt(m.dscrT2) + 'x' : 'N/A') + '</td><td class="num">' + (m.dscrT1 !== null ? fmt(m.dscrT1) + 'x' : 'N/A') + '</td><td class="num">' + (m.dscr !== null ? fmt(m.dscr) + 'x' : 'N/A') + '</td><td class="num"><strong>' + (m.dscrPlanT1 !== null ? fmt(m.dscrPlanT1) + 'x' : 'N/A') + '</strong></td></tr>' +
               '</tbody>' +
             '</table>' +
 
@@ -2836,7 +2952,7 @@
               '</ul>' +
             '</div>' +
 
-            '<h3>4.3. Bảng Toàn diện Chỉ số Tài chính Doanh nghiệp: Năm T−2, Năm T−1 &amp; Kỳ T (4 Nhóm Chuẩn mực TT200)</h3>' +
+            '<h3>4.3. Bảng Toàn diện 19 Chỉ số Tài chính Doanh nghiệp: Năm T−2, Năm T−1 &amp; Kỳ T (4 Nhóm Chuẩn mực TT200)</h3>' +
             '<table class="memo-table">' +
               '<thead><tr><th style="width:24%;">Tên Chỉ số &amp; Ký hiệu</th><th style="width:28%;">Công thức Chuẩn mực TT200</th><th class="num" style="width:9.5%;">Năm T−2</th><th class="num" style="width:9.5%;">Năm T−1</th><th class="num" style="width:9.5%;">Kỳ T</th><th style="width:19.5%;">Đánh giá Kỳ T</th></tr></thead>' +
               '<tbody>' +
@@ -2958,8 +3074,28 @@
           $("live-nwcop").textContent = fmt(res.clean.nwcOpEnd) + " tỷ";
           var deltaSign = res.clean.deltaNwcAuto >= 0 ? "+" : "";
           $("live-delta-nwcop").textContent = deltaSign + fmt(res.clean.deltaNwcAuto) + " tỷ";
+
           $("live-nhucau-t1").textContent = res.metrics.nhuCauT1 !== null ? fmt(res.metrics.nhuCauT1) : "N/A";
           $("live-hmtd-max-box").textContent = res.metrics.hmtdMax !== null ? fmt(res.metrics.hmtdMax) : "N/A";
+          if ($("chk-lntt-plan")) $("chk-lntt-plan").textContent = fmt(res.metrics.lnttPlan);
+          if ($("chk-lnst-plan")) $("chk-lnst-plan").textContent = fmt(res.metrics.lnstPlan);
+          if ($("chk-ebitda-plan")) $("chk-ebitda-plan").textContent = fmt(res.metrics.ebitdaPlan);
+
+          // EWS Table Live Values
+          $("ews-val-1").textContent = fmt(d.ewsTc, 1);
+          $("ews-w-1").textContent = fmt(res.ews.w1);
+          $("ews-val-2").textContent = fmt(d.ewsVld, 1);
+          $("ews-w-2").textContent = fmt(res.ews.w2);
+          $("ews-val-3").textContent = fmt(d.ewsQltn, 1);
+          $("ews-w-3").textContent = fmt(res.ews.w3);
+          $("ews-val-4").textContent = fmt(d.ewsVtsb, 1);
+          $("ews-w-4").textContent = fmt(res.ews.w4);
+          $("ews-header-badge").textContent = fmt(res.ews.total) + " / 10.00 (" + res.ews.rank + ")";
+
+          // Stage Pills
+          if ($("st-pill-2")) $("st-pill-2").textContent = "NWC_op: " + fmt(res.clean.nwcOpEnd) + " tỷ";
+          if ($("st-pill-3")) $("st-pill-3").textContent = "DSCR: " + (res.metrics.dscr !== null ? fmt(res.metrics.dscr) + "x" : "N/A");
+          if ($("st-pill-4")) $("st-pill-4").textContent = res.ews.rank + " • " + fmt(res.verdict.approvedLimit) + " tỷ";
 
           // Thẻ T+1 HMTD trên tab Phân tích
           $("analysis-dtt-plan-badge").textContent = "DTT Dự phóng T+1: " + fmt(d.dttPlan) + " tỷ";
@@ -2983,7 +3119,7 @@
 
           $("sum-flags").innerHTML = res.verdict.flags.length
             ? res.verdict.flags.map(function (f) { return "<div>• " + esc(f) + "</div>"; }).join("")
-            : "<div style='color:#065F46;'>• Không phát sinh cảnh báo trọng yếu.</div>";
+            : "<div style='color:#047857;'>• Không phát sinh cảnh báo trọng yếu.</div>";
 
           $("sum-covenants").innerHTML = res.verdict.covenants.map(function (cItem) {
             return "<div>• " + esc(cItem) + "</div>";
@@ -3001,14 +3137,14 @@
             ? res.verdict.flags.map(function (f) { return "<div>• " + esc(f) + "</div>"; }).join("")
             : "<div>• Không phát sinh cảnh báo trọng yếu.</div>";
 
-          // Bảng Toàn diện Chỉ số Tài chính 4 Nhóm (So sánh Năm T-2, Năm T-1 & Kỳ T)
+          // Bảng Toàn diện 19 Chỉ số Tài chính
           var annBadge = $("ratio-ann-badge");
           if (annBadge) annBadge.textContent = "Hệ số quy năm Kỳ T: " + fmt(res.clean.annFactor, 4) + "x";
 
           var tbodyRatios = $("tbody-ratios");
           if (tbodyRatios) {
             tbodyRatios.innerHTML = res.ratioGroups.map(function (grp) {
-              var gRow = '<tr class="ratio-group-row"><td colspan="6">' + esc(grp.groupTitle) + '</td></tr>';
+              var gRow = '<tr class="row-group"><td colspan="6">' + esc(grp.groupTitle) + '</td></tr>';
               var itemRows = grp.items.map(function (it) {
                 var cls = it.status === "ok" ? "st-ok" : (it.status === "flag" ? "st-flag" : (it.status === "warn" ? "st-warn" : ""));
                 return (
@@ -3045,9 +3181,8 @@
             "<tr><td>2. Hiệu quả quản trị VLĐ</td><td class='center'>20%</td><td class='num mono'>" + fmt(d.ewsVld, 1) + "</td><td class='num mono'>" + fmt(res.ews.w2) + "</td><td>Trụ cột 2</td></tr>" +
             "<tr><td>3. Quản trị &amp; Uy tín Chủ DN</td><td class='center'>25%</td><td class='num mono'>" + fmt(d.ewsQltn, 1) + "</td><td class='num mono'>" + fmt(res.ews.w3) + "</td><td>Trụ cột 3</td></tr>" +
             "<tr><td>4. Vị thế ngành &amp; TSBĐ</td><td class='center'>25%</td><td class='num mono'>" + fmt(d.ewsVtsb, 1) + "</td><td class='num mono'>" + fmt(res.ews.w4) + "</td><td>Trụ cột 4</td></tr>" +
-            "<tr style='background:#EFF6FF; font-weight:800;'><td>TỔNG ĐIỂM EWS</td><td class='center'>100%</td><td class='num'>—</td><td class='num mono'>" + fmt(res.ews.total) + " / 10</td><td>" + esc(res.ews.rank) + "</td></tr>";
+            "<tr class='row-total'><td>TỔNG ĐIỂM EWS</td><td class='center'>100%</td><td class='num'>—</td><td class='num mono'>" + fmt(res.ews.total) + " / 10</td><td>" + esc(res.ews.rank) + "</td></tr>";
 
-          // Báo cáo 12 mục & JSON
           var reportHtml = buildFormal12SectionMemo(res);
           $("inline-report-container").innerHTML = reportHtml;
           $("json-output").textContent = JSON.stringify(res, null, 2);
@@ -3079,12 +3214,35 @@
       }
 
       /* =================================================================
-         9. ĐỌC TỆP CSV / JSON / TXT CỤC BỘ & GẮN TỆP PDF/EXCEL VÀO CHECKLIST
+         9. ĐỌC TỆP CSV / JSON / TXT CỤC BỘ & TẢI MẪU
          ================================================================= */
-      function parseLocalStructuredFile(file) {
+      var PLAN_T1_ALIASES = {
+        "doanh thu": "dttPlan", "doanh thu thuan": "dttPlan", "doanh thu du phong": "dttPlan", "dttplan": "dttPlan",
+        "gia von": "cogsPlan", "gia von hang ban": "cogsPlan", "cogsplan": "cogsPlan",
+        "chi phi": "opexPlan", "chi phi bh": "opexPlan", "chi phi quan ly": "opexPlan", "opexplan": "opexPlan",
+        "khau hao": "daPlan", "daplan": "daPlan",
+        "lai vay": "intPlan", "chi phi lai vay": "intPlan", "intplan": "intPlan",
+        "thue tndn": "citPlan", "thue": "citPlan", "citplan": "citPlan",
+        "no goc": "prinPlan", "goc dai han": "prinPlan", "prinplan": "prinPlan"
+      };
+
+      function normalizeViKey(str) {
+        return String(str || "")
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/đ/g, "d")
+          .replace(/[^a-z0-9]+/g, " ")
+          .trim();
+      }
+
+      function parseLocalStructuredFile(file, isPlanSlot) {
         if (!file) return;
         var lower = file.name.toLowerCase();
         if (!lower.endsWith(".json") && !lower.endsWith(".csv") && !lower.endsWith(".txt")) {
+          if (isPlanSlot && (lower.endsWith(".xlsx") || lower.endsWith(".xls"))) {
+            notify("Đã đính kèm tệp Excel " + file.name + ". Bạn có thể nhập nhanh DTT T+1 ngay tại ô bên trái.");
+          }
           return;
         }
         var scale = Number($("unit-scale").value) || 1;
@@ -3098,7 +3256,7 @@
               var obj = JSON.parse(text);
               var src = obj.input ? obj.input : obj;
               Object.keys(FIELD_MAP).forEach(function (k) {
-                if (src[k] !== undefined && src[k] !== null) {
+                if (src[k] !== undefined && src[k] !== null && $(FIELD_MAP[k])) {
                   $(FIELD_MAP[k]).value = src[k];
                   applied++;
                 }
@@ -3108,12 +3266,13 @@
               lines.forEach(function (line) {
                 var parts = line.split(/[,;:\t=]+/);
                 if (parts.length >= 2) {
-                  var key = parts[0].trim();
+                  var rawKey = parts[0].trim();
                   var val = parts[1].trim();
-                  if (FIELD_MAP[key] && val !== "") {
+                  var mappedKey = FIELD_MAP[rawKey] ? rawKey : PLAN_T1_ALIASES[normalizeViKey(rawKey)];
+                  if (mappedKey && FIELD_MAP[mappedKey] && $(FIELD_MAP[mappedKey]) && val !== "") {
                     var num = Number(val);
-                    var isText = (key === "companyName" || key === "industry" || key === "taxCode" || key === "purpose" || key === "collateral");
-                    $(FIELD_MAP[key]).value = (!isText && !isNaN(num)) ? (num / scale).toFixed(2) : val;
+                    var isText = (mappedKey === "companyName" || mappedKey === "industry" || mappedKey === "taxCode" || mappedKey === "purpose" || mappedKey === "collateral");
+                    $(FIELD_MAP[mappedKey]).value = (!isText && !isNaN(num)) ? (num / scale).toFixed(2) : val;
                     applied++;
                   }
                 }
@@ -3121,14 +3280,39 @@
             }
 
             if (applied > 0) {
+              if ($("chk-dtt-plan") && $("inp-dtt-plan")) {
+                $("chk-dtt-plan").value = $("inp-dtt-plan").value;
+              }
               appState.mode = "real";
+              syncChoiceButtonsUI();
               updateModeUI();
               runAppraisalEngine(false);
-              notify("Đã bóc tách " + applied + " chỉ tiêu từ tệp " + file.name);
+              notify("Đã bóc tách tự động " + applied + " chỉ tiêu từ tệp " + file.name);
             }
           } catch (err) {}
         };
         reader.readAsText(file, "UTF-8");
+      }
+
+      function downloadPlanT1Template() {
+        var rows = [
+          "chi_tieu,gia_tri_ty_dong,mo_ta",
+          "dttPlan," + GHOST_SAMPLE.dttPlan + ",Doanh thu thuan du phong Nam T+1",
+          "cogsPlan," + GHOST_SAMPLE.cogsPlan + ",Gia von hang ban ke hoach Nam T+1",
+          "opexPlan," + GHOST_SAMPLE.opexPlan + ",Chi phi ban hang va QLDN ke hoach Nam T+1",
+          "daPlan," + GHOST_SAMPLE.daPlan + ",Chi phi khau hao TSCD du kien Nam T+1",
+          "intPlan," + GHOST_SAMPLE.intPlan + ",Chi phi lai vay du kien Nam T+1",
+          "citPlan," + GHOST_SAMPLE.citPlan + ",Thue TNDN du kien Nam T+1",
+          "prinPlan," + GHOST_SAMPLE.prinPlan + ",No goc vay trung dai han den han tra Nam T+1"
+        ];
+        var blob = new Blob(["\uFEFF" + rows.join("\n")], { type: "text/csv;charset=utf-8;" });
+        var a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "Ke_Hoach_Kinh_Doanh_Nam_T1_Mau.csv";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        notify("Đã tải xuống tệp mẫu Kế hoạch Kinh doanh & Doanh thu Dự phóng Năm T+1.");
       }
 
       function downloadCsvSample() {
@@ -3175,18 +3359,110 @@
           $("preview-modal").classList.add("hidden");
         });
 
-        var devBtns = document.querySelectorAll(".dev-switcher button");
-        for (var i = 0; i < devBtns.length; i++) {
-          devBtns[i].addEventListener("click", function () {
-            appState.devicePref = this.getAttribute("data-dev");
-            safeSetStorage(STORAGE_DEV_KEY, appState.devicePref);
-            applyDeviceMode(true);
-          });
-        }
+        // Chuyển đổi Thiết bị
+        $("device-choice-group").addEventListener("click", function (e) {
+          var btn = e.target.closest(".choice-btn");
+          if (!btn) return;
+          appState.devicePref = btn.getAttribute("data-dev");
+          safeSetStorage(STORAGE_DEV_KEY, appState.devicePref);
+          applyDeviceMode(true);
+        });
         window.addEventListener("resize", function () {
           if (appState.devicePref === "auto") applyDeviceMode(false);
         });
 
+        // Chọn Kỳ báo cáo Tháng 3 / 6 / 9 / 12
+        $("period-choice-group").addEventListener("click", function (e) {
+          var btn = e.target.closest(".choice-btn");
+          if (!btn) return;
+          var m = Number(btn.getAttribute("data-month")) || 9;
+          $("inp-tdays").value = String(monthToDays(m));
+          for (var i = 0; i < appState.docs.length; i++) {
+            if (appState.docs[i].hasMonthSelect) appState.docs[i].monthT = m;
+          }
+          appState.mode = "real";
+          renderDocSlots();
+          syncChoiceButtonsUI();
+          updateModeUI();
+          runAppraisalEngine(true);
+        });
+
+        // Chọn Đơn vị tiền tệ
+        $("unit-choice-group").addEventListener("click", function (e) {
+          var btn = e.target.closest(".choice-btn");
+          if (!btn) return;
+          $("unit-scale").value = btn.getAttribute("data-scale");
+          syncChoiceButtonsUI();
+          notify("Đã chọn đơn vị tiền tệ nạp tệp: " + btn.textContent.trim());
+        });
+
+        // Chọn Nhóm ngành
+        $("sector-choice-group").addEventListener("click", function (e) {
+          var btn = e.target.closest(".choice-btn");
+          if (!btn) return;
+          $("inp-industry").value = btn.getAttribute("data-sector");
+          appState.isMfg = btn.getAttribute("data-mfg") === "1";
+          appState.mode = "real";
+          syncChoiceButtonsUI();
+          updateModeUI();
+          runAppraisalEngine(false);
+        });
+
+        // Chọn Tình trạng CIC
+        $("cic-choice-group").addEventListener("click", function (e) {
+          var btn = e.target.closest(".choice-btn");
+          if (!btn) return;
+          appState.cicGroup = Number(btn.getAttribute("data-cic")) || 1;
+          appState.knockout = appState.cicGroup === 3;
+          appState.mode = "real";
+          syncChoiceButtonsUI();
+          updateModeUI();
+          runAppraisalEngine(false);
+        });
+
+        // Nút bật/tắt Thuyết minh
+        $("btn-toggle-mfg").addEventListener("click", function () {
+          appState.isMfg = !appState.isMfg;
+          syncChoiceButtonsUI();
+          runAppraisalEngine(false);
+        });
+        $("btn-toggle-breakdown").addEventListener("click", function () {
+          appState.hasCostBreakdown = !appState.hasCostBreakdown;
+          syncChoiceButtonsUI();
+          runAppraisalEngine(false);
+        });
+        $("btn-toggle-notes").addEventListener("click", function () {
+          appState.hasNotesDetail = !appState.hasNotesDetail;
+          syncChoiceButtonsUI();
+          runAppraisalEngine(false);
+        });
+
+        // Nút chọn điểm EWS & Knock-out
+        var ewsGroups = document.querySelectorAll("[data-ews-group]");
+        for (var g = 0; g < ewsGroups.length; g++) {
+          ewsGroups[g].addEventListener("click", function (e) {
+            var btn = e.target.closest(".choice-btn");
+            if (!btn) return;
+            var field = this.getAttribute("data-ews-group");
+            $(FIELD_MAP[field]).value = btn.getAttribute("data-val");
+            appState.mode = "real";
+            syncChoiceButtonsUI();
+            updateModeUI();
+            runAppraisalEngine(false);
+          });
+        }
+
+        $("ko-choice-group").addEventListener("click", function (e) {
+          var btn = e.target.closest(".choice-btn");
+          if (!btn) return;
+          appState.knockout = btn.getAttribute("data-ko") === "1";
+          if (appState.knockout) appState.cicGroup = 3;
+          else if (appState.cicGroup === 3) appState.cicGroup = 1;
+          syncChoiceButtonsUI();
+          runAppraisalEngine(false);
+        });
+
+        // Điều hướng Sidebar & Mobile Tabs
         var navItems = document.querySelectorAll(".nav-item");
         for (var j = 0; j < navItems.length; j++) {
           navItems[j].addEventListener("click", function () {
@@ -3211,7 +3487,7 @@
           this.textContent = hidden ? "Chi tiết ▾" : "Thu gọn ▴";
         });
 
-        // Sự kiện trong Bảng Checklist Hồ sơ Đầu vào (Tải PDF / Excel, Xóa file, Đổi Tháng X/năm T)
+        // Sự kiện trong Bảng Checklist Hồ sơ Đầu vào
         $("checklist-tbody").addEventListener("change", function (e) {
           var t = e.target;
           var idx = Number(t.getAttribute("data-doc-idx"));
@@ -3219,6 +3495,7 @@
 
           if (t.classList.contains("doc-file-inp") && t.files && t.files.length > 0) {
             var addedNames = [];
+            var isPlanSlot = !!appState.docs[idx].isPlanT1;
             for (var fIdx = 0; fIdx < t.files.length; fIdx++) {
               var f = t.files[fIdx];
               var sizeStr = f.size >= 1048576
@@ -3226,29 +3503,57 @@
                 : Math.max(1, Math.round(f.size / 1024)) + " KB";
               appState.docs[idx].files.push({ name: f.name, sizeLabel: sizeStr });
               addedNames.push(f.name);
-              parseLocalStructuredFile(f);
+              parseLocalStructuredFile(f, isPlanSlot);
             }
             appState.docs[idx].status = "ok";
+            if (isPlanSlot) appState.docs[idx].planExpanded = true;
             renderDocSlots();
             notify("Đã đính kèm " + addedNames.length + " tệp vào mục " + appState.docs[idx].stt + ": " + addedNames.join(", "));
-          } else if (t.classList.contains("doc-month-sel")) {
-            var mVal = Number(t.value) || 9;
-            appState.docs[idx].monthT = mVal;
-            var days = monthToDays(mVal);
-            $("inp-tdays").value = String(days);
-            appState.mode = "real";
-            updateModeUI();
-            runAppraisalEngine(true);
-          } else if (t.classList.contains("doc-status-sel")) {
-            appState.docs[idx].status = t.value;
-            renderDocSlots();
-            runAppraisalEngine(false);
           }
         });
 
         $("checklist-tbody").addEventListener("click", function (e) {
-          var btn = e.target;
-          if (btn && btn.classList.contains("file-chip-del")) {
+          var btn = e.target.closest("button");
+          if (!btn) return;
+
+          if (btn.id === "btn-toggle-plan-detail") {
+            var pIdx = Number(btn.getAttribute("data-doc-idx"));
+            if (!isNaN(pIdx) && appState.docs[pIdx]) {
+              appState.docs[pIdx].planExpanded = !appState.docs[pIdx].planExpanded;
+              renderDocSlots();
+              runAppraisalEngine(false);
+            }
+            return;
+          }
+          if (btn.id === "btn-dl-plan-template") {
+            downloadPlanT1Template();
+            return;
+          }
+          if (btn.hasAttribute("data-doc-month")) {
+            var mIdx = Number(btn.getAttribute("data-doc-idx"));
+            var mVal = Number(btn.getAttribute("data-doc-month")) || 9;
+            if (!isNaN(mIdx) && appState.docs[mIdx]) {
+              appState.docs[mIdx].monthT = mVal;
+              $("inp-tdays").value = String(monthToDays(mVal));
+              appState.mode = "real";
+              renderDocSlots();
+              syncChoiceButtonsUI();
+              updateModeUI();
+              runAppraisalEngine(true);
+            }
+            return;
+          }
+          if (btn.hasAttribute("data-doc-st")) {
+            var sIdx = Number(btn.getAttribute("data-doc-idx"));
+            var stVal = btn.getAttribute("data-doc-st");
+            if (!isNaN(sIdx) && appState.docs[sIdx]) {
+              appState.docs[sIdx].status = stVal;
+              renderDocSlots();
+              runAppraisalEngine(false);
+            }
+            return;
+          }
+          if (btn.classList.contains("file-chip-del")) {
             var docIdx = Number(btn.getAttribute("data-doc-idx"));
             var fileIdx = Number(btn.getAttribute("data-file-idx"));
             if (!isNaN(docIdx) && appState.docs[docIdx] && !isNaN(fileIdx)) {
@@ -3264,6 +3569,15 @@
 
         $("checklist-tbody").addEventListener("input", function (e) {
           var t = e.target;
+          if (t.id === "chk-dtt-plan") {
+            if ($("inp-dtt-plan")) $("inp-dtt-plan").value = t.value;
+            if (t.value.trim() !== "") {
+              appState.mode = "real";
+              updateModeUI();
+            }
+            runAppraisalEngine(false);
+            return;
+          }
           if (t.classList.contains("doc-note-inp")) {
             var idx = Number(t.getAttribute("data-doc-idx"));
             if (!isNaN(idx) && appState.docs[idx]) {
@@ -3273,11 +3587,14 @@
         });
 
         $("quick-file-input").addEventListener("change", function (e) {
-          if (e.target.files && e.target.files[0]) parseLocalStructuredFile(e.target.files[0]);
+          if (e.target.files && e.target.files[0]) parseLocalStructuredFile(e.target.files[0], false);
         });
         $("btn-dl-csv-sample").addEventListener("click", downloadCsvSample);
 
         function onInputEdit(e) {
+          if (e.target && e.target.id === "inp-dtt-plan" && $("chk-dtt-plan")) {
+            $("chk-dtt-plan").value = e.target.value;
+          }
           if (e.target && e.target.hasAttribute("data-field") && e.target.value.trim() !== "") {
             appState.mode = "real";
             updateModeUI();
@@ -3302,7 +3619,11 @@
             Object.keys(FIELD_MAP).forEach(function (key) {
               if (saved[key] !== undefined) $(FIELD_MAP[key]).value = saved[key];
             });
+            if ($("chk-dtt-plan") && $("inp-dtt-plan")) {
+              $("chk-dtt-plan").value = $("inp-dtt-plan").value;
+            }
             appState.mode = "real";
+            syncChoiceButtonsUI();
             updateModeUI();
             runAppraisalEngine(false);
             notify("Đã nạp lại hồ sơ đã lưu.");
