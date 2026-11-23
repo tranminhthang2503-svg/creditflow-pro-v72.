@@ -451,7 +451,7 @@
               </tr>
               <tr>
                 <th>HMTD Đề xuất (VAR_HMTD_REQ)</th>
-                <td><input type="number" step="0.01" id="inp_hmtd_req" placeholder="45.00"></td>
+                <td><input type="number" step="0.01" id="inp_hmtd_req" placeholder="Nhập tay HMTD đề xuất..."></td>
                 <th>Dư nợ ngắn hạn TCTD khác</th>
                 <td><input type="number" step="0.01" id="inp_other_debt" placeholder="12.00"></td>
               </tr>
@@ -775,7 +775,7 @@
             <tbody>
               <tr style="background:#EFF6FF;">
                 <th style="width:32%;color:#1E40AF;">Doanh thu thuần dự phóng T+1 (VAR_DT_KH_T+1)</th>
-                <td><input type="number" step="0.01" id="dtt_plan_t1" placeholder="460.00"></td>
+                <td><input type="number" step="0.01" id="dtt_plan_t1" placeholder="Nhập tay DTT dự phóng T+1..."></td>
                 <th style="width:32%;">Giá vốn hàng bán kế hoạch T+1</th>
                 <td><input type="number" step="0.01" id="cogs_plan_t1" placeholder="372.00"></td>
               </tr>
@@ -984,7 +984,6 @@
   const SAMPLE_VALUES = {
     inp_company_name: "Công ty TNHH Thương mại & Xây lắp Hoàng Nam",
     inp_mst: "2802948175",
-    inp_hmtd_req: 45.00,
     inp_other_debt: 12.00,
     inp_principal_due: 8.50,
     inp_current_interest: 5.20,
@@ -1017,7 +1016,7 @@
     tl_t2: 115.00, tl_t1: 135.00, tl_t: 152.00,
     eq_t2: 70.00, eq_t1: 85.00, eq_t: 100.00,
     dt_vat: 292.00, dt_incl_vat: 321.20, cash_in_112: 276.00,
-    dtt_plan_t1: 460.00, cogs_plan_t1: 372.00, opex_plan_t1: 36.00,
+    cogs_plan_t1: 372.00, opex_plan_t1: 36.00,
     da_plan_t1: 8.00, int_plan_t1: 9.50, tax_plan_t1: 8.50,
     col_desc: "QSDĐ & Nhà xưởng tại KCN Lễ Môn, Thanh Hóa", col_val: 65.00
   };
@@ -1090,7 +1089,6 @@
       const c = obj.company_info;
       setIf("inp_company_name", c.name);
       setIf("inp_mst", c.mst);
-      setIf("inp_hmtd_req", c.hmtd_req);
       if (typeof c.is_manufacturing === "boolean") STATE.is_manufacturing = c.is_manufacturing;
       if (typeof c.has_exclusion_notes === "boolean") STATE.has_exclusion_notes = c.has_exclusion_notes;
     }
@@ -1121,7 +1119,7 @@
         dtt_ytd: "dtt_t", cogs_ytd: "cogs_t", purchases_ytd: "purch_t",
         lntt_ytd: "lntt_t", da_ytd: "da_t", interest_exp_ytd: "int_exp_t",
         tax_paid_ytd: "tax_t", interest_paid_ytd: "int_paid_t",
-        ms_20_ytd: "ms20_t", dtt_plan_t1: "dtt_plan_t1",
+        ms_20_ytd: "ms20_t",
         cash_collected_112: "cash_in_112", dt_vat_incl_tax: "dt_incl_vat"
       };
       Object.keys(mapF).forEach(k => { if (f[k] !== undefined && f[k] !== null) setIf(mapF[k], f[k]); });
@@ -1130,7 +1128,7 @@
     return count;
   }
 
-  function mapExtractedTextToTT200(text) {
+  function mapExtractedTextToTT200(text, targetDoc) {
     let mappedCount = 0;
     const notes = [];
     const mstMatch = text.match(/(?:MST|Mã số thuế|MÃ SỐ THUẾ)[:\s-]*([0-9]{10}(?:-[0-9]{3})?)/i);
@@ -1140,7 +1138,7 @@
       notes.push(`MST=${mstMatch[1]}`);
     }
 
-    const nameMatch = text.match(/(?:Tên doanh nghiệp|Người nộp thuế|CÔNG TY[^\n\r]{4,90})/i);
+    const nameMatch = text.match(/(?:Tên doanh nghiệp|Người nộp thuế|CÔNG TY[^\n\r\t]{4,90})/i);
     if (nameMatch && $("inp_company_name")) {
       const cleanName = nameMatch[0].replace(/^(?:Tên doanh nghiệp|Người nộp thuế)[:\s-]*/i, "").trim();
       if (cleanName.length >= 6 && cleanName.length <= 100) {
@@ -1157,49 +1155,94 @@
       notes.push("CIC Nhóm 2");
     }
 
-    const rules = [
-      { re: /(?:Doanh thu thuần[^\n\r]{0,40}|Mã số\s*10\b|\bMS\s*10\b)[^\d\n\r-]{1,25}([\d.,()-]+)/i, target: "dtt_t", label: "DTT(MS10)" },
-      { re: /(?:Giá vốn hàng bán[^\n\r]{0,40}|Mã số\s*11\b|\bMS\s*11\b)[^\d\n\r-]{1,25}([\d.,()-]+)/i, target: "cogs_t", label: "GVHB(MS11)" },
-      { re: /(?:Chi phí lãi vay[^\n\r]{0,40}|Mã số\s*23\b|\bMS\s*23\b)[^\d\n\r-]{1,25}([\d.,()-]+)/i, target: "int_exp_t", label: "Lãi vay(MS23)" },
-      { re: /(?:Lợi nhuận kế toán trước thuế[^\n\r]{0,40}|Mã số\s*50\b|\bMS\s*50\b)[^\d\n\r-]{1,25}([\d.,()-]+)/i, target: "lntt_t", label: "LNTT(MS50)" },
-      { re: /(?:Tiền và các khoản tương đương tiền[^\n\r]{0,40}|Mã số\s*110\b|\bMS\s*110\b)[^\d\n\r-]{1,25}([\d.,()-]+)/i, target: "cash_t", label: "Tiền(MS110)" },
-      { re: /(?:Phải thu ngắn hạn của khách hàng[^\n\r]{0,40}|Mã số\s*131\b|\bMS\s*131\b)[^\d\n\r-]{1,25}([\d.,()-]+)/i, target: "ar_gop_t", label: "AR(MS131)" },
-      { re: /(?:Dự phòng phải thu ngắn hạn khó đòi[^\n\r]{0,40}|Mã số\s*137\b|\bMS\s*137\b)[^\d\n\r-]{1,25}([\d.,()-]+)/i, target: "dp_ar_t", label: "DP_AR(MS137)" },
-      { re: /(?:Hàng tồn kho[^\n\r]{0,40}|Mã số\s*141\b|\bMS\s*141\b)[^\d\n\r-]{1,25}([\d.,()-]+)/i, target: "inv_gop_t", label: "INV(MS141)" },
-      { re: /(?:Dự phòng giảm giá hàng tồn kho[^\n\r]{0,40}|Mã số\s*149\b|\bMS\s*149\b)[^\d\n\r-]{1,25}([\d.,()-]+)/i, target: "dp_inv_t", label: "DP_INV(MS149)" },
-      { re: /(?:Tổng cộng tài sản[^\n\r]{0,40}|Mã số\s*270\b|\bMS\s*270\b)[^\d\n\r-]{1,25}([\d.,()-]+)/i, target: "ta_t", label: "TổngTS(MS270)" },
-      { re: /(?:Nợ ngắn hạn[^\n\r]{0,40}|Mã số\s*310\b|\bMS\s*310\b)[^\d\n\r-]{1,25}([\d.,()-]+)/i, target: "cl_t", label: "NợNH(MS310)" },
-      { re: /(?:Phải trả người bán ngắn hạn[^\n\r]{0,40}|Mã số\s*311\b|\bMS\s*311\b)[^\d\n\r-]{1,25}([\d.,()-]+)/i, target: "ap_gop_t", label: "AP(MS311)" },
-      { re: /(?:Vốn chủ sở hữu[^\n\r]{0,40}|Mã số\s*400\b|\bMS\s*400\b)[^\d\n\r-]{1,25}([\d.,()-]+)/i, target: "eq_t", label: "VCSH(MS400)" },
-      { re: /(?:Lưu chuyển tiền thuần từ hoạt động kinh doanh[^\n\r]{0,40}|Mã số\s*20\b|\bMS\s*20\b)[^\d\n\r-]{1,25}([\d.,()-]+)/i, target: "ms20_t", label: "OCF(MS20)" },
-      { re: /(?:Doanh thu dự phóng|Kế hoạch doanh thu|VAR_DT_KH_T\+1)[^\d\n\r-]{1,25}([\d.,()-]+)/i, target: "dtt_plan_t1", label: "DT_KH_T+1" },
-      { re: /(?:HMTD đề xuất|Hạn mức đề xuất|VAR_HMTD_REQ)[^\d\n\r-]{1,25}([\d.,()-]+)/i, target: "inp_hmtd_req", label: "HMTD_ĐX" }
+    const scaleNum = (num) => {
+      if (Math.abs(num) >= 1000000) return num / 1e9;
+      if (Math.abs(num) >= 10000) return num / 1e3;
+      return num;
+    };
+
+    // Row-by-row TT200 parser (handles both 1-column interim BCTC and 2-column Closing/Opening BCTC tables)
+    const rowRules = [
+      { re: /(?:Doanh thu thuần về bán hàng|Doanh thu thuần\b|\bMS\s*10\b|\bMã số\s*10\b)/i, cur: "dtt_t", prev: "dtt_t1", label: "DTT(MS10)" },
+      { re: /(?:Giá vốn hàng bán|\bMS\s*11\b|\bMã số\s*11\b)/i, cur: "cogs_t", prev: "cogs_t1", label: "GVHB(MS11)" },
+      { re: /(?:Chi phí bán hàng|\bMS\s*25\b|\bMã số\s*25\b)/i, cur: "opex_t", prev: "opex_t1", addMode: true, label: "CPBH(MS25)" },
+      { re: /(?:Chi phí quản lý doanh nghiệp|\bMS\s*26\b|\bMã số\s*26\b)/i, cur: "opex_t", prev: "opex_t1", addMode: true, label: "CPQLDN(MS26)" },
+      { re: /(?:Chi phí lãi vay|\bMS\s*23\b|\bMã số\s*23\b)/i, cur: "int_exp_t", prev: "int_exp_t1", label: "Lãi vay(MS23)" },
+      { re: /(?:Tổng lợi nhuận kế toán trước thuế|Lợi nhuận kế toán trước thuế|\bMS\s*50\b|\bMã số\s*50\b)/i, cur: "lntt_t", prev: "lntt_t1", label: "LNTT(MS50)" },
+      { re: /(?:Chi phí thuế TNDN hiện hành|Thuế TNDN đã nộp|\bMS\s*51\b|\bMã số\s*51\b|\bMS\s*15\b)/i, cur: "tax_t", prev: "tax_t1", label: "Thuế TNDN" },
+      { re: /(?:Khấu hao TSCĐ và BĐSĐT|Khấu hao tài sản cố định|\bMS\s*02\b|\bMã số\s*02\b)/i, cur: "da_t", prev: "da_t1", label: "Khấu hao(MS02)" },
+      { re: /(?:Tiền lãi vay đã trả|\bMS\s*14\b|\bMã số\s*14\b)/i, cur: "int_paid_t", prev: "int_paid_t1", label: "Lãi đã trả(MS14)" },
+      { re: /(?:Lưu chuyển tiền thuần từ hoạt động kinh doanh|\bMS\s*20\b|\bMã số\s*20\b)/i, cur: "ms20_t", prev: "ms20_t1", label: "OCF(MS20)" },
+      { re: /(?:Tiền và các khoản tương đương tiền|\bMS\s*110\b|\bMã số\s*110\b)/i, cur: "cash_t", prev: "cash_t1", label: "Tiền(MS110)" },
+      { re: /(?:Tài sản ngắn hạn|\bMS\s*100\b|\bMã số\s*100\b)/i, cur: "ca_t", prev: "ca_t1", label: "TSNH(MS100)" },
+      { re: /(?:Phải thu ngắn hạn của khách hàng|\bMS\s*131\b|\bMã số\s*131\b)/i, cur: "ar_gop_t", prev: "ar_gop_t1", label: "AR(MS131)" },
+      { re: /(?:Dự phòng phải thu ngắn hạn khó đòi|\bMS\s*137\b|\bMã số\s*137\b)/i, cur: "dp_ar_t", prev: "dp_ar_t1", label: "DP_AR(MS137)" },
+      { re: /(?:Hàng tồn kho\b|\bMS\s*141\b|\bMã số\s*141\b)/i, cur: "inv_gop_t", prev: "inv_gop_t1", label: "INV(MS141)" },
+      { re: /(?:Dự phòng giảm giá hàng tồn kho|\bMS\s*149\b|\bMã số\s*149\b)/i, cur: "dp_inv_t", prev: "dp_inv_t1", label: "DP_INV(MS149)" },
+      { re: /(?:Tổng cộng tài sản|\bMS\s*270\b|\bMã số\s*270\b)/i, cur: "ta_t", prev: "ta_t1", label: "TổngTS(MS270)" },
+      { re: /(?:Nợ phải trả\b|\bMS\s*300\b|\bMã số\s*300\b)/i, cur: "tl_t", prev: "tl_t1", label: "TổngNợ(MS300)" },
+      { re: /(?:Nợ ngắn hạn\b|\bMS\s*310\b|\bMã số\s*310\b)/i, cur: "cl_t", prev: "cl_t1", label: "NợNH(MS310)" },
+      { re: /(?:Phải trả người bán ngắn hạn|\bMS\s*311\b|\bMã số\s*311\b)/i, cur: "ap_gop_t", prev: "ap_gop_t1", label: "AP(MS311)" },
+      { re: /(?:Vốn chủ sở hữu\b|\bMS\s*400\b|\bMã số\s*400\b)/i, cur: "eq_t", prev: "eq_t1", label: "VCSH(MS400)" },
+      { re: /(?:Dư nợ ngắn hạn TCTD khác|Vay ngắn hạn TCTD khác)/i, cur: "inp_other_debt", prev: null, label: "Nợ TCTD khác" },
+      { re: /(?:Nợ gốc dài hạn đến hạn trả|Vay dài hạn đến hạn trả)/i, cur: "inp_principal_due", prev: null, label: "Nợ gốc ĐH" },
+      { re: /(?:Doanh thu chịu thuế GTGT|Doanh thu tờ khai VAT)/i, cur: "dt_vat", prev: null, label: "DT VAT" },
+      { re: /(?:Doanh thu có VAT)/i, cur: "dt_incl_vat", prev: null, label: "DT có VAT" },
+      { re: /(?:Tiền về TK 112|Tiền thực thu qua TK 112)/i, cur: "cash_in_112", prev: null, label: "Tiền TK112" }
     ];
 
-    rules.forEach(r => {
-      const m = text.match(r.re);
-      if (m && m[1]) {
-        let num = parseNumberSmart(m[1]);
-        if (num !== null) {
-          if (Math.abs(num) >= 1000000) num = num / 1e9;
-          else if (Math.abs(num) >= 10000) num = num / 1e3;
-          $(r.target).value = num.toFixed(2);
+    const opexAccum = { opex_t: 0, opex_t1: 0 };
+    const lines = text.split(/\r?\n/);
+
+    lines.forEach(ln => {
+      // Direct key=value support (excluding manual fields dtt_plan_t1 / inp_hmtd_req unless explicitly in JSON)
+      const kvParts = ln.split(/[,;\t=:]/).map(s => s.trim());
+      if (kvParts.length >= 2 && SAMPLE_VALUES[kvParts[0]] !== undefined && kvParts[0] !== "dtt_plan_t1" && kvParts[0] !== "inp_hmtd_req") {
+        const val = parseNumberSmart(kvParts[1]);
+        if (val !== null && $(kvParts[0])) {
+          $(kvParts[0]).value = val.toFixed(2);
           mappedCount++;
-          notes.push(`${r.label}=${num.toFixed(2)}`);
+          notes.push(`${kvParts[0]}=${val.toFixed(2)}`);
+          return;
         }
       }
-    });
 
-    const lines = text.split(/\r?\n/);
-    lines.forEach(ln => {
-      const parts = ln.split(/[,;\t=:]/).map(s => s.trim());
-      if (parts.length >= 2 && SAMPLE_VALUES[parts[0]] !== undefined) {
-        const val = parseNumberSmart(parts[1]);
-        if (val !== null) {
-          $(parts[0]).value = val.toFixed(2);
+      const cells = ln.includes("\t") ? ln.split("\t").map(c => c.trim()).filter(Boolean) : [ln.trim()];
+      if (!cells.length) return;
+
+      for (const rule of rowRules) {
+        if (!rule.re.test(ln)) continue;
+        // Extract numeric cells in this row, ignoring TT200 line codes (10, 11, 20, 23, 25, 26, 50, 51, 100, 110, 131, 137, 141, 149, 270, 300, 310, 311, 400)
+        const numCells = [];
+        cells.forEach((c, idx) => {
+          if (idx === 0 && !/^[\d.,()-]+$/.test(c)) return;
+          if (/^(01|02|10|11|14|15|20|23|25|26|50|51|52|100|110|130|131|137|140|141|149|200|270|300|310|311|400)$/.test(c)) return;
+          const parsed = parseNumberSmart(c);
+          if (parsed !== null) numCells.push(Math.abs(scaleNum(parsed)));
+        });
+
+        if (numCells.length > 0) {
+          const valCur = numCells[0];
+          const valPrev = numCells.length >= 2 ? numCells[1] : null;
+          // If file was uploaded to Mục 3.1 (BCTC Năm T-1), map first column to T-1 and second column to T-2!
+          const targetCur = (targetDoc === "doc_3_1" && rule.prev) ? rule.prev : rule.cur;
+          const targetPrev = (targetDoc === "doc_3_1" && rule.prev) ? rule.cur.replace("_t", "_t2") : rule.prev;
+
+          if (rule.addMode) {
+            opexAccum[targetCur] = (opexAccum[targetCur] || 0) + valCur;
+            if ($(targetCur)) $(targetCur).value = opexAccum[targetCur].toFixed(2);
+            if (valPrev !== null && targetPrev && $(targetPrev)) {
+              opexAccum[targetPrev] = (opexAccum[targetPrev] || 0) + valPrev;
+              $(targetPrev).value = opexAccum[targetPrev].toFixed(2);
+            }
+          } else {
+            if ($(targetCur)) $(targetCur).value = valCur.toFixed(2);
+            if (valPrev !== null && targetPrev && $(targetPrev)) $(targetPrev).value = valPrev.toFixed(2);
+          }
           mappedCount++;
-          notes.push(`${parts[0]}=${val.toFixed(2)}`);
+          notes.push(`${rule.label}=${valCur.toFixed(2)}`);
         }
+        break;
       }
     });
 
@@ -1429,7 +1472,7 @@
       }
 
       if (extractedText && extractedText.length > 5) {
-        const res = mapExtractedTextToTT200(extractedText);
+        const res = mapExtractedTextToTT200(extractedText, targetDoc);
         // If file is a bank statement (doc_5 / doc_10) or sales ledger (doc_4) and didn't match BCTC line codes, sum detail rows (excluding bottom total rows)
         if (res.mappedCount === 0 && (targetDoc === "doc_5" || targetDoc === "doc_10" || targetDoc === "doc_4")) {
           const ledgerSum = sumLedgerDetailRows(extractedText, targetDoc);
@@ -1516,8 +1559,8 @@
 
   function renderChecklist() {
     const tbody = $("checklist-tbody");
-    const dttPlan = numVal("dtt_plan_t1");
-    const hmtdReq = numVal("inp_hmtd_req");
+    const dttPlan = $("dtt_plan_t1") && $("dtt_plan_t1").value !== "" ? $("dtt_plan_t1").value : "";
+    const hmtdReq = $("inp_hmtd_req") && $("inp_hmtd_req").value !== "" ? $("inp_hmtd_req").value : "";
 
     tbody.innerHTML = CHECKLIST_ITEMS.map(item => {
       const st = STATE.checklist[item.id];
@@ -1533,12 +1576,12 @@
       } else if (item.hasPlanQuick) {
         extraQuick = `<div style="margin-top:5px;display:flex;align-items:center;gap:6px;">
           <span style="font-size:11px;font-weight:700;color:#1D4ED8;white-space:nowrap;">DTT T+1:</span>
-          <input type="number" step="0.01" value="${dttPlan}" data-sync-target="dtt_plan_t1" style="padding:4px 6px;font-size:12px;">
+          <input type="number" step="0.01" value="${dttPlan}" placeholder="Nhập tay DTT T+1..." data-sync-target="dtt_plan_t1" style="padding:4px 6px;font-size:12px;">
         </div>`;
       } else if (item.hasReqQuick) {
         extraQuick = `<div style="margin-top:5px;display:flex;align-items:center;gap:6px;">
           <span style="font-size:11px;font-weight:700;color:#059669;white-space:nowrap;">HMTD ĐX:</span>
-          <input type="number" step="0.01" value="${hmtdReq}" data-sync-target="inp_hmtd_req" style="padding:4px 6px;font-size:12px;">
+          <input type="number" step="0.01" value="${hmtdReq}" placeholder="Nhập tay HMTD ĐX..." data-sync-target="inp_hmtd_req" style="padding:4px 6px;font-size:12px;">
         </div>`;
       }
 
@@ -1742,6 +1785,7 @@
     const prinDue = numVal("inp_principal_due");
     const curInt = numVal("inp_current_interest");
     const debtService = prinDue + curInt;
+    const annFactor = 365.0 / tDays;
     const ocfTAnn = metrics.t.varOcf * annFactor;
     const varDscr = safeDiv(ocfTAnn, debtService);
     metrics.t2.dscr = safeDiv(metrics.t2.varOcf, debtService);
@@ -1869,8 +1913,8 @@
     ];
   }
 
-  function renderAll() {
-    renderChecklist();
+  function renderAll(skipChecklist) {
+    if (!skipChecklist) renderChecklist();
     const res = computeModel();
     const m = res.metrics;
     const u = STATE.unit;
@@ -2804,15 +2848,22 @@
 
   function handleFieldSyncAndRecalc(target) {
     if (!target) return;
+    let fromQuickChecklist = false;
     if (target.hasAttribute("data-sync-target")) {
+      fromQuickChecklist = true;
       const dest = $(target.getAttribute("data-sync-target"));
       if (dest) dest.value = target.value;
+    }
+    if (target.id === "dtt_plan_t1" || target.id === "inp_hmtd_req") {
+      document.querySelectorAll(`[data-sync-target="${target.id}"]`).forEach(el => {
+        if (el !== target) el.value = target.value;
+      });
     }
     if (target.hasAttribute("data-doc-note")) {
       STATE.checklist[target.getAttribute("data-doc-note")].note = target.value;
       return;
     }
-    renderAll();
+    renderAll(fromQuickChecklist);
   }
 
   document.addEventListener("input", function(e) {
@@ -2840,12 +2891,21 @@
     handleFieldSyncAndRecalc(target);
   });
 
-  // Safety heartbeat so KPI banner (#kpi-nwcop, #kpi-ocf-dscr) always reflects live DOM inputs
+  // Safety heartbeat: detect any value change in DOM inputs and refresh KPI banner + all tables automatically
+  let _lastInputSnapshot = "";
   setInterval(function() {
-    if (typeof computeModel === "function") {
-      computeModel();
+    const inputs = document.querySelectorAll("#panel-inputs input, #panel-checklist input[data-sync-target]");
+    let snap = `${STATE.t_days}|${STATE.is_manufacturing}|${STATE.has_exclusion_notes}|${STATE.cic_group}|${STATE.unit}|`;
+    for (let i = 0; i < inputs.length; i++) {
+      snap += inputs[i].value + ";";
     }
-  }, 400);
+    if (snap !== _lastInputSnapshot) {
+      _lastInputSnapshot = snap;
+      const activeEl = document.activeElement;
+      const isTypingChecklist = activeEl && (activeEl.hasAttribute("data-sync-target") || activeEl.hasAttribute("data-doc-note"));
+      renderAll(!!isTypingChecklist);
+    }
+  }, 300);
 
   // Boot with Mobile-First default
   setDeviceMode("mobile");
