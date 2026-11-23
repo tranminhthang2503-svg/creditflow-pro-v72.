@@ -406,8 +406,14 @@
         </div>
       </div>
       <div class="card-bd">
-        <div class="alert-box info">
-          <strong>Cơ chế AI Agent 1 &amp; 2 Tự động:</strong> Khi bạn bấm <strong>📎 Tải PDF / Excel</strong> ở từng đầu mục (hoặc nạp hàng loạt ở thanh trên), <strong>AI Agent 1</strong> sẽ đọc nội dung tệp, kiểm tra tính đầy đủ/hợp lệ của chứng từ, và bàn giao cho <strong>AI Agent 2</strong> tự động ánh xạ các mã số TT200 (`MS 10`, `MS 11`, `MS 20`, `MS 50`, `MS 131`, `MS 141`, `MS 311`...) vào <strong>Bảng Nhập liệu</strong>.
+        <div class="alert-box info" style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;">
+          <div style="flex:1;min-width:260px;">
+            <strong>Cơ chế AI Agent 1 &amp; 2 Tự động:</strong> Nạp đủ 13 đầu mục theo checklist là tối ưu; khi thẩm định nhanh, chỉ cần có <strong>BCTC Năm T−1</strong> và <strong>BCTC Kỳ T</strong> hệ thống vẫn tính chỉ số, dự phóng doanh thu &amp; trần HMTD tự động (chỉ trả <code>N/A</code> ở các mục thực sự thiếu số liệu đầu vào).
+          </div>
+          <div class="pill-group">
+            <button type="button" class="pill-btn active-green" id="btnFastModeOn" data-action="set-opt" data-key="fast_mode" data-val="true">⚡ Thẩm định nhanh (BCTC T−1 &amp; T)</button>
+            <button type="button" class="pill-btn" id="btnFastModeOff" data-action="set-opt" data-key="fast_mode" data-val="false">📋 Chuẩn đầy đủ 13 Mục</button>
+          </div>
         </div>
         <div id="parser-audit-log"></div>
         <div class="tbl-wrap">
@@ -1010,6 +1016,7 @@
     unit: "tỷ đồng",
     has_exclusion_notes: true,
     cic_group: 1,
+    fast_mode: true,
     ews: { tc: 7.5, vld: 7.0, qltn: 8.0, vtsb: 7.5 },
     checklist: {},
     parserLogs: []
@@ -1352,11 +1359,16 @@
       for (const rule of rowRules) {
         if (!rule.re.test(ln)) continue;
         const numCells = [];
-        cells.forEach((c, idx) => {
-          if (idx === 0 && !/^[\d.,()-]+$/.test(c)) return;
+        // Also scan inline numbers on the line if tab split yielded only 1 text element
+        const rawTokens = cells.length > 1
+          ? cells
+          : (ln.match(/-?\d{1,3}(?:[.,]\d{3})*(?:[.,]\d+)?|-?\d+(?:[.,]\d+)?/g) || []);
+
+        rawTokens.forEach((c, idx) => {
+          if (cells.length > 1 && idx === 0 && !/^[\d.,()-]+$/.test(c)) return;
           if (/^(01|02|10|11|14|15|20|23|25|26|50|51|52|100|110|130|131|137|140|141|149|200|270|300|310|311|400)$/.test(c)) return;
           const parsed = parseNumberSmart(c);
-          if (parsed !== null) numCells.push(Math.abs(scaleNum(parsed)));
+          if (parsed !== null && /[\d.,]/.test(c)) numCells.push(Math.abs(scaleNum(parsed)));
         });
 
         if (numCells.length > 0) {
@@ -1474,10 +1486,204 @@
     return cleanRowLines.join("\n");
   }
 
-  function extractTextFromPdfBytes(arrayBuffer) {
-    const raw = new TextDecoder("latin1").decode(new Uint8Array(arrayBuffer));
-    const matches = raw.match(/\(([^()\\]{2,120})\)/g) || [];
-    return matches.map(s => s.slice(1, -1)).join(" ");
+  function decodePdfStringLiteral(str) {
+    if (!str) return "";
+    // Handle UTF-16BE BOM (\xfe\xff) commonly emitted by Vietnamese PDF exporters
+    if (str.length >= 2 && str.charCodeAt(0) === 0xFE && str.charCodeAt(1) === 0xFF) {
+      let out = "";
+      for (let i = 2; i + 1 < str.length; i += 2) {
+        const code = (str.charCodeAt(i) << 8) | str.charCodeAt(i + 1);
+        if (code === 0x000A || code === 0x000D) out += "\n";
+        else if (code >= 0x0020) out += String.fromCharCode(code);
+      }
+      return out;
+    }
+    let out = "";
+    for (let i = 0; i < str.length; i++) {
+      const ch = str[i];
+      if (ch === "\\") {
+        i++;
+        if (i >= str.length) break;
+        const n = str[i];
+        if (n === "n") out += "\n";
+        else if (n === "r") out += "\r";
+        else if (n === "t") out += "\t";
+        else if (n === "b" || n === "f") out += " ";
+        else if (n === "(" || n === ")" || n === "\\") out += n;
+        else if (/[0-7]/.test(n)) {
+          let oct = n;
+          for (let k = 0; k < 2 && i + 1 < str.length && /[0-7]/.test(str[i + 1]); k++) {
+            i++;
+            oct += str[i];
+          }
+          out += String.fromCharCode(parseInt(oct, 8));
+        } else {
+          out += n;
+        }
+      } else {
+        out += ch;
+      }
+    }
+    return out;
+  }
+
+  function decodePdfHexString(hexStr) {
+    const clean = String(hexStr || "").replace(/[^0-9a-fA-F]/g, "");
+    if (clean.length < 2) return "";
+    let bytes = "";
+    for (let i = 0; i + 1 < clean.length; i += 2) {
+      bytes += String.fromCharCode(parseInt(clean.slice(i, i + 2), 16));
+    }
+    return decodePdfStringLiteral(bytes);
+  }
+
+  function extractTextFromContentStream(streamText) {
+    if (!streamText) return "";
+    const lines = [];
+    let curLine = "";
+
+    // Match BT...ET text blocks if present, or scan full stream for text-showing operators
+    const tokenRe = /\[((?:[^\[\]]|\([^\)]*\)|<[^>]*>)*)\]\s*TJ|\(((?:\\.|[^\\)])*)\)\s*(?:Tj|'|")|<([0-9a-fA-F\s]{4,})>\s*(?:Tj|'|")|(Td|TD|Tm|T\*)\b/g;
+    let m;
+    while ((m = tokenRe.exec(streamText)) !== null) {
+      if (m[1] !== undefined) {
+        // TJ array containing strings and kerning numbers
+        const arrBody = m[1];
+        const partRe = /\(((?:\\.|[^\\)])*)\)|<([0-9a-fA-F\s]{2,})>|(-?\d+(?:\.\d+)?)/g;
+        let pm;
+        let lineBreak = false;
+        while ((pm = partRe.exec(arrBody)) !== null) {
+          if (pm[1] !== undefined) {
+            curLine += decodePdfStringLiteral(pm[1]);
+          } else if (pm[2] !== undefined) {
+            curLine += decodePdfHexString(pm[2]);
+          } else if (pm[3] !== undefined) {
+            const kern = parseFloat(pm[3]);
+            if (kern < -180 && curLine && !curLine.endsWith(" ") && !curLine.endsWith("\t")) {
+              curLine += " ";
+            }
+            if (kern < -650) lineBreak = true;
+          }
+        }
+        if (lineBreak && curLine.trim()) {
+          lines.push(curLine.trim());
+          curLine = "";
+        }
+      } else if (m[2] !== undefined) {
+        curLine += decodePdfStringLiteral(m[2]);
+        if (/\r|\n/.test(curLine)) {
+          curLine.split(/\r?\n/).forEach(seg => { if (seg.trim()) lines.push(seg.trim()); });
+          curLine = "";
+        }
+      } else if (m[3] !== undefined) {
+        curLine += decodePdfHexString(m[3]);
+      } else if (m[4] !== undefined) {
+        if (curLine.trim()) {
+          lines.push(curLine.trim());
+          curLine = "";
+        }
+      }
+    }
+    if (curLine.trim()) lines.push(curLine.trim());
+
+    // Fallback: if no PDF operators matched, collect parenthesized literals & printable runs
+    if (lines.length === 0) {
+      const litMatches = streamText.match(/\(([^()\\]{2,160})\)/g) || [];
+      litMatches.forEach(s => {
+        const d = decodePdfStringLiteral(s.slice(1, -1)).trim();
+        if (d.length >= 2) lines.push(d);
+      });
+    }
+    return lines.join("\n");
+  }
+
+  async function inflateBytesIfPossible(compBytes) {
+    if (typeof DecompressionStream === "undefined") return null;
+    for (const fmt of ["deflate", "deflate-raw"]) {
+      try {
+        const ds = new DecompressionStream(fmt);
+        const writer = ds.writable.getWriter();
+        writer.write(compBytes);
+        writer.close();
+        const buf = await new Response(ds.readable).arrayBuffer();
+        const u8 = new Uint8Array(buf);
+        if (u8.length > 0) {
+          return new TextDecoder("latin1").decode(u8);
+        }
+      } catch (e) {}
+    }
+    return null;
+  }
+
+  async function extractTextFromPdfBytes(arrayBuffer) {
+    const u8 = new Uint8Array(arrayBuffer);
+    const raw = new TextDecoder("latin1").decode(u8);
+    const extractedChunks = [];
+
+    // Locate all `stream ... endstream` objects and decode FlateDecode / raw streams
+    const streamRegex = /stream\r?\n([\s\S]*?)endstream/g;
+    let match;
+    while ((match = streamRegex.exec(raw)) !== null) {
+      const startByte = match.index + match[0].indexOf("\n") + 1;
+      const endByte = match.index + match[0].lastIndexOf("endstream");
+      let streamLen = endByte - startByte;
+      if (streamLen > 0 && raw[endByte - 1] === "\n") streamLen--;
+      if (streamLen > 0 && raw[endByte - 1] === "\r") streamLen--;
+      if (streamLen <= 0) continue;
+
+      const sliceBytes = u8.subarray(startByte, startByte + streamLen);
+      const headerWindow = raw.slice(Math.max(0, match.index - 320), match.index);
+      const isFlate = /\/FlateDecode\b/.test(headerWindow) || (sliceBytes.length >= 2 && sliceBytes[0] === 0x78);
+
+      let streamContent = null;
+      if (isFlate) {
+        streamContent = await inflateBytesIfPossible(sliceBytes);
+      }
+      if (!streamContent) {
+        streamContent = new TextDecoder("latin1").decode(sliceBytes);
+      }
+      const parsedText = extractTextFromContentStream(streamContent);
+      if (parsedText && parsedText.trim().length > 0) {
+        extractedChunks.push(parsedText);
+      }
+    }
+
+    // Fallback when PDF has uncompressed inline text outside stream blocks
+    if (extractedChunks.length === 0) {
+      const fallbackText = extractTextFromContentStream(raw);
+      if (fallbackText) extractedChunks.push(fallbackText);
+    }
+
+    // Merge adjacent lines that belong to the same TT200 row (e.g., line item name followed by MS code and numbers)
+    const combinedLines = extractedChunks.join("\n").split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+    const mergedRows = [];
+    const tt200ItemHeadRe = /^(?:Doanh thu|Giá vốn|Lợi nhuận|Chi phí|Tiền|Tài sản|Phải thu|Hàng tồn kho|Dự phòng|Nợ phải trả|Nợ ngắn hạn|Phải trả người bán|Vốn chủ sở hữu|Lưu chuyển tiền|Tiền lãi vay|Khấu hao|Dư nợ|Nợ gốc|\bMS\s*\d+\b|\bMã số\s*\d+\b)/i;
+
+    for (let i = 0; i < combinedLines.length; i++) {
+      const ln = combinedLines[i];
+      if (isSummaryTotalRowText(ln)) continue;
+      if (tt200ItemHeadRe.test(ln) && i + 1 < combinedLines.length) {
+        let joint = ln;
+        let look = i + 1;
+        while (look < combinedLines.length && look <= i + 5) {
+          const nxt = combinedLines[look];
+          if (tt200ItemHeadRe.test(nxt) || isSummaryTotalRowText(nxt)) break;
+          // Append code / numeric columns belonging to this line item
+          if (/^(?:MS\s*)?\d{1,3}$/i.test(nxt) || /^-?[\d.,()]+$/.test(nxt)) {
+            joint += "\t" + nxt;
+            i = look;
+            look++;
+          } else {
+            break;
+          }
+        }
+        mergedRows.push(joint);
+      } else {
+        mergedRows.push(ln);
+      }
+    }
+
+    return mergedRows.join("\n");
   }
 
   function detectDocBucketByFilename(fname) {
@@ -1530,7 +1736,7 @@
           extractedText = await extractTextFromXlsx(await f.arrayBuffer());
         } else if (ext === "pdf") {
           STATE._lastXlsxSkippedTotalRows = 0;
-          extractedText = extractTextFromPdfBytes(await f.arrayBuffer());
+          extractedText = await extractTextFromPdfBytes(await f.arrayBuffer());
         }
       } catch (err) {
         summaryLogs.push(`⚠️ <strong>${f.name}</strong>: Đã lưu chứng từ (cần kiểm tra nhập tay nếu là PDF scan ảnh).`);
@@ -1860,19 +2066,48 @@
     metrics.t1.dscr = (metrics.t1.varOcf !== null && debtService !== null && debtService > 0) ? safeDiv(metrics.t1.varOcf, debtService) : null;
     metrics.t.dscr = varDscr;
 
-    const dttPlanT1 = numValOrNull("dtt_plan_t1");
+    // Fast-appraisal NWC_op_avg & DTT_T+1 projection when BCTC T-1 & T are provided
+    const effectiveNwcAvg = (metrics.t.nwcAvg !== null && metrics.t.nwcAvg > 0)
+      ? metrics.t.nwcAvg
+      : (STATE.fast_mode ? ((metrics.t.nwcOp !== null && metrics.t.nwcOp > 0) ? metrics.t.nwcOp : ((metrics.t1.nwcOp !== null && metrics.t1.nwcOp > 0) ? metrics.t1.nwcOp : null)) : null);
+
+    const baseRevAnn = (metrics.t.dttAnn !== null && metrics.t.dttAnn > 0)
+      ? metrics.t.dttAnn
+      : ((metrics.t1.dtt !== null && metrics.t1.dtt > 0) ? metrics.t1.dtt : null);
+
+    const effectiveVqVld = (effectiveNwcAvg !== null && effectiveNwcAvg > 0 && baseRevAnn !== null && baseRevAnn > 0)
+      ? safeDiv(baseRevAnn, effectiveNwcAvg)
+      : null;
+
+    let dttPlanT1 = numValOrNull("dtt_plan_t1");
+    let dttPlanProjected = false;
+    if ((dttPlanT1 === null || dttPlanT1 <= 0) && STATE.fast_mode && baseRevAnn !== null && baseRevAnn > 0) {
+      // Dự phóng doanh thu T+1 từ doanh thu quy chuẩn năm Kỳ T (hoặc Năm T-1 nếu chỉ có T-1)
+      if (metrics.t.dttAnn !== null && metrics.t.dttAnn > 0 && metrics.t1.dtt !== null && metrics.t1.dtt > 0) {
+        const yoy = (metrics.t.dttAnn - metrics.t1.dtt) / metrics.t1.dtt;
+        const projGrowth = Math.max(-0.20, Math.min(0.25, yoy));
+        dttPlanT1 = baseRevAnn * (1 + projGrowth);
+      } else {
+        dttPlanT1 = baseRevAnn;
+      }
+      dttPlanProjected = true;
+    }
+
     const otherDebt = numVal("inp_other_debt");
     const hmtdReq = numValOrNull("inp_hmtd_req");
     let nhuCauT1 = null, vtcMin30 = null, dk1 = null, dk2 = null, hmtdMax = null;
 
-    if (dttPlanT1 !== null && dttPlanT1 > 0 && metrics.t.nwcAvg !== null && metrics.t.nwcAvg > 0 && metrics.t.vqVld !== null && metrics.t.vqVld > 0) {
-      nhuCauT1 = dttPlanT1 / metrics.t.vqVld;
+    if (dttPlanT1 !== null && dttPlanT1 > 0 && effectiveNwcAvg !== null && effectiveNwcAvg > 0 && effectiveVqVld !== null && effectiveVqVld > 0) {
+      nhuCauT1 = dttPlanT1 / effectiveVqVld;
       vtcMin30 = 0.30 * nhuCauT1;
       dk1 = 0.70 * nhuCauT1;
       dk2 = Math.max(0, nhuCauT1 - vtcMin30 - otherDebt);
       hmtdMax = Math.max(0, Math.min(dk1, dk2));
+      if (dttPlanProjected && STATE.realDataStarted) {
+        warnings.push(`[THẨM ĐỊNH NHANH T-1 & T]: Tự động dự phóng DTT T+1 = ${fmtNum(dttPlanT1, 2)} ${STATE.unit} từ dữ liệu BCTC hiện có (nên nhập kế hoạch T+1 chính thức nếu có).`);
+      }
     } else if (STATE.realDataStarted) {
-      warnings.push("[THIẾU DỮ LIỆU ĐẦU VÀO]: Không đủ dữ liệu để tính Trần HMTD T+1 (VAR_HMTD_MAX) — trả về N/A, không tự suy diễn.");
+      warnings.push("[THIẾU DỮ LIỆU ĐẦU VÀO]: Không đủ dữ liệu BCTC (T-1 / T) để tính Trần HMTD T+1 — trả về N/A, không tự suy diễn.");
     }
 
     const rate = 0.08;
@@ -2047,7 +2282,7 @@
       ["Doanh thu thuần quy chuẩn năm (DTT_ann)", `DTT_T (${fmtNum(m.t.dtt, 2)}) × (365 / ${STATE.t_days})`, `${fmtNum(m.t.dttAnn, 2)} ${u}`],
       ["Vốn lưu động vận hành bình quân (NWC_op_avg)", `(NWC_op_T + NWC_op_T−1) / 2`, `${fmtNum(m.t.nwcAvg, 2)} ${u}`],
       ["Vòng quay VLĐ vận hành quy năm (VAR_VQ_VLD_T)", `DTT_ann / NWC_op_avg`, m.t.vqVld !== null ? `${fmtNum(m.t.vqVld, 2)} vòng` : "N/A"],
-      ["Doanh thu thuần dự phóng Năm T+1 (VAR_DT_KH_T+1)", `Theo kế hoạch kinh doanh T+1`, hasFieldData("dtt_plan_t1") ? `${fmtNum(numVal("dtt_plan_t1"), 2)} ${u}` : "N/A"],
+      ["Doanh thu thuần dự phóng Năm T+1 (VAR_DT_KH_T+1)", `Theo kế hoạch kinh doanh T+1`, dttPlanT1 !== null ? `${fmtNum(dttPlanT1, 2)} ${u}${dttPlanProjected ? " (Dự phóng)" : ""}` : "N/A"],
       ["Tổng Nhu cầu VLĐ Năm T+1 (VAR_NHUCAU_T+1)", `DTT_T+1 / VAR_VQ_VLD_T`, res.nhuCauT1 !== null ? `${fmtNum(res.nhuCauT1, 2)} ${u}` : "N/A"],
       ["Vốn tự có tối thiểu tham gia 30% (VAR_VTC_MIN_30)", `30.0% × VAR_NHUCAU_T+1`, res.vtcMin30 !== null ? `${fmtNum(res.vtcMin30, 2)} ${u}` : "N/A"],
       ["Điều kiện khống chế 1 (DK1 - Tối đa 70% nhu cầu)", `70.0% × VAR_NHUCAU_T+1`, res.dk1 !== null ? `${fmtNum(res.dk1, 2)} ${u}` : "N/A"],
@@ -2865,6 +3100,10 @@
       const parent = btn.parentElement;
       if (parent) {
         parent.querySelectorAll(".pill-btn").forEach(b => b.classList.remove("active-blue", "active-green", "active-amber", "active-red"));
+        if (key === "fast_mode") {
+          $("btnFastModeOn").className = "pill-btn " + (val === "true" ? "active-green" : "");
+          $("btnFastModeOff").className = "pill-btn " + (val === "false" ? "active-blue" : "");
+        }
         const cls = (key === "cic_group" && val === "3") ? "active-red" : (key === "cic_group" && val === "2") ? "active-amber" : (val === "true" || (key === "cic_group" && val === "1")) ? "active-green" : "active-blue";
         btn.classList.add(cls);
       }
