@@ -411,8 +411,8 @@
             <strong>Cơ chế AI Agent 1 &amp; 2 Tự động:</strong> Nạp đủ 13 đầu mục theo checklist là tối ưu; khi thẩm định nhanh, chỉ cần có <strong>BCTC Năm T−1</strong> và <strong>BCTC Kỳ T</strong> hệ thống vẫn tính chỉ số, dự phóng doanh thu &amp; trần HMTD tự động (chỉ trả <code>N/A</code> ở các mục thực sự thiếu số liệu đầu vào).
           </div>
           <div class="pill-group">
-            <button type="button" class="pill-btn active-green" id="btnFastModeOn" data-action="set-opt" data-key="fast_mode" data-val="true">⚡ Thẩm định nhanh (BCTC T−1 &amp; T)</button>
-            <button type="button" class="pill-btn" id="btnFastModeOff" data-action="set-opt" data-key="fast_mode" data-val="false">📋 Chuẩn đầy đủ 13 Mục</button>
+            <button type="button" class="pill-btn active-green" id="btnFastModeOn" data-action="set-opt" data-key="appraisal_mode" data-val="fast_basic">⚡ Thẩm định nhanh (TT133 / TT200 / Kiểm toán)</button>
+            <button type="button" class="pill-btn" id="btnFastModeOff" data-action="set-opt" data-key="appraisal_mode" data-val="deep_full">📑 Báo cáo chuyên sâu (Checklist đầy đủ)</button>
           </div>
         </div>
         <div id="parser-audit-log"></div>
@@ -1017,6 +1017,7 @@
     has_exclusion_notes: true,
     cic_group: 1,
     fast_mode: true,
+    appraisal_mode: "fast_basic",
     ews: { tc: 7.5, vld: 7.0, qltn: 8.0, vtsb: 7.5 },
     checklist: {},
     parserLogs: []
@@ -1277,20 +1278,50 @@
   function mapExtractedTextToTT200(text, targetDoc) {
     let mappedCount = 0;
     const notes = [];
-    const mstMatch = text.match(/(?:MST|Mã số thuế|MÃ SỐ THUẾ)[:\s-]*([0-9]{10}(?:-[0-9]{3})?)/i);
+
+    // Refine bucket if file is a full-year BCTC (31/12/YYYY or "Năm 2025" without "Tháng" / "Quý") vs interim period ("Tháng X" / "Quý")
+    let effectiveDoc = targetDoc || "doc_3_2";
+    const isInterimPeriod = /\b(?:tháng\s*\d{1,2}|quý\s*[1-4]|lũy\s*kế\s*\d+\s*tháng|6t|9t)\b/i.test(text);
+    const isFullYearBctc = !isInterimPeriod && /(?:báo\s*cáo\s*tình\s*hình\s*tài\s*chính\s*tại\s*ngày\s*31\s*tháng\s*12|báo\s*cáo\s*kết\s*quả\s*hoạt\s*động\s*kinh\s*doanh\s*năm\s*20\d\d|bảng\s*cân\s*đối\s*tài\s*khoản\s*năm\s*20\d\d)/i.test(text);
+    if (!targetDoc && isFullYearBctc) effectiveDoc = "doc_3_1";
+
+    // Detect audit status if mentioned in BCTC header/footer
+    if (/(?:bctc\s*đã\s*được\s*kiểm\s*toán\s*:\s*\[x\]|báo\s*cáo\s*kiểm\s*toán|kiểm\s*toán\s*độc\s*lập)/i.test(text)) {
+      notes.push("BCTC Kiểm toán / Chuẩn hóa");
+    }
+
+    const mstMatch = text.match(/(?:\[02\]\s*Mã\s*số\s*thuế|\[03\]\s*Mã\s*số\s*thuế|MST|Mã số thuế|MÃ SỐ THUẾ)[:\s-]*([0-9]{10}(?:-[0-9]{3})?)/i);
     if (mstMatch && $("inp_mst")) {
       $("inp_mst").value = mstMatch[1];
       mappedCount++;
       notes.push(`MST=${mstMatch[1]}`);
     }
 
-    const nameMatch = text.match(/(?:Tên doanh nghiệp|Người nộp thuế|CÔNG TY[^\n\r\t]{4,90})/i);
+    const nameMatch = text.match(/(?:\[01\]\s*Tên\s*người\s*nộp\s*thuế|\[02\]\s*Tên\s*người\s*nộp\s*thuế|Tên doanh nghiệp|Người nộp thuế|CÔNG TY[^\n\r\t]{4,90})/i);
     if (nameMatch && $("inp_company_name")) {
-      const cleanName = nameMatch[0].replace(/^(?:Tên doanh nghiệp|Người nộp thuế)[:\s-]*/i, "").trim();
+      const cleanName = nameMatch[0].replace(/^(?:\[\d+\]\s*Tên\s*người\s*nộp\s*thuế|Tên doanh nghiệp|Người nộp thuế)[:\s-]*/i, "").trim();
       if (cleanName.length >= 6 && cleanName.length <= 100) {
         $("inp_company_name").value = cleanName;
         mappedCount++;
       }
+    }
+
+    if (isInterimPeriod) {
+      const mThang = text.match(/tháng\s*(\d{1,2})/i);
+      const mQuy = text.match(/quý\s*([1-4])/i);
+      if (mThang) {
+        const th = parseInt(mThang[1], 10);
+        if (th <= 3) STATE.t_days = 90;
+        else if (th <= 6) STATE.t_days = 180;
+        else if (th <= 9) STATE.t_days = 270;
+        else STATE.t_days = 365;
+      } else if (mQuy) {
+        STATE.t_days = parseInt(mQuy[1], 10) * 90;
+      }
+      notes.push(`Kỳ ${STATE.t_days}d (Tháng X / Năm T)`);
+    } else if (isFullYearBctc) {
+      STATE.t_days = 365;
+      notes.push("Kỳ 365d (Cả năm)");
     }
 
     if (/nhóm\s*[345]|nợ\s*xấu|nợ\s*nghi\s*ngờ|nợ\s*có\s*khả\s*năng\s*mất\s*vốn/i.test(text)) {
@@ -1301,39 +1332,38 @@
       notes.push("CIC Nhóm 2");
     }
 
+    // Scale raw currency values (e.g., VND -> tỷ đồng: / 1e9)
     const scaleNum = (num) => {
       if (Math.abs(num) >= 1000000) return num / 1e9;
       if (Math.abs(num) >= 10000) return num / 1e3;
       return num;
     };
 
+    // Each rule specifies:
+    // - `tSlot`: target field for current/ending column of Kỳ T (`doc_3_2` / interim)
+    // - `t1Slot`: target field for Năm T-1 (ending column of `doc_3_1` BCTC T-1, OR beginning/prior column of `doc_3_2` Tháng X Năm T)
+    // - `t2Slot`: target field for Năm T-2 (beginning/prior column of `doc_3_1` BCTC T-1)
     const rowRules = [
-      { re: /(?:Doanh thu thuần về bán hàng|Doanh thu thuần\b|\bMS\s*10\b|\bMã số\s*10\b)/i, cur: "dtt_t", prev: "dtt_t1", label: "DTT(MS10)" },
-      { re: /(?:Giá vốn hàng bán|\bMS\s*11\b|\bMã số\s*11\b)/i, cur: "cogs_t", prev: "cogs_t1", label: "GVHB(MS11)" },
-      { re: /(?:Chi phí bán hàng|\bMS\s*25\b|\bMã số\s*25\b)/i, cur: "opex_t", prev: "opex_t1", addMode: true, label: "CPBH(MS25)" },
-      { re: /(?:Chi phí quản lý doanh nghiệp|\bMS\s*26\b|\bMã số\s*26\b)/i, cur: "opex_t", prev: "opex_t1", addMode: true, label: "CPQLDN(MS26)" },
-      { re: /(?:Chi phí lãi vay|\bMS\s*23\b|\bMã số\s*23\b)/i, cur: "int_exp_t", prev: "int_exp_t1", label: "Lãi vay(MS23)" },
-      { re: /(?:Tổng lợi nhuận kế toán trước thuế|Lợi nhuận kế toán trước thuế|\bMS\s*50\b|\bMã số\s*50\b)/i, cur: "lntt_t", prev: "lntt_t1", label: "LNTT(MS50)" },
-      { re: /(?:Chi phí thuế TNDN hiện hành|Thuế TNDN đã nộp|\bMS\s*51\b|\bMã số\s*51\b|\bMS\s*15\b)/i, cur: "tax_t", prev: "tax_t1", label: "Thuế TNDN" },
-      { re: /(?:Khấu hao TSCĐ và BĐSĐT|Khấu hao tài sản cố định|\bMS\s*02\b|\bMã số\s*02\b)/i, cur: "da_t", prev: "da_t1", label: "Khấu hao(MS02)" },
-      { re: /(?:Tiền lãi vay đã trả|\bMS\s*14\b|\bMã số\s*14\b)/i, cur: "int_paid_t", prev: "int_paid_t1", label: "Lãi đã trả(MS14)" },
-      { re: /(?:Lưu chuyển tiền thuần từ hoạt động kinh doanh|\bMS\s*20\b|\bMã số\s*20\b)/i, cur: "ms20_t", prev: "ms20_t1", label: "OCF(MS20)" },
-      { re: /(?:Tiền và các khoản tương đương tiền|\bMS\s*110\b|\bMã số\s*110\b)/i, cur: "cash_t", prev: "cash_t1", label: "Tiền(MS110)" },
-      { re: /(?:Tài sản ngắn hạn|\bMS\s*100\b|\bMã số\s*100\b)/i, cur: "ca_t", prev: "ca_t1", label: "TSNH(MS100)" },
-      { re: /(?:Phải thu ngắn hạn của khách hàng|\bMS\s*131\b|\bMã số\s*131\b)/i, cur: "ar_gop_t", prev: "ar_gop_t1", label: "AR(MS131)" },
-      { re: /(?:Dự phòng phải thu ngắn hạn khó đòi|\bMS\s*137\b|\bMã số\s*137\b)/i, cur: "dp_ar_t", prev: "dp_ar_t1", label: "DP_AR(MS137)" },
-      { re: /(?:Hàng tồn kho\b|\bMS\s*141\b|\bMã số\s*141\b)/i, cur: "inv_gop_t", prev: "inv_gop_t1", label: "INV(MS141)" },
-      { re: /(?:Dự phòng giảm giá hàng tồn kho|\bMS\s*149\b|\bMã số\s*149\b)/i, cur: "dp_inv_t", prev: "dp_inv_t1", label: "DP_INV(MS149)" },
-      { re: /(?:Tổng cộng tài sản|\bMS\s*270\b|\bMã số\s*270\b)/i, cur: "ta_t", prev: "ta_t1", label: "TổngTS(MS270)" },
-      { re: /(?:Nợ phải trả\b|\bMS\s*300\b|\bMã số\s*300\b)/i, cur: "tl_t", prev: "tl_t1", label: "TổngNợ(MS300)" },
-      { re: /(?:Nợ ngắn hạn\b|\bMS\s*310\b|\bMã số\s*310\b)/i, cur: "cl_t", prev: "cl_t1", label: "NợNH(MS310)" },
-      { re: /(?:Phải trả người bán ngắn hạn|\bMS\s*311\b|\bMã số\s*311\b)/i, cur: "ap_gop_t", prev: "ap_gop_t1", label: "AP(MS311)" },
-      { re: /(?:Vốn chủ sở hữu\b|\bMS\s*400\b|\bMã số\s*400\b)/i, cur: "eq_t", prev: "eq_t1", label: "VCSH(MS400)" },
-      { re: /(?:Dư nợ ngắn hạn TCTD khác|Vay ngắn hạn TCTD khác)/i, cur: "inp_other_debt", prev: null, label: "Nợ TCTD khác" },
-      { re: /(?:Nợ gốc dài hạn đến hạn trả|Vay dài hạn đến hạn trả)/i, cur: "inp_principal_due", prev: null, label: "Nợ gốc ĐH" },
-      { re: /(?:Doanh thu chịu thuế GTGT|Doanh thu tờ khai VAT)/i, cur: "dt_vat", prev: null, label: "DT VAT" },
-      { re: /(?:Doanh thu có VAT)/i, cur: "dt_incl_vat", prev: null, label: "DT có VAT" },
-      { re: /(?:Tiền về TK 112|Tiền thực thu qua TK 112)/i, cur: "cash_in_112", prev: null, label: "Tiền TK112" }
+      { re: /(?:Doanh thu thuần về bán hàng|Doanh thu thuần\b|\b10\b)/i, tSlot: "dtt_t", t1Slot: "dtt_t1", t2Slot: "dtt_t2", label: "DTT(10)" },
+      { re: /(?:Giá vốn hàng bán|\b11\b)/i, tSlot: "cogs_t", t1Slot: "cogs_t1", t2Slot: "cogs_t2", label: "GVHB(11)" },
+      { re: /(?:Chi phí bán hàng|\b25\b)/i, tSlot: "opex_t", t1Slot: "opex_t1", t2Slot: "opex_t2", addMode: true, label: "CPBH(25)" },
+      { re: /(?:Chi phí quản lý doanh nghiệp|Chi phí quản lý kinh doanh|\b26\b|\b24\b)/i, tSlot: "opex_t", t1Slot: "opex_t1", t2Slot: "opex_t2", addMode: true, label: "CPQL(24/26)" },
+      { re: /(?:Chi phí lãi vay|\b23\b)/i, tSlot: "int_exp_t", t1Slot: "int_exp_t1", t2Slot: "int_exp_t2", label: "Lãi vay(23)" },
+      { re: /(?:Tổng lợi nhuận kế toán trước thuế|Lợi nhuận kế toán trước thuế|\b50\b)/i, tSlot: "lntt_t", t1Slot: "lntt_t1", t2Slot: "lntt_t2", label: "LNTT(50)" },
+      { re: /(?:Chi phí thuế TNDN|Thuế TNDN|\b51\b)/i, tSlot: "tax_t", t1Slot: "tax_t1", t2Slot: "tax_t2", label: "Thuế TNDN(51)" },
+      { re: /(?:Khấu hao TSCĐ|\b02\b)/i, tSlot: "da_t", t1Slot: "da_t1", t2Slot: "da_t2", label: "Khấu hao(02)" },
+      { re: /(?:Tiền lãi vay đã trả|\b04\b|\b14\b)/i, tSlot: "int_paid_t", t1Slot: "int_paid_t1", t2Slot: "int_paid_t2", label: "Lãi trả(04/14)" },
+      { re: /(?:Lưu chuyển tiền thuần từ hoạt động kinh doanh|\b20\b)/i, tSlot: "ms20_t", t1Slot: "ms20_t1", t2Slot: "ms20_t2", label: "OCF(20)" },
+      { re: /(?:Tiền và các khoản tương đương tiền|\b110\b)/i, tSlot: "cash_t", t1Slot: "cash_t1", t2Slot: "cash_t2", label: "Tiền(110)" },
+      { re: /(?:Các khoản phải thu|\b130\b)/i, tSlot: "ca_t", t1Slot: "ca_t1", t2Slot: "ca_t2", addCaMode: true, label: "Phải thu(130)" },
+      { re: /(?:Phải thu ngắn hạn của khách hàng|Phải thu của khách hàng|\b131\b)/i, tSlot: "ar_gop_t", t1Slot: "ar_gop_t1", t2Slot: "ar_gop_t2", label: "AR(131)" },
+      { re: /(?:Dự phòng phải thu khó đòi|\b136\b|\b137\b)/i, tSlot: "dp_ar_t", t1Slot: "dp_ar_t1", t2Slot: "dp_ar_t2", label: "DP_AR(136/137)" },
+      { re: /(?:Hàng tồn kho\b|\b140\b|\b141\b)/i, tSlot: "inv_gop_t", t1Slot: "inv_gop_t1", t2Slot: "inv_gop_t2", label: "INV(140/141)" },
+      { re: /(?:Dự phòng giảm giá hàng tồn kho|\b142\b|\b149\b)/i, tSlot: "dp_inv_t", t1Slot: "dp_inv_t1", t2Slot: "dp_inv_t2", label: "DP_INV(142/149)" },
+      { re: /(?:TỔNG CỘNG TÀI SẢN|Tổng cộng tài sản|\b200\b|\b270\b)/i, tSlot: "ta_t", t1Slot: "ta_t1", t2Slot: "ta_t2", label: "TổngTS(200/270)" },
+      { re: /(?:Nợ phải trả\b|\b300\b)/i, tSlot: "tl_t", t1Slot: "tl_t1", t2Slot: "tl_t2", label: "TổngNợ(300)" },
+      { re: /(?:Phải trả người bán|Phải trả cho người bán|\b311\b)/i, tSlot: "ap_gop_t", t1Slot: "ap_gop_t1", t2Slot: "ap_gop_t2", label: "AP(311)" },
+      { re: /(?:Vốn chủ sở hữu\b|\b400\b)/i, tSlot: "eq_t", t1Slot: "eq_t1", t2Slot: "eq_t2", label: "VCSH(400)" }
     ];
 
     const opexAccum = { opex_t: 0, opex_t1: 0, opex_t2: 0 };
@@ -1358,38 +1388,55 @@
 
       for (const rule of rowRules) {
         if (!rule.re.test(ln)) continue;
+
+        // Extract candidate numeric cells (skipping pure line code / note references like "V.01", "VI.1", "10", "110")
         const numCells = [];
-        // Also scan inline numbers on the line if tab split yielded only 1 text element
         const rawTokens = cells.length > 1
           ? cells
           : (ln.match(/-?\d{1,3}(?:[.,]\d{3})*(?:[.,]\d+)?|-?\d+(?:[.,]\d+)?/g) || []);
 
         rawTokens.forEach((c, idx) => {
-          if (cells.length > 1 && idx === 0 && !/^[\d.,()-]+$/.test(c)) return;
-          if (/^(01|02|10|11|14|15|20|23|25|26|50|51|52|100|110|130|131|137|140|141|149|200|270|300|310|311|400)$/.test(c)) return;
-          const parsed = parseNumberSmart(c);
-          if (parsed !== null && /[\d.,]/.test(c)) numCells.push(Math.abs(scaleNum(parsed)));
+          const clean = c.trim();
+          if (!/[\d.,]/.test(clean)) return;
+          if (cells.length > 1 && idx === 0 && !/^[\d.,()-]+$/.test(clean)) return;
+          // Skip pure TT200/TT133 line code or note numbers
+          if (/^(01|02|04|10|11|14|15|20|23|24|25|26|30|40|50|51|52|60|100|110|120|130|131|132|136|137|140|141|142|149|150|170|180|200|270|300|310|311|312|313|316|400|411|417|500)$/.test(clean)) return;
+          // Skip standalone small integers (1..6) that represent column index or note ref
+          if (/^[1-6]$/.test(clean) && rawTokens.length > 2) return;
+          const parsed = parseNumberSmart(clean);
+          if (parsed !== null) numCells.push(Math.abs(scaleNum(parsed)));
         });
 
         if (numCells.length > 0) {
-          const valCur = numCells[0];
-          const valPrev = numCells.length >= 2 ? numCells[1] : null;
-          const targetCur = (targetDoc === "doc_3_1" && rule.prev) ? rule.prev : rule.cur;
-          const targetPrev = (targetDoc === "doc_3_1" && rule.prev) ? rule.cur.replace("_t", "_t2") : rule.prev;
+          // Column 0 = Số cuối kỳ / Năm nay (hoặc Tháng X Năm T)
+          // Column 1 = Số đầu năm / Năm trước (hoặc Năm T-1)
+          const valEnd = numCells[0];
+          const valBeg = numCells.length >= 2 ? numCells[1] : null;
+
+          let curTarget, prevTarget;
+          if (effectiveDoc === "doc_3_1") {
+            // File BCTC T-1 (vd 2025): Số cuối kỳ -> T-1 (`_t1`), Số đầu năm -> T-2 (`_t2`)
+            curTarget = rule.t1Slot;
+            prevTarget = rule.t2Slot;
+          } else {
+            // File Báo cáo nhanh Tháng X Năm T: Số cuối kỳ -> Kỳ T (`_t`), Số đầu kỳ -> Năm T-1 (`_t1`)
+            curTarget = rule.tSlot;
+            prevTarget = rule.t1Slot;
+          }
 
           if (rule.addMode) {
-            opexAccum[targetCur] = (opexAccum[targetCur] || 0) + valCur;
-            if ($(targetCur)) $(targetCur).value = opexAccum[targetCur].toFixed(2);
-            if (valPrev !== null && targetPrev && $(targetPrev)) {
-              opexAccum[targetPrev] = (opexAccum[targetPrev] || 0) + valPrev;
-              $(targetPrev).value = opexAccum[targetPrev].toFixed(2);
+            opexAccum[curTarget] = (opexAccum[curTarget] || 0) + valEnd;
+            if ($(curTarget)) $(curTarget).value = opexAccum[curTarget].toFixed(2);
+            if (valBeg !== null && prevTarget && $(prevTarget)) {
+              opexAccum[prevTarget] = (opexAccum[prevTarget] || 0) + valBeg;
+              $(prevTarget).value = opexAccum[prevTarget].toFixed(2);
             }
           } else {
-            if ($(targetCur)) $(targetCur).value = valCur.toFixed(2);
-            if (valPrev !== null && targetPrev && $(targetPrev)) $(targetPrev).value = valPrev.toFixed(2);
+            if ($(curTarget)) $(curTarget).value = valEnd.toFixed(2);
+            if (valBeg !== null && prevTarget && $(prevTarget)) $(prevTarget).value = valBeg.toFixed(2);
           }
           mappedCount++;
-          notes.push(`${rule.label}=${valCur.toFixed(2)}`);
+          notes.push(`${rule.label}=${valEnd.toFixed(2)}`);
         }
         break;
       }
@@ -1488,7 +1535,6 @@
 
   function decodePdfStringLiteral(str) {
     if (!str) return "";
-    // Handle UTF-16BE BOM (\xfe\xff) commonly emitted by Vietnamese PDF exporters
     if (str.length >= 2 && str.charCodeAt(0) === 0xFE && str.charCodeAt(1) === 0xFF) {
       let out = "";
       for (let i = 2; i + 1 < str.length; i += 2) {
@@ -1541,14 +1587,31 @@
     if (!streamText) return "";
     const lines = [];
     let curLine = "";
+    let lastY = null;
 
-    // Match BT...ET text blocks if present, or scan full stream for text-showing operators
-    const tokenRe = /\[((?:[^\[\]]|\([^\)]*\)|<[^>]*>)*)\]\s*TJ|\(((?:\\.|[^\\)])*)\)\s*(?:Tj|'|")|<([0-9a-fA-F\s]{4,})>\s*(?:Tj|'|")|(Td|TD|Tm|T\*)\b/g;
+    // Track y-coordinate in Tm (`a b c d e f Tm`) or Td (`tx ty Td`) to separate rows cleanly
+    const opRe = /(-?\d+(?:\.\d+)?)\s+(-?\d+(?:\.\d+)?)\s+(-?\d+(?:\.\d+)?)\s+(-?\d+(?:\.\d+)?)\s+(-?\d+(?:\.\d+)?)\s+(-?\d+(?:\.\d+)?)\s+Tm|(-?\d+(?:\.\d+)?)\s+(-?\d+(?:\.\d+)?)\s+T[dD]|\[((?:[^\[\]]|\([^\)]*\)|<[^>]*>)*)\]\s*TJ|\(((?:\\.|[^\\)])*)\)\s*(?:Tj|'|")|<([0-9a-fA-F\s]{4,})>\s*(?:Tj|'|")|(T\*)\b/g;
     let m;
-    while ((m = tokenRe.exec(streamText)) !== null) {
-      if (m[1] !== undefined) {
-        // TJ array containing strings and kerning numbers
-        const arrBody = m[1];
+    while ((m = opRe.exec(streamText)) !== null) {
+      if (m[1] !== undefined && m[6] !== undefined) {
+        const yPos = parseFloat(m[6]);
+        if (lastY !== null && Math.abs(yPos - lastY) > 2.5 && curLine.trim()) {
+          lines.push(curLine.trim());
+          curLine = "";
+        } else if (curLine && !curLine.endsWith("\t") && !curLine.endsWith(" ")) {
+          curLine += "\t";
+        }
+        lastY = yPos;
+      } else if (m[7] !== undefined && m[8] !== undefined) {
+        const dy = parseFloat(m[8]);
+        if (Math.abs(dy) > 2.0 && curLine.trim()) {
+          lines.push(curLine.trim());
+          curLine = "";
+        } else if (curLine && !curLine.endsWith("\t") && !curLine.endsWith(" ")) {
+          curLine += "\t";
+        }
+      } else if (m[9] !== undefined) {
+        const arrBody = m[9];
         const partRe = /\(((?:\\.|[^\\)])*)\)|<([0-9a-fA-F\s]{2,})>|(-?\d+(?:\.\d+)?)/g;
         let pm;
         let lineBreak = false;
@@ -1559,7 +1622,7 @@
             curLine += decodePdfHexString(pm[2]);
           } else if (pm[3] !== undefined) {
             const kern = parseFloat(pm[3]);
-            if (kern < -180 && curLine && !curLine.endsWith(" ") && !curLine.endsWith("\t")) {
+            if (kern < -160 && curLine && !curLine.endsWith(" ") && !curLine.endsWith("\t")) {
               curLine += " ";
             }
             if (kern < -650) lineBreak = true;
@@ -1569,15 +1632,15 @@
           lines.push(curLine.trim());
           curLine = "";
         }
-      } else if (m[2] !== undefined) {
-        curLine += decodePdfStringLiteral(m[2]);
+      } else if (m[10] !== undefined) {
+        curLine += decodePdfStringLiteral(m[10]);
         if (/\r|\n/.test(curLine)) {
           curLine.split(/\r?\n/).forEach(seg => { if (seg.trim()) lines.push(seg.trim()); });
           curLine = "";
         }
-      } else if (m[3] !== undefined) {
-        curLine += decodePdfHexString(m[3]);
-      } else if (m[4] !== undefined) {
+      } else if (m[11] !== undefined) {
+        curLine += decodePdfHexString(m[11]);
+      } else if (m[12] !== undefined) {
         if (curLine.trim()) {
           lines.push(curLine.trim());
           curLine = "";
@@ -1586,7 +1649,6 @@
     }
     if (curLine.trim()) lines.push(curLine.trim());
 
-    // Fallback: if no PDF operators matched, collect parenthesized literals & printable runs
     if (lines.length === 0) {
       const litMatches = streamText.match(/\(([^()\\]{2,160})\)/g) || [];
       litMatches.forEach(s => {
@@ -1620,7 +1682,6 @@
     const raw = new TextDecoder("latin1").decode(u8);
     const extractedChunks = [];
 
-    // Locate all `stream ... endstream` objects and decode FlateDecode / raw streams
     const streamRegex = /stream\r?\n([\s\S]*?)endstream/g;
     let match;
     while ((match = streamRegex.exec(raw)) !== null) {
@@ -1648,13 +1709,11 @@
       }
     }
 
-    // Fallback when PDF has uncompressed inline text outside stream blocks
     if (extractedChunks.length === 0) {
       const fallbackText = extractTextFromContentStream(raw);
       if (fallbackText) extractedChunks.push(fallbackText);
     }
 
-    // Merge adjacent lines that belong to the same TT200 row (e.g., line item name followed by MS code and numbers)
     const combinedLines = extractedChunks.join("\n").split(/\r?\n/).map(l => l.trim()).filter(Boolean);
     const mergedRows = [];
     const tt200ItemHeadRe = /^(?:Doanh thu|Giá vốn|Lợi nhuận|Chi phí|Tiền|Tài sản|Phải thu|Hàng tồn kho|Dự phòng|Nợ phải trả|Nợ ngắn hạn|Phải trả người bán|Vốn chủ sở hữu|Lưu chuyển tiền|Tiền lãi vay|Khấu hao|Dư nợ|Nợ gốc|\bMS\s*\d+\b|\bMã số\s*\d+\b)/i;
@@ -1665,10 +1724,9 @@
       if (tt200ItemHeadRe.test(ln) && i + 1 < combinedLines.length) {
         let joint = ln;
         let look = i + 1;
-        while (look < combinedLines.length && look <= i + 5) {
+        while (look < combinedLines.length && look <= i + 6) {
           const nxt = combinedLines[look];
           if (tt200ItemHeadRe.test(nxt) || isSummaryTotalRowText(nxt)) break;
-          // Append code / numeric columns belonging to this line item
           if (/^(?:MS\s*)?\d{1,3}$/i.test(nxt) || /^-?[\d.,()]+$/.test(nxt)) {
             joint += "\t" + nxt;
             i = look;
@@ -3100,9 +3158,11 @@
       const parent = btn.parentElement;
       if (parent) {
         parent.querySelectorAll(".pill-btn").forEach(b => b.classList.remove("active-blue", "active-green", "active-amber", "active-red"));
-        if (key === "fast_mode") {
-          $("btnFastModeOn").className = "pill-btn " + (val === "true" ? "active-green" : "");
-          $("btnFastModeOff").className = "pill-btn " + (val === "false" ? "active-blue" : "");
+        if (key === "appraisal_mode") {
+          STATE.appraisal_mode = val;
+          STATE.fast_mode = (val === "fast_basic");
+          $("btnFastModeOn").className = "pill-btn " + (val === "fast_basic" ? "active-green" : "");
+          $("btnFastModeOff").className = "pill-btn " + (val === "deep_full" ? "active-blue" : "");
         }
         const cls = (key === "cic_group" && val === "3") ? "active-red" : (key === "cic_group" && val === "2") ? "active-amber" : (val === "true" || (key === "cic_group" && val === "1")) ? "active-green" : "active-blue";
         btn.classList.add(cls);
