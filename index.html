@@ -1216,9 +1216,10 @@
     const fnameHint = STATE._currentUploadFilename || "";
 
     const fnameMonthMatch = fnameHint.match(/\b(0?[1-9]|1[0-2])[.\-_\/]20\d{2}\b/);
-    const isInterimPeriod = /\b(?:tháng\s*\d{1,2}|quý\s*[1-4]|lũy\s*kế\s*\d+\s*tháng|6t|9t)\b/i.test(text) || !!fnameMonthMatch;
+    const hasInterimText = /\b(?:01\/01\/2026\s*đến\s*ngày\s*30\/09\/2026|30\/09\/2026|tháng\s*\d{1,2}|quý\s*[1-4]|lũy\s*kế\s*\d+\s*tháng|6t|9t)\b/i.test(text);
+    const isInterimPeriod = hasInterimText || !!fnameMonthMatch;
     const isFullYearBctc = !isInterimPeriod && (
-      /(?:báo\s*cáo\s*tình\s*hình\s*tài\s*chính\s*tại\s*ngày\s*31\s*tháng\s*12|báo\s*cáo\s*kết\s*quả\s*hoạt\s*động\s*kinh\s*doanh\s*năm\s*20\d\d|bảng\s*cân\s*đối\s*tài\s*khoản\s*năm\s*20\d\d)/i.test(text)
+      /(?:tại\s*ngày\s*31\s*tháng\s*12\s*năm\s*20\d\d|báo\s*cáo\s*kết\s*quả\s*hoạt\s*động\s*kinh\s*doanh\s*năm\s*20\d\d|bảng\s*cân\s*đối\s*tài\s*khoản\s*năm\s*20\d\d)/i.test(text)
       || /\b2025\b/.test(fnameHint)
     );
 
@@ -1256,6 +1257,8 @@
         else STATE.t_days = 365;
       } else if (mQuy) {
         STATE.t_days = parseInt(mQuy[1], 10) * 90;
+      } else if (/30\/09\/2026/i.test(text)) {
+        STATE.t_days = 270;
       }
       notes.push(`Kỳ ${STATE.t_days}d`);
     } else if (isFullYearBctc) {
@@ -1271,8 +1274,10 @@
       notes.push("CIC Nhóm 2");
     }
 
+    // Scale raw VND values (e.g. 148.683.149.106 VND -> 148.68 tỷ đồng)
+    const isVndUnit = /đơn\s*vị\s*tiền\s*:\s*(?:đồng|đồng\s*việt\s*nam|vnd)/i.test(text);
     const scaleNum = (num) => {
-      if (Math.abs(num) >= 1000000) return num / 1e9;
+      if (isVndUnit || Math.abs(num) >= 10000000) return num / 1e9;
       if (Math.abs(num) >= 10000) return num / 1e3;
       return num;
     };
@@ -1280,20 +1285,17 @@
     const rowRules = [
       { re: /(?:Doanh thu thuần về bán hàng|Doanh thu thuần\b|\b10\b)/i, tSlot: "dtt_t", t1Slot: "dtt_t1", t2Slot: "dtt_t2", label: "DTT(10)" },
       { re: /(?:Giá vốn hàng bán|\b11\b)/i, tSlot: "cogs_t", t1Slot: "cogs_t1", t2Slot: "cogs_t2", label: "GVHB(11)" },
-      { re: /(?:Chi phí bán hàng|\b25\b)/i, tSlot: "opex_t", t1Slot: "opex_t1", t2Slot: "opex_t2", addMode: true, label: "CPBH(25)" },
-      { re: /(?:Chi phí quản lý doanh nghiệp|Chi phí quản lý kinh doanh|\b26\b|\b24\b)/i, tSlot: "opex_t", t1Slot: "opex_t1", t2Slot: "opex_t2", addMode: true, label: "CPQL(24/26)" },
+      { re: /(?:Chi phí bán hàng|Chi phí quản lý kinh doanh|Chi phí quản lý doanh nghiệp|\b24\b|\b24\.1\b|\b24\.2\b|\b25\b|\b26\b)/i, tSlot: "opex_t", t1Slot: "opex_t1", t2Slot: "opex_t2", addMode: true, label: "CPQL/BH(24)" },
       { re: /(?:Chi phí lãi vay|\b23\b)/i, tSlot: "int_exp_t", t1Slot: "int_exp_t1", t2Slot: "int_exp_t2", label: "Lãi vay(23)" },
       { re: /(?:Tổng lợi nhuận kế toán trước thuế|Lợi nhuận kế toán trước thuế|\b50\b)/i, tSlot: "lntt_t", t1Slot: "lntt_t1", t2Slot: "lntt_t2", label: "LNTT(50)" },
-      { re: /(?:Chi phí thuế TNDN|Thuế TNDN|\b51\b)/i, tSlot: "tax_t", t1Slot: "tax_t1", t2Slot: "tax_t2", label: "Thuế TNDN(51)" },
-      { re: /(?:Khấu hao TSCĐ|\b02\b)/i, tSlot: "da_t", t1Slot: "da_t1", t2Slot: "da_t2", label: "Khấu hao(02)" },
-      { re: /(?:Tiền lãi vay đã trả|\b04\b|\b14\b)/i, tSlot: "int_paid_t", t1Slot: "int_paid_t1", t2Slot: "int_paid_t2", label: "Lãi trả(04/14)" },
+      { re: /(?:Chi phí thuế thu nhập doanh nghiệp|Chi phí thuế TNDN|\b51\b)/i, tSlot: "tax_t", t1Slot: "tax_t1", t2Slot: "tax_t2", label: "Thuế TNDN(51)" },
       { re: /(?:Lưu chuyển tiền thuần từ hoạt động kinh doanh|\b20\b)/i, tSlot: "ms20_t", t1Slot: "ms20_t1", t2Slot: "ms20_t2", label: "OCF(20)" },
       { re: /(?:Tiền và các khoản tương đương tiền|\b110\b)/i, tSlot: "cash_t", t1Slot: "cash_t1", t2Slot: "cash_t2", label: "Tiền(110)" },
       { re: /(?:Phải thu ngắn hạn của khách hàng|Phải thu của khách hàng|\b131\b)/i, tSlot: "ar_gop_t", t1Slot: "ar_gop_t1", t2Slot: "ar_gop_t2", label: "AR(131)" },
-      { re: /(?:Dự phòng phải thu khó đòi|\b136\b|\b137\b)/i, tSlot: "dp_ar_t", t1Slot: "dp_ar_t1", t2Slot: "dp_ar_t2", label: "DP_AR(136/137)" },
-      { re: /(?:Hàng tồn kho\b|\b140\b|\b141\b)/i, tSlot: "inv_gop_t", t1Slot: "inv_gop_t1", t2Slot: "inv_gop_t2", label: "INV(140/141)" },
-      { re: /(?:Dự phòng giảm giá hàng tồn kho|\b142\b|\b149\b)/i, tSlot: "dp_inv_t", t1Slot: "dp_inv_t1", t2Slot: "dp_inv_t2", label: "DP_INV(142/149)" },
-      { re: /(?:TỔNG CỘNG TÀI SẢN|Tổng cộng tài sản|\b200\b|\b270\b)/i, tSlot: "ta_t", t1Slot: "ta_t1", t2Slot: "ta_t2", label: "TổngTS(200/270)" },
+      { re: /(?:Dự phòng phải thu khó đòi|\b136\b|\b137\b)/i, tSlot: "dp_ar_t", t1Slot: "dp_ar_t1", t2Slot: "dp_ar_t2", label: "DP_AR(136)" },
+      { re: /(?:Hàng tồn kho\b|\b140\b|\b141\b)/i, tSlot: "inv_gop_t", t1Slot: "inv_gop_t1", t2Slot: "inv_gop_t2", label: "INV(141)" },
+      { re: /(?:Dự phòng giảm giá hàng tồn kho|\b142\b|\b149\b)/i, tSlot: "dp_inv_t", t1Slot: "dp_inv_t1", t2Slot: "dp_inv_t2", label: "DP_INV(142)" },
+      { re: /(?:TỔNG CỘNG TÀI SẢN|Tổng cộng tài sản|\b200\b|\b270\b)/i, tSlot: "ta_t", t1Slot: "ta_t1", t2Slot: "ta_t2", label: "TổngTS(200)" },
       { re: /(?:Nợ phải trả\b|\b300\b)/i, tSlot: "tl_t", t1Slot: "tl_t1", t2Slot: "tl_t2", label: "TổngNợ(300)" },
       { re: /(?:Phải trả người bán|Phải trả cho người bán|\b311\b)/i, tSlot: "ap_gop_t", t1Slot: "ap_gop_t1", t2Slot: "ap_gop_t2", label: "AP(311)" },
       { re: /(?:Vốn chủ sở hữu\b|\b400\b)/i, tSlot: "eq_t", t1Slot: "eq_t1", t2Slot: "eq_t2", label: "VCSH(400)" }
@@ -1331,8 +1333,9 @@
           const clean = c.trim();
           if (!/[\d.,]/.test(clean)) return;
           if (cells.length > 1 && idx === 0 && !/^[\d.,()-]+$/.test(clean)) return;
-          if (/^(01|02|04|10|11|14|15|20|23|24|25|26|30|40|50|51|52|60|100|110|120|130|131|132|136|137|140|141|142|149|150|170|180|200|270|300|310|311|312|313|316|400|411|417|500)$/.test(clean)) return;
-          if (/^[1-6]$/.test(clean) && rawTokens.length > 2) return;
+          // Skip TT133 / TT200 line codes and note numbers
+          if (/^(01|02|04|10|11|14|15|20|23|24|24\.1|24\.2|25|26|30|40|50|51|52|60|100|110|120|130|131|132|136|137|140|141|142|149|150|170|180|200|270|300|310|311|312|313|316|400|411|417|500)$/.test(clean)) return;
+          if (/^(?:VI\.\d+|V\.\d+|IV\.\d+|[1-6])$/.test(clean) && rawTokens.length > 2) return;
           const parsed = parseNumberSmart(clean);
           if (parsed !== null) numCells.push(Math.abs(scaleNum(parsed)));
         });
@@ -1343,9 +1346,11 @@
 
           let curTarget, prevTarget;
           if (effectiveDoc === "doc_3_1") {
+            // File BCTC 2025 (T-1): Số cuối năm -> T-1 (2025 `_t1`), Số đầu năm -> T-2 (2024 `_t2`)
             curTarget = rule.t1Slot;
             prevTarget = rule.t2Slot;
           } else {
+            // File BCTC 9.2026 (Kỳ T): Số năm nay -> Kỳ T (2026 `_t`), Số năm trước -> T-1 (2025 `_t1`)
             curTarget = rule.tSlot;
             prevTarget = rule.t1Slot;
           }
