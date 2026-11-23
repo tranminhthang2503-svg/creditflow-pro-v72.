@@ -1921,6 +1921,30 @@
   }
 
 
+  function diagnoseScenarioKB(res, m) {
+    if (!hasFieldData("dtt_t") && !hasFieldData("lntt_t") && !hasFieldData("ms20_t")) {
+      return { code: "N/A", name: "N/A (Chưa đủ dữ liệu)", diag: "Chưa đủ dữ liệu BCTC để chẩn đoán kịch bản KB1–KB5." };
+    }
+    const cMinusA = m.t.dtt - m.t.cogs;
+    const ocfPos = m.t.varOcf > 0;
+    const cccTrend = (m.t.ccc !== null && m.t1.ccc !== null) ? (m.t.ccc - m.t1.ccc) : 0;
+    const dttGrowth = m.t1.dtt > 0 ? ((m.t.dttAnn - m.t1.dtt) / m.t1.dtt) : 0;
+
+    if (cMinusA < 0 && !ocfPos) {
+      return { code: "KB4", name: "KB4: Khủng hoảng Thanh khoản", diag: "C < A và OCF âm: Biên gộp / dòng tiền chịu áp lực lớn, cần kiểm soát chặt nguồn thu và TSBĐ." };
+    }
+    if (dttGrowth < -0.10 && ocfPos && cccTrend <= 0) {
+      return { code: "KB3", name: "KB3: Thu hẹp Quy mô – Xả Kho", diag: "Thu hẹp quy mô / xả kho thu tiền: OCF dương nhờ thu hồi vốn lưu động, cần bám sát quy mô doanh thu thực tế." };
+    }
+    if (cMinusA > 0 && !ocfPos && cccTrend > 5) {
+      return { code: "KB2", name: "KB2: Tăng trưởng Nóng (Bẫy nợ & Kho)", diag: "C > A nhưng OCF âm & CCC tăng: Vốn bị neo giữ trong tồn kho/phải thu, cần kiểm soát chặt giải ngân và thu hồi nợ." };
+    }
+    if (cMinusA > 0 && ocfPos && Math.abs(cccTrend) <= 15) {
+      return { code: "KB1", name: "KB1: Tăng trưởng Bền vững", diag: "C > A và OCF > 0: Chu trình vận hành cân đối, dòng tiền tự tài trợ và khả năng trả nợ ổn định." };
+    }
+    return { code: "KB1/KB5", name: "KB1 / KB5: Theo dõi Cơ cấu Vốn & Kỳ hạn", diag: "Cần đối chiếu thêm cơ cấu nguồn vốn ngắn/dài hạn và tài sản đối ứng theo Thuyết minh TT200." };
+  }
+
   function buildInterviewQuestions(res, m, u) {
     const wcT = computeCleanWC("t");
     const arRemovedT = Math.max(0, numVal("ar_gop_t") - wcT.arClean);
@@ -2202,7 +2226,8 @@
       </div>
 
       <div class="rep-sec">
-        <div class="rep-sec-title">MỤC 8. KIỂM ĐỊNH SỨC CHỊU ĐỰNG DÒNG TIỀN (STRESS TEST ST1 – ST4, r = 8.0%/năm)</div>
+        <div class="rep-sec-title">MỤC 8. KIỂM ĐỊNH SỨC CHỊU ĐỰNG DÒNG TIỀN (STRESS TEST ST1 – ST4, r = 8.0%/năm) &amp; CHẨN ĐOÁN KB1–KB5</div>
+        <div class="box-formula"><span class="tag-pill tag-blue">CHẨN ĐOÁN KỊCH BẢN</span> <strong>${diagnoseScenarioKB(res, m).name}:</strong> ${diagnoseScenarioKB(res, m).diag}</div>
         <table>
           <thead><tr><th>Kịch bản</th><th>Mô tả cú sốc</th><th class="num">Thiếu hụt vốn</th><th class="num">Lãi tăng thêm</th><th class="num">DSCR Stress</th><th class="center">Ngưỡng Min</th><th>Kết quả</th></tr></thead>
           <tbody>
