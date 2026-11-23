@@ -59,6 +59,7 @@
       font-size: 13.5px;
       line-height: 1.48;
       -webkit-text-size-adjust: 100%;
+      overflow-x: hidden;
     }
 
     .mono {
@@ -95,16 +96,23 @@
       box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.16);
     }
 
-    button {
+    button, label.upload-pill-btn {
       font-family: inherit;
       cursor: pointer;
       border: 1px solid transparent;
       border-radius: var(--radius-md);
       font-weight: 600;
-      transition: all 0.14s ease;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      transition: background-color 0.14s ease, border-color 0.14s ease, box-shadow 0.14s ease, transform 0.1s ease;
     }
-    button:active {
-      transform: scale(0.98);
+    button:active, label.upload-pill-btn:active {
+      transform: scale(0.985);
+    }
+    button:focus-visible, label.upload-pill-btn:focus-visible {
+      outline: 2px solid var(--blue-600);
+      outline-offset: 2px;
     }
 
     /* =========================================================================
@@ -162,7 +170,7 @@
     .choice-group {
       display: inline-flex;
       flex-wrap: wrap;
-      gap: 5px;
+      gap: 6px;
       align-items: center;
     }
 
@@ -223,6 +231,7 @@
       font-size: 11px;
       font-weight: 700;
       border: 1px solid transparent;
+      white-space: nowrap;
     }
     .badge-navy { background: #E0E7FF; color: #1E3A8A; border-color: #C7D2FE; }
     .badge-ghost { background: #FFFBEB; color: #92400E; border-color: #FDE68A; }
@@ -234,6 +243,7 @@
        ========================================================================= */
     #app-shell {
       min-height: 100vh;
+      width: 100%;
     }
 
     body.mode-desktop #app-shell {
@@ -242,7 +252,7 @@
     }
 
     body.mode-desktop #desktop-sidebar {
-      width: 264px;
+      width: 268px;
       flex-shrink: 0;
       background-color: #FFFFFF;
       border-right: 1px solid var(--border);
@@ -280,8 +290,16 @@
 
     /* Chế độ Điện thoại (Mobile Touch-First) */
     body.mode-mobile {
-      font-size: 14.5px;
-      padding-bottom: calc(82px + env(safe-area-inset-bottom, 0px));
+      font-size: 14px;
+      padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+    }
+
+    body.mode-mobile #app-shell {
+      display: block;
+    }
+
+    body.mode-mobile #main-grid {
+      display: block;
     }
 
     body.mode-mobile #desktop-sidebar,
@@ -291,8 +309,8 @@
       display: none !important;
     }
 
-    body.mode-mobile #mobile-sticky-summary,
-    body.mode-mobile #mobile-quick-actions {
+    body.mode-mobile #mobile-sticky-summary:not(.hidden),
+    body.mode-mobile #mobile-quick-actions:not(.hidden) {
       display: block !important;
     }
 
@@ -304,12 +322,12 @@
     body.mode-mobile input[type="number"],
     body.mode-mobile select {
       min-height: 42px;
-      font-size: 14.5px;
+      font-size: 14px;
     }
 
     body.mode-mobile .choice-btn {
-      min-height: 36px;
-      padding: 6px 10px;
+      min-height: 38px;
+      padding: 6px 11px;
       font-size: 12px;
     }
 
@@ -322,6 +340,10 @@
       border-bottom: 2px solid var(--navy-800);
       padding: 10px 16px;
       box-shadow: var(--shadow-sm);
+    }
+
+    body.mode-mobile #topbar {
+      padding: 9px 12px;
     }
 
     .topbar-row {
@@ -363,6 +385,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 6px;
       background: #F8FAFC;
       color: var(--text-sub);
       border: 1px solid var(--border-soft);
@@ -394,6 +417,7 @@
       display: flex;
       flex-direction: column;
       gap: 14px;
+      min-width: 0;
     }
     body.mode-mobile main {
       padding: 10px 12px;
@@ -406,6 +430,9 @@
       border-radius: var(--radius-lg);
       padding: 14px 16px;
       box-shadow: var(--shadow-sm);
+    }
+    body.mode-mobile .card {
+      padding: 12px;
     }
 
     .card-header {
@@ -449,6 +476,7 @@
        ========================================================================= */
     .table-wrap {
       overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
       border: 1px solid var(--border);
       border-radius: 10px;
       background: #FFFFFF;
@@ -512,12 +540,14 @@
       font-weight: 700;
       padding: 8px 10px;
       border: 1px solid var(--border-soft);
+      vertical-align: middle;
     }
     table.form-grid-table td.val-cell {
       width: 29%;
       background-color: #FFFFFF;
       padding: 7px 9px;
       border: 1px solid var(--border-soft);
+      vertical-align: middle;
     }
 
     body.mode-mobile table.form-grid-table,
@@ -570,6 +600,9 @@
       font-weight: 700;
       color: var(--text-muted);
       margin-bottom: 2px;
+    }
+    body.mode-mobile table.responsive-cards tr.row-group td::before {
+      display: none;
     }
 
     .num { text-align: right !important; }
@@ -668,6 +701,7 @@
       right: 0;
       z-index: 40;
       grid-template-columns: repeat(4, 1fr);
+      gap: 4px;
       background: #FFFFFF;
       border-top: 2px solid var(--navy-800);
       padding: 5px 6px calc(5px + env(safe-area-inset-bottom, 0px)) 6px;
@@ -924,7 +958,7 @@
 </head>
 <body class="mode-desktop">
   <!-- Toast thông báo -->
-  <div id="toast-box" style="position:fixed; bottom:74px; right:14px; z-index:80; display:flex; flex-direction:column; gap:6px; pointer-events:none;"></div>
+  <div id="toast-box" style="position:fixed; bottom:78px; right:14px; z-index:80; display:flex; flex-direction:column; gap:6px; pointer-events:none;"></div>
 
   <!-- Modal Xem Trước Báo Cáo PDF 12 Mục -->
   <div id="preview-modal" class="hidden" role="dialog" aria-modal="true" aria-label="Xem trước Báo cáo Thẩm định">
@@ -1018,7 +1052,7 @@
 
           <div class="action-group">
             <!-- Nút chọn chế độ hiển thị Thiết bị -->
-            <div id="device-choice-group" class="choice-group" title="Chọn chế độ giao diện hiển thị">
+            <div id="device-choice-group" class="choice-group" role="group" aria-label="Chế độ giao diện hiển thị">
               <button type="button" data-dev="auto" class="choice-btn active-navy">Tự động</button>
               <button type="button" data-dev="desktop" class="choice-btn">🖥️ Máy tính</button>
               <button type="button" data-dev="mobile" class="choice-btn">📱 Điện thoại</button>
@@ -1033,7 +1067,7 @@
         </div>
 
         <div id="desktop-stage-pills" class="stage-pills">
-          <div class="stage-pill"><span>1. Tiếp nhận &amp; Checklist</span><strong id="st-pill-1" class="mono">10/12 hồ sơ</strong></div>
+          <div class="stage-pill"><span>1. Tiếp nhận &amp; Checklist</span><strong id="st-pill-1" class="mono">10/13 hồ sơ</strong></div>
           <div class="stage-pill"><span>2. Chuẩn hóa TT200</span><strong id="st-pill-2" class="mono">NWC_op: 87.00 tỷ</strong></div>
           <div class="stage-pill"><span>3. Dòng tiền &amp; Stress</span><strong id="st-pill-3" class="mono">DSCR T+1: 2.01x</strong></div>
           <div class="stage-pill"><span>4. HMTD đề xuất / Phê duyệt</span><strong id="st-pill-4" class="mono">45.00 / 29.00 tỷ</strong></div>
@@ -1044,7 +1078,7 @@
       <section id="mobile-sticky-summary" class="hidden">
         <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
           <div style="min-width:0;">
-            <div style="display:flex; align-items:center; gap:6px;">
+            <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
               <span id="mob-rank" class="badge badge-ghost">Hạng C</span>
               <strong id="mob-decision" style="font-size:12.5px; color:#0F172A;">PHÊ DUYỆT CÓ ĐIỀU KIỆN</strong>
             </div>
@@ -1054,7 +1088,7 @@
               DSCR: <strong id="mob-dscr" class="mono">2.01x</strong>
             </div>
           </div>
-          <button id="btn-mob-expand" type="button" class="btn-ice" style="padding:5px 9px; font-size:11.5px;">Chi tiết ▾</button>
+          <button id="btn-mob-expand" type="button" class="btn-ice" style="padding:5px 9px; font-size:11.5px; flex-shrink:0;">Chi tiết ▾</button>
         </div>
         <div id="mob-drawer" class="hidden" style="margin-top:8px; padding-top:8px; border-top:1px solid #E2E8F0; font-size:12px;">
           <div class="grid-2" style="margin-bottom:6px;">
@@ -1067,10 +1101,11 @@
 
       <!-- THANH THAO TÁC NHANH TRÊN ĐIỆN THOẠI -->
       <section id="mobile-quick-actions" class="hidden">
-        <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:6px;">
-          <button id="btn-mob-run" type="button" class="btn-royal" style="font-size:12px; padding:7px 6px;">▶ Tính toán</button>
-          <button id="btn-mob-preview" type="button" class="btn-navy" style="font-size:12px; padding:7px 6px;">👁 Xem Tờ trình</button>
-          <button id="btn-mob-direct-pdf" type="button" class="btn-emerald" style="font-size:12px; padding:7px 6px;">⬇️ Tải .PDF</button>
+        <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:5px;">
+          <button id="btn-mob-run" type="button" class="btn-royal" style="font-size:11.5px; padding:7px 4px;">▶ Tính</button>
+          <button id="btn-mob-ghost" type="button" class="btn-amber" style="font-size:11.5px; padding:7px 4px;">↺ Mẫu</button>
+          <button id="btn-mob-preview" type="button" class="btn-navy" style="font-size:11.5px; padding:7px 4px;">👁 12 Mục</button>
+          <button id="btn-mob-direct-pdf" type="button" class="btn-emerald" style="font-size:11.5px; padding:7px 4px;">⬇️ .PDF</button>
         </div>
       </section>
 
@@ -1083,7 +1118,67 @@
           </div>
 
           <!-- ===============================================================
-               PHÂN KHU NHẬP LIỆU ĐẦU VÀO (DẠNG BẢNG + NÚT LỰA CHỌN MÀU)
+               PHÂN KHU BẢNG II: CHECKLIST HỒ SƠ ĐẦU VÀO CHUẨN HÓA
+               =============================================================== -->
+          <section id="sec-docs" class="card">
+            <div class="card-header">
+              <div>
+                <h2 class="card-title">II. Bảng Checklist Hồ sơ Đầu vào Chuẩn hóa &amp; Tải Tệp (PDF / Excel)</h2>
+                <div style="font-size:11.5px; color:#64748B;">Chọn trạng thái bằng nút màu và tải trực tiếp tệp <strong>PDF, Excel (.xlsx, .xls, .csv)</strong> từ máy tính hoặc điện thoại cho từng hạng mục (bao gồm Kế hoạch T+1 &amp; HMTD đề xuất).</div>
+              </div>
+              <span id="doc-count-badge" class="badge badge-real">10/13 đầy đủ</span>
+            </div>
+
+            <div class="table-wrap">
+              <table class="bank-table responsive-cards">
+                <thead>
+                  <tr>
+                    <th class="center" style="width:6%;">STT</th>
+                    <th style="width:38%;">Hạng mục Hồ sơ Đầu vào Chuẩn hóa</th>
+                    <th style="width:18%;">Tải Tệp (PDF / Excel)</th>
+                    <th style="width:22%;">Trạng thái Kiểm soát (Chọn màu)</th>
+                    <th style="width:16%;">Ghi chú Đối chiếu</th>
+                  </tr>
+                </thead>
+                <tbody id="checklist-tbody"></tbody>
+              </table>
+            </div>
+
+            <!-- Bảng con Chi tiết Tiểu khoản Hàng tồn kho (Mục 6) -->
+            <div style="margin-top:12px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px; margin-bottom:6px;">
+                <strong style="font-size:12px; color:#0F294A;">Bảng Chi tiết Tiểu khoản Hàng tồn kho Kỳ T (Mục 6: TK 152, 153, 154, 155, 156, 157 – tỷ đồng)</strong>
+                <span class="badge badge-navy mono">Tổng tiểu khoản: <span id="inv-sub-sum">74.00</span> tỷ</span>
+              </div>
+              <div class="table-wrap">
+                <table class="bank-table">
+                  <thead>
+                    <tr>
+                      <th class="center">TK 152 (NVL)</th>
+                      <th class="center">TK 153 (CCDC)</th>
+                      <th class="center">TK 154 (Dở dang)</th>
+                      <th class="center">TK 155 (Thành phẩm)</th>
+                      <th class="center">TK 156 (Hàng hóa)</th>
+                      <th class="center">TK 157 (Gửi bán)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><input id="inp-tk152" data-field="tk152" type="number" inputmode="decimal" step="0.01" style="text-align:right;" /></td>
+                      <td><input id="inp-tk153" data-field="tk153" type="number" inputmode="decimal" step="0.01" style="text-align:right;" /></td>
+                      <td><input id="inp-tk154" data-field="tk154" type="number" inputmode="decimal" step="0.01" style="text-align:right;" /></td>
+                      <td><input id="inp-tk155" data-field="tk155" type="number" inputmode="decimal" step="0.01" style="text-align:right;" /></td>
+                      <td><input id="inp-tk156" data-field="tk156" type="number" inputmode="decimal" step="0.01" style="text-align:right;" /></td>
+                      <td><input id="inp-tk157" data-field="tk157" type="number" inputmode="decimal" step="0.01" style="text-align:right;" /></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <!-- ===============================================================
+               PHÂN KHU NHẬP LIỆU ĐẦU VÀO (BẢNG I, III, IV, V)
                =============================================================== -->
           <section id="sec-inputs" style="display:flex; flex-direction:column; gap:14px;">
             <!-- BẢNG I: THÔNG TIN DOANH NGHIỆP & CẤU HÌNH THAM SỐ BẰNG NÚT MÀU -->
@@ -1133,15 +1228,12 @@
                     <tr>
                       <td class="lbl-cell">Nhóm ngành đặc thù</td>
                       <td class="val-cell" colspan="3">
-            <!-- BẢNG II: BẢNG CHECKLIST HỒ SƠ ĐẦU VÀO CHUẨN HÓA (12 MỤC + TẢI PDF/EXCEL + NÚT TRẠNG THÁI MÀU) -->
-            <div id="sec-docs" class="card">
-              <div class="card-header">
-                <div>
-                  <h2 class="card-title">II. Bảng Checklist Hồ sơ Đầu vào Chuẩn hóa &amp; Tải Tệp (PDF / Excel)</h2>
-                  <div style="font-size:11.5px; color:#64748B;">Chọn trạng thái bằng nút màu và tải trực tiếp tệp <strong>PDF, Excel (.xlsx, .xls, .csv)</strong> từ máy tính hoặc điện thoại cho từng hạng mục (bao gồm Kế hoạch T+1 &amp; HMTD đề xuất).</div>
-                </div>
-                <span id="doc-count-badge" class="badge badge-real">10/12 đầy đủ</span>
-              </div>
+                        <div id="sector-choice-group" class="choice-group">
+                          <button type="button" data-sector="Thương mại Tổng hợp" data-mfg="0" class="choice-btn">Thương mại</button>
+                          <button type="button" data-sector="Xây lắp Công trình" data-mfg="0" class="choice-btn active-blue">Xây lắp</button>
+                          <button type="button" data-sector="Sản xuất Công nghiệp" data-mfg="1" class="choice-btn">Sản xuất</button>
+                          <button type="button" data-sector="Dịch vụ & Logistics" data-mfg="0" class="choice-btn">Dịch vụ</button>
+                        </div>
                         <input id="inp-industry" data-field="industry" type="text" style="margin-top:6px;" />
                       </td>
                     </tr>
@@ -1180,64 +1272,6 @@
               </div>
             </div>
 
-            <!-- BẢNG II: BẢNG CHECKLIST HỒ SƠ ĐẦU VÀO CHUẨN HÓA (11 MỤC + TẢI PDF/EXCEL + NÚT TRẠNG THÁI MÀU) -->
-            <div id="sec-docs" class="card">
-              <div class="card-header">
-                <div>
-                  <h2 class="card-title">II. Bảng Checklist Hồ sơ Đầu vào Chuẩn hóa &amp; Tải Tệp (PDF / Excel)</h2>
-                  <div style="font-size:11.5px; color:#64748B;">Chọn trạng thái bằng nút màu và tải trực tiếp tệp <strong>PDF, Excel (.xlsx, .xls, .csv)</strong> từ máy tính hoặc điện thoại cho từng hạng mục.</div>
-                </div>
-                <span id="doc-count-badge" class="badge badge-real">8/11 đầy đủ</span>
-              </div>
-
-              <div class="table-wrap">
-                <table class="bank-table responsive-cards">
-                  <thead>
-                    <tr>
-                      <th class="center" style="width:6%;">STT</th>
-                      <th style="width:38%;">Hạng mục Hồ sơ Đầu vào Chuẩn hóa</th>
-                      <th style="width:18%;">Tải Tệp (PDF / Excel)</th>
-                      <th style="width:22%;">Trạng thái Kiểm soát (Chọn màu)</th>
-                      <th style="width:16%;">Ghi chú Đối chiếu</th>
-                    </tr>
-                  </thead>
-                  <tbody id="checklist-tbody"></tbody>
-                </table>
-              </div>
-
-              <!-- Bảng con Chi tiết Tiểu khoản Hàng tồn kho (Mục 6) -->
-              <div style="margin-top:12px;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                  <strong style="font-size:12px; color:#0F294A;">Bảng Chi tiết Tiểu khoản Hàng tồn kho Kỳ T (Mục 6: TK 152, 153, 154, 155, 156, 157 – tỷ đồng)</strong>
-                  <span class="badge badge-navy mono">Tổng tiểu khoản: <span id="inv-sub-sum">74.00</span> tỷ</span>
-                </div>
-                <div class="table-wrap">
-                  <table class="bank-table">
-                    <thead>
-                      <tr>
-                        <th class="center">TK 152 (NVL)</th>
-                        <th class="center">TK 153 (CCDC)</th>
-                        <th class="center">TK 154 (Dở dang)</th>
-                        <th class="center">TK 155 (Thành phẩm)</th>
-                        <th class="center">TK 156 (Hàng hóa)</th>
-                        <th class="center">TK 157 (Gửi bán)</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td><input id="inp-tk152" data-field="tk152" type="number" inputmode="decimal" step="0.01" style="text-align:right;" /></td>
-                        <td><input id="inp-tk153" data-field="tk153" type="number" inputmode="decimal" step="0.01" style="text-align:right;" /></td>
-                        <td><input id="inp-tk154" data-field="tk154" type="number" inputmode="decimal" step="0.01" style="text-align:right;" /></td>
-                        <td><input id="inp-tk155" data-field="tk155" type="number" inputmode="decimal" step="0.01" style="text-align:right;" /></td>
-                        <td><input id="inp-tk156" data-field="tk156" type="number" inputmode="decimal" step="0.01" style="text-align:right;" /></td>
-                        <td><input id="inp-tk157" data-field="tk157" type="number" inputmode="decimal" step="0.01" style="text-align:right;" /></td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-
             <!-- BẢNG III: BÓC TÁCH & LỌC NHIỄU VỐN LƯU ĐỘNG VẬN HÀNH 3 KỲ (T-2, T-1, KỲ T) -->
             <div class="card">
               <div class="card-header">
@@ -1265,19 +1299,19 @@
                     <tr>
                       <td data-label="Khoản mục"><strong>Phải thu KH (MS 131 / TK 2293)</strong></td>
                       <td data-label="Gộp T−2" class="num"><input id="inp-ar-gop-t2" data-field="arGopT2" type="number" inputmode="decimal" step="0.01" style="text-align:right;" /></td>
-                      <td data-label="Treo & DP T−2" class="num">
+                      <td data-label="Treo &amp; DP T−2" class="num">
                         <input id="inp-ar-treo-t2" data-field="arTreoT2" type="number" inputmode="decimal" step="0.01" style="text-align:right; margin-bottom:4px;" />
                         <input id="inp-dp-noxau-t2" data-field="dpNoXauT2" type="number" inputmode="decimal" step="0.01" style="text-align:right;" />
                       </td>
                       <td data-label="Sạch T−2" id="live-ar-t2" class="num mono" style="font-weight:800; color:#334155;">38.00</td>
                       <td data-label="Gộp T−1" class="num"><input id="inp-ar-gop-t1" data-field="arGopT1" type="number" inputmode="decimal" step="0.01" style="text-align:right;" /></td>
-                      <td data-label="Treo & DP T−1" class="num">
+                      <td data-label="Treo &amp; DP T−1" class="num">
                         <input id="inp-ar-treo-t1" data-field="arTreoT1" type="number" inputmode="decimal" step="0.01" style="text-align:right; margin-bottom:4px;" />
                         <input id="inp-dp-noxau-t1" data-field="dpNoXauT1" type="number" inputmode="decimal" step="0.01" style="text-align:right;" />
                       </td>
                       <td data-label="Sạch T−1" id="live-ar-t1" class="num mono" style="font-weight:800; color:#334155;">46.00</td>
                       <td data-label="Gộp Kỳ T" class="num"><input id="inp-ar-gop" data-field="arGop" type="number" inputmode="decimal" step="0.01" style="text-align:right;" /></td>
-                      <td data-label="Treo & DP Kỳ T" class="num">
+                      <td data-label="Treo &amp; DP Kỳ T" class="num">
                         <input id="inp-ar-treo" data-field="arTreo" type="number" inputmode="decimal" step="0.01" style="text-align:right; margin-bottom:4px;" />
                         <input id="inp-dp-noxau" data-field="dpNoXau" type="number" inputmode="decimal" step="0.01" style="text-align:right;" />
                       </td>
@@ -1286,19 +1320,19 @@
                     <tr>
                       <td data-label="Khoản mục"><strong>Hàng tồn kho (MS 141 / TK 2294)</strong></td>
                       <td data-label="Gộp T−2" class="num"><input id="inp-inv-gop-t2" data-field="invGopT2" type="number" inputmode="decimal" step="0.01" style="text-align:right;" /></td>
-                      <td data-label="Ứ đọng & DP T−2" class="num">
+                      <td data-label="Ứ đọng &amp; DP T−2" class="num">
                         <input id="inp-inv-udong-t2" data-field="invUDongT2" type="number" inputmode="decimal" step="0.01" style="text-align:right; margin-bottom:4px;" />
                         <input id="inp-dp-giamgia-t2" data-field="dpGiamGiaT2" type="number" inputmode="decimal" step="0.01" style="text-align:right;" />
                       </td>
                       <td data-label="Sạch T−2" id="live-inv-t2" class="num mono" style="font-weight:800; color:#334155;">43.20</td>
                       <td data-label="Gộp T−1" class="num"><input id="inp-inv-gop-t1" data-field="invGopT1" type="number" inputmode="decimal" step="0.01" style="text-align:right;" /></td>
-                      <td data-label="Ứ đọng & DP T−1" class="num">
+                      <td data-label="Ứ đọng &amp; DP T−1" class="num">
                         <input id="inp-inv-udong-t1" data-field="invUDongT1" type="number" inputmode="decimal" step="0.01" style="text-align:right; margin-bottom:4px;" />
                         <input id="inp-dp-giamgia-t1" data-field="dpGiamGiaT1" type="number" inputmode="decimal" step="0.01" style="text-align:right;" />
                       </td>
                       <td data-label="Sạch T−1" id="live-inv-t1" class="num mono" style="font-weight:800; color:#334155;">51.00</td>
                       <td data-label="Gộp Kỳ T" class="num"><input id="inp-inv-gop" data-field="invGop" type="number" inputmode="decimal" step="0.01" style="text-align:right;" /></td>
-                      <td data-label="Ứ đọng & DP Kỳ T" class="num">
+                      <td data-label="Ứ đọng &amp; DP Kỳ T" class="num">
                         <input id="inp-inv-udong" data-field="invUDong" type="number" inputmode="decimal" step="0.01" style="text-align:right; margin-bottom:4px;" />
                         <input id="inp-dp-giamgia" data-field="dpGiamGia" type="number" inputmode="decimal" step="0.01" style="text-align:right;" />
                       </td>
@@ -1307,19 +1341,19 @@
                     <tr>
                       <td data-label="Khoản mục"><strong>Phải trả NCC (MS 311 / Treo &amp; CapEx)</strong></td>
                       <td data-label="Tổng TK 331 T−2" class="num"><input id="inp-tong-331-t2" data-field="tong331T2" type="number" inputmode="decimal" step="0.01" style="text-align:right;" /></td>
-                      <td data-label="Treo & CapEx T−2" class="num">
+                      <td data-label="Treo &amp; CapEx T−2" class="num">
                         <input id="inp-ap-treo-t2" data-field="apTreoT2" type="number" inputmode="decimal" step="0.01" style="text-align:right; margin-bottom:4px;" />
                         <input id="inp-ap-capex-t2" data-field="apCapExT2" type="number" inputmode="decimal" step="0.01" style="text-align:right;" />
                       </td>
                       <td data-label="Sạch T−2" id="live-ap-t2" class="num mono" style="font-weight:800; color:#334155;">28.50</td>
                       <td data-label="Tổng TK 331 T−1" class="num"><input id="inp-tong-331-t1" data-field="tong331T1" type="number" inputmode="decimal" step="0.01" style="text-align:right;" /></td>
-                      <td data-label="Treo & CapEx T−1" class="num">
+                      <td data-label="Treo &amp; CapEx T−1" class="num">
                         <input id="inp-ap-treo-t1" data-field="apTreoT1" type="number" inputmode="decimal" step="0.01" style="text-align:right; margin-bottom:4px;" />
                         <input id="inp-ap-capex-t1" data-field="apCapExT1" type="number" inputmode="decimal" step="0.01" style="text-align:right;" />
                       </td>
                       <td data-label="Sạch T−1" id="live-ap-t1" class="num mono" style="font-weight:800; color:#334155;">34.00</td>
                       <td data-label="Tổng TK 331 Kỳ T" class="num"><input id="inp-tong-331" data-field="tong331" type="number" inputmode="decimal" step="0.01" style="text-align:right;" /></td>
-                      <td data-label="Treo & CapEx Kỳ T" class="num">
+                      <td data-label="Treo &amp; CapEx Kỳ T" class="num">
                         <input id="inp-ap-treo" data-field="apTreo" type="number" inputmode="decimal" step="0.01" style="text-align:right; margin-bottom:4px;" />
                         <input id="inp-ap-capex" data-field="apCapEx" type="number" inputmode="decimal" step="0.01" style="text-align:right;" />
                       </td>
@@ -1796,7 +1830,7 @@
       "use strict";
 
       /* =================================================================
-         1. TIỆN ÍCH AN TOÀN (STORAGE, DOM, SỐ HỌC)
+         1. TIỆN ÍCH AN TOÀN (STORAGE, DOM, SỐ HỌC, VIEWPORT)
          ================================================================= */
       var STORAGE_CASE_KEY = "cf_pro_v72_case_v2";
       var STORAGE_DEV_KEY = "cf_pro_v72_dev_v2";
@@ -1831,7 +1865,7 @@
           var box = $("toast-box");
           if (!box) return;
           var item = document.createElement("div");
-          item.style.cssText = "background:#0F294A;color:#fff;padding:9px 13px;border-radius:10px;font-size:12.5px;font-weight:600;box-shadow:0 6px 18px rgba(0,0,0,0.24);max-width:330px;";
+          item.style.cssText = "background:#0F294A;color:#fff;padding:9px 13px;border-radius:10px;font-size:12.5px;font-weight:600;box-shadow:0 6px 18px rgba(0,0,0,0.24);max-width:340px;";
           item.textContent = msg;
           box.appendChild(item);
           setTimeout(function () {
@@ -1840,8 +1874,20 @@
         } catch (e) {}
       }
 
+      /* Nhận diện viewport điện thoại trên Chrome (bao gồm Chrome DevTools & Mobile Chrome) */
+      function isMobileViewport() {
+        try {
+          var w = window.innerWidth || document.documentElement.clientWidth || 1024;
+          if (w <= 820) return true;
+          if (window.matchMedia && window.matchMedia("(max-width: 820px)").matches) return true;
+          return false;
+        } catch (e) {
+          return false;
+        }
+      }
+
       /* =================================================================
-         2. DỮ LIỆU GIẢ ĐỊNH CHUẨN & BẢNG CHECKLIST 12 HẠNG MỤC HỒ SƠ
+         2. DỮ LIỆU GIẢ ĐỊNH CHUẨN & BẢNG CHECKLIST 13 HẠNG MỤC HỒ SƠ
          ================================================================= */
       var DOC_ITEMS_META = [
         { id: "1", stt: "1", title: "1. Đăng ký kinh doanh / Hồ sơ pháp lý", isSub: false },
@@ -1971,659 +2017,58 @@
       }
 
       /* =================================================================
-         8. HỆ THỐNG XUẤT PDF KÉP 100% NGOẠI TUYẾN (VECTOR PRINT + DIRECT .PDF BLOB)
+         3. ĐỒNG BỘ GIAO DIỆN DESKTOP / MOBILE & ĐIỀU HƯỚNG TAB
          ================================================================= */
-      function buildBankStandard12SectionReportHTML() {
-        runAppraisalEngine(false);
-        return buildFormal12SectionMemo(appState.lastResult);
-      }
+      function syncLayoutViews() {
+        var secDocs = $("sec-docs");
+        var secInputs = $("sec-inputs");
+        var secAnalysis = $("sec-analysis");
+        var secReport = $("sec-report");
+        var secJson = $("sec-json");
+        var mobSummary = $("mobile-sticky-summary");
+        var mobQuick = $("mobile-quick-actions");
 
-      function openReportPreview() {
-        var html = buildBankStandard12SectionReportHTML();
-        $("modal-paper-content").innerHTML = html;
-        $("preview-modal").classList.remove("hidden");
-      }
-
-      function triggerVectorPrintToPdf() {
-        var html = buildBankStandard12SectionReportHTML();
-        var mount = $("print-sheet-mount");
-        mount.innerHTML = html;
-        $("preview-modal").classList.add("hidden");
-
-        // Bắt buộc trình duyệt reflow đồng bộ trước khi gọi hộp thoại In / Lưu PDF
-        void mount.offsetHeight;
-
-        setTimeout(function () {
-          try {
-            window.focus();
-            window.print();
-          } catch (e) {
-            notify("Trình duyệt chặn hộp thoại in tự động. Đang chuyển sang tải trực tiếp file .PDF...");
-            downloadDirectPdfBlob();
-          }
-        }, 160);
-      }
-
-      /* Đóng gói mảng dữ liệu ảnh JPEG nhiều trang thành tệp nhị phân PDF 1.4 chuẩn A4 (595.28 x 841.89 pt) */
-      function buildBinaryPdfFromJpegPages(jpegDataUrls) {
-        var pageW = 595.28;
-        var pageH = 841.89;
-        var chunks = [];
-        var byteLen = 0;
-        var offsets = [0];
-
-        function pushAscii(str) {
-          var arr = new Uint8Array(str.length);
-          for (var i = 0; i < str.length; i++) {
-            arr[i] = str.charCodeAt(i) & 0xff;
-          }
-          chunks.push(arr);
-          byteLen += arr.length;
-        }
-
-        function pushBytes(u8) {
-          chunks.push(u8);
-          byteLen += u8.length;
-        }
-
-        function startObj(objNum) {
-          offsets[objNum] = byteLen;
-          pushAscii(objNum + " 0 obj\n");
-        }
-
-        function endObj() {
-          pushAscii("\nendobj\n");
-        }
-
-        function dataUrlToUint8(dataUrl) {
-          var b64 = dataUrl.split(",")[1];
-          var bin = atob(b64);
-          var u8 = new Uint8Array(bin.length);
-          for (var i = 0; i < bin.length; i++) {
-            u8[i] = bin.charCodeAt(i);
-          }
-          return u8;
-        }
-
-        function getJpegDimensions(u8) {
-          var i = 2;
-          while (i + 9 < u8.length) {
-            if (u8[i] === 0xff) {
-              var marker = u8[i + 1];
-              if (marker === 0xc0 || marker === 0xc1 || marker === 0xc2) {
-                var h = (u8[i + 5] << 8) | u8[i + 6];
-                var w = (u8[i + 7] << 8) | u8[i + 8];
-                return { width: w || 1240, height: h || 1754 };
-              }
-              var segLen = (u8[i + 2] << 8) | u8[i + 3];
-              if (segLen < 2) break;
-              i += 2 + segLen;
-            } else {
-              i++;
-            }
-          }
-          return { width: 1240, height: 1754 };
-        }
-
-        pushAscii("%PDF-1.4\n");
-
-        var numPages = jpegDataUrls.length;
-        // Object 1: Catalog, Object 2: Pages, mỗi trang dùng 3 object: Page, ContentStream, ImageXObject
-        var pageObjIds = [];
-        for (var p = 0; p < numPages; p++) {
-          pageObjIds.push(3 + p * 3);
-        }
-
-        startObj(1);
-        pushAscii("<< /Type /Catalog /Pages 2 0 R >>");
-        endObj();
-
-        startObj(2);
-        pushAscii("<< /Type /Pages /Kids [" + pageObjIds.map(function (id) { return id + " 0 R"; }).join(" ") + "] /Count " + numPages + " >>");
-        endObj();
-
-        for (var idx = 0; idx < numPages; idx++) {
-          var pageObjId = 3 + idx * 3;
-          var contentObjId = pageObjId + 1;
-          var imgObjId = pageObjId + 2;
-
-          var jpgBytes = dataUrlToUint8(jpegDataUrls[idx]);
-          var dim = getJpegDimensions(jpgBytes);
-
-          startObj(pageObjId);
-          pushAscii(
-            "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 " + pageW.toFixed(2) + " " + pageH.toFixed(2) + "] " +
-            "/Resources << /XObject << /Im0 " + imgObjId + " 0 R >> >> " +
-            "/Contents " + contentObjId + " 0 R >>"
-          );
-          endObj();
-
-          var drawCmd = "q\n" + pageW.toFixed(2) + " 0 0 " + pageH.toFixed(2) + " 0 0 cm\n/Im0 Do\nQ\n";
-          startObj(contentObjId);
-          pushAscii("<< /Length " + drawCmd.length + " >>\nstream\n" + drawCmd + "endstream");
-          endObj();
-
-          startObj(imgObjId);
-          pushAscii(
-            "<< /Type /XObject /Subtype /Image /Width " + dim.width + " /Height " + dim.height + " " +
-            "/ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length " + jpgBytes.length + " >>\nstream\n"
-          );
-          pushBytes(jpgBytes);
-          pushAscii("\nendstream");
-          endObj();
-        }
-
-        var xrefStart = byteLen;
-        var totalObjs = 3 + numPages * 3;
-        pushAscii("xref\n0 " + totalObjs + "\n");
-        pushAscii("0000000000 65535 f \n");
-        for (var o = 1; o < totalObjs; o++) {
-          var offStr = String(offsets[o] || 0);
-          while (offStr.length < 10) offStr = "0" + offStr;
-          pushAscii(offStr + " 00000 n \n");
-        }
-
-        pushAscii(
-          "trailer\n<< /Size " + totalObjs + " /Root 1 0 R >>\n" +
-          "startxref\n" + xrefStart + "\n%%EOF"
-        );
-
-        return new Blob(chunks, { type: "application/pdf" });
-      }
-
-      /* Bộ vẽ trực tiếp toàn bộ 12 mục báo cáo ra nhiều trang Canvas A4 (100% không bao giờ trắng trang) */
-      function renderReportToA4CanvasPages(res) {
-        var d = res.input;
-        var c = res.clean;
-        var m = res.metrics;
-        var v = res.verdict;
-        var e = res.ews;
-
-        var W = 1240;
-        var H = 1754;
-        var marginX = 68;
-        var marginTop = 68;
-        var marginBottom = 78;
-        var usableW = W - marginX * 2;
-        var pages = [];
-        var canvas = null;
-        var ctx = null;
-        var y = marginTop;
-
-        function newPage() {
-          if (canvas) {
-            pages.push(canvas.toDataURL("image/jpeg", 0.92));
-          }
-          canvas = document.createElement("canvas");
-          canvas.width = W;
-          canvas.height = H;
-          ctx = canvas.getContext("2d");
-          ctx.fillStyle = "#FFFFFF";
-          ctx.fillRect(0, 0, W, H);
-          y = marginTop;
-        }
-
-        function ensureSpace(needH) {
-          if (y + needH > H - marginBottom) {
-            newPage();
+        // Cập nhật trạng thái nút Sidebar Desktop
+        var navBtns = document.querySelectorAll("#desktop-sidebar .nav-item");
+        for (var i = 0; i < navBtns.length; i++) {
+          var v = navBtns[i].getAttribute("data-desk-view");
+          if (v === appState.desktopView) {
+            navBtns[i].classList.add("active");
+          } else {
+            navBtns[i].classList.remove("active");
           }
         }
 
-        function wrapTextLines(text, maxW, fontSpec) {
-          ctx.font = fontSpec;
-          var words = String(text || "").split(/\s+/);
-          var lines = [];
-          var line = "";
-          for (var i = 0; i < words.length; i++) {
-            var w = words[i];
-            if (!w) continue;
-            var test = line ? (line + " " + w) : w;
-            if (ctx.measureText(test).width <= maxW) {
-              line = test;
-            } else {
-              if (line) lines.push(line);
-              line = w;
-            }
+        // Cập nhật trạng thái nút Bottom Nav Mobile
+        var mobBtns = document.querySelectorAll("#mobile-bottom-nav .mob-nav-btn");
+        for (var j = 0; j < mobBtns.length; j++) {
+          var t = mobBtns[j].getAttribute("data-mob-tab");
+          if (t === appState.mobileTab) {
+            mobBtns[j].classList.add("active");
+          } else {
+            mobBtns[j].classList.remove("active");
           }
-          if (line) lines.push(line);
-          return lines.length ? lines : [""];
         }
 
-        function drawBanner() {
-          ctx.fillStyle = "#1B365D";
-          ctx.fillRect(marginX, y, usableW, 6);
-          y += 16;
-          ctx.font = "bold 17px Arial, sans-serif";
-          ctx.fillStyle = "#2B6CB0";
-          ctx.fillText("BÁO CÁO THẨM ĐỊNH TÍN DỤNG KHDN CHUYÊN SÂU • CHUẨN MAPPING TT200 & VAS 24", marginX, y + 16);
-          y += 28;
-          ctx.font = "bold 28px Arial, sans-serif";
-          ctx.fillStyle = "#1B365D";
-          ctx.fillText("BÁO CÁO THẨM ĐỊNH TÍN DỤNG & NGHỊ QUYẾT CẤP TÍN DỤNG", marginX, y + 26);
-          y += 38;
-          ctx.font = "18px Arial, sans-serif";
-          ctx.fillStyle = "#334155";
-          ctx.fillText("Kỳ báo cáo: Lũy kế " + d.tDays + " ngày năm T   |   Kỳ kế hoạch: Năm T+1   |   Đơn vị tiền tệ: Tỷ đồng", marginX, y + 18);
-          y += 28;
-          ctx.fillStyle = "#1B365D";
-          ctx.fillRect(marginX, y, usableW, 3);
-          y += 20;
-        }
+        if (appState.activeDevice === "mobile") {
+          if (mobSummary) mobSummary.classList.remove("hidden");
+          if (mobQuick) mobQuick.classList.remove("hidden");
 
-        function drawSectionHeading(title) {
-          ensureSpace(58);
-          y += 8;
-          ctx.font = "bold 21px Arial, sans-serif";
-          ctx.fillStyle = "#1B365D";
-          ctx.fillText(title, marginX, y + 20);
-          y += 28;
-          ctx.fillStyle = "#1B365D";
-          ctx.fillRect(marginX, y, usableW, 2.5);
-          y += 12;
-        }
+          if (secDocs) secDocs.classList.toggle("hidden", appState.mobileTab !== "docs");
+          if (secInputs) secInputs.classList.toggle("hidden", appState.mobileTab !== "inputs");
+          if (secAnalysis) secAnalysis.classList.toggle("hidden", appState.mobileTab !== "analysis");
+          if (secReport) secReport.classList.toggle("hidden", appState.mobileTab !== "report");
+          if (secJson) secJson.classList.add("hidden");
+        } else {
+          if (mobSummary) mobSummary.classList.add("hidden");
+          if (mobQuick) mobQuick.classList.add("hidden");
 
-        function drawSubHeading(title) {
-          ensureSpace(38);
-          y += 4;
-          ctx.font = "bold 18.5px Arial, sans-serif";
-          ctx.fillStyle = "#1E3A8A";
-          ctx.fillText(title, marginX, y + 18);
-          y += 28;
-        }
-
-        function drawCallout(boxTitle, bulletLines, styleType) {
-          var bg = "#F0F4F8";
-          var border = "#BFDBFE";
-          var accent = "#2B6CB0";
-          var titleColor = "#1B365D";
-          if (styleType === "formula") {
-            bg = "#F0F9FF"; border = "#CBD5E1"; accent = "#0284C7"; titleColor = "#0369A1";
-          } else if (styleType === "conclusion") {
-            bg = "#F1F5F9"; border = "#CBD5E1"; accent = "#1B365D"; titleColor = "#1B365D";
-          } else if (styleType === "knockout") {
-            bg = "#FEF2F2"; border = "#FECACA"; accent = "#B91C1C"; titleColor = "#B91C1C";
-          }
-
-          var bodyFont = "17.5px Arial, sans-serif";
-          var allWrapped = [];
-          for (var i = 0; i < bulletLines.length; i++) {
-            var wl = wrapTextLines(bulletLines[i], usableW - 36, bodyFont);
-            for (var j = 0; j < wl.length; j++) {
-              allWrapped.push(wl[j]);
-            }
-          }
-          var boxH = 38 + allWrapped.length * 24 + 12;
-          ensureSpace(boxH + 10);
-
-          ctx.fillStyle = bg;
-          ctx.fillRect(marginX, y, usableW, boxH);
-          ctx.strokeStyle = border;
-          ctx.lineWidth = 1.5;
-          ctx.strokeRect(marginX, y, usableW, boxH);
-          ctx.fillStyle = accent;
-          ctx.fillRect(marginX, y, 7, boxH);
-
-          ctx.font = "bold 16.5px Arial, sans-serif";
-          ctx.fillStyle = titleColor;
-          ctx.fillText(boxTitle, marginX + 18, y + 24);
-
-          ctx.font = bodyFont;
-          ctx.fillStyle = "#1E293B";
-          var ty = y + 48;
-          for (var k = 0; k < allWrapped.length; k++) {
-            ctx.fillText(allWrapped[k], marginX + 18, ty);
-            ty += 24;
-          }
-          y += boxH + 12;
-        }
-
-        function drawTable(headers, colWidths, rows, aligns) {
-          var cellFont = "16.5px Arial, sans-serif";
-          var headFont = "bold 16.5px Arial, sans-serif";
-
-          function renderHeaderRow() {
-            var hLinesList = [];
-            var maxHLines = 1;
-            for (var cIdx = 0; cIdx < headers.length; cIdx++) {
-              var hl = wrapTextLines(headers[cIdx], colWidths[cIdx] - 16, headFont);
-              hLinesList.push(hl);
-              if (hl.length > maxHLines) maxHLines = hl.length;
-            }
-            var rowH = maxHLines * 22 + 14;
-            ensureSpace(rowH + 34);
-
-            var cx = marginX;
-            for (var cIdx2 = 0; cIdx2 < headers.length; cIdx2++) {
-              var cw = colWidths[cIdx2];
-              ctx.fillStyle = "#1B365D";
-              ctx.fillRect(cx, y, cw, rowH);
-              ctx.strokeStyle = "#CBD5E1";
-              ctx.lineWidth = 1;
-              ctx.strokeRect(cx, y, cw, rowH);
-
-              ctx.font = headFont;
-              ctx.fillStyle = "#FFFFFF";
-              var lines = hLinesList[cIdx2];
-              for (var l = 0; l < lines.length; l++) {
-                var tx = cx + 8;
-                if (aligns && aligns[cIdx2] === "right") {
-                  tx = cx + cw - 8 - ctx.measureText(lines[l]).width;
-                } else if (aligns && aligns[cIdx2] === "center") {
-                  tx = cx + (cw - ctx.measureText(lines[l]).width) / 2;
-                }
-                ctx.fillText(lines[l], tx, y + 21 + l * 22);
-              }
-              cx += cw;
-            }
-            y += rowH;
-          }
-
-          renderHeaderRow();
-
-          for (var rIdx = 0; rIdx < rows.length; rIdx++) {
-            var rowSpec = rows[rIdx];
-            var isGroup = !!rowSpec.isGroup;
-            var isHighlight = !!rowSpec.isHighlight;
-            var isTotal = !!rowSpec.isTotal;
-            var cells = rowSpec.cells || rowSpec;
-            var rowFont = (isGroup || isHighlight || isTotal) ? "bold 16.5px Arial, sans-serif" : cellFont;
-
-            if (isGroup) {
-              var gLines = wrapTextLines(cells[0], usableW - 18, rowFont);
-              var gH = gLines.length * 22 + 12;
-              if (y + gH > H - marginBottom) {
-                newPage();
-                renderHeaderRow();
-              }
-              ctx.fillStyle = "#E0F2FE";
-              ctx.fillRect(marginX, y, usableW, gH);
-              ctx.strokeStyle = "#CBD5E1";
-              ctx.strokeRect(marginX, y, usableW, gH);
-              ctx.font = rowFont;
-              ctx.fillStyle = "#1B365D";
-              for (var gl = 0; gl < gLines.length; gl++) {
-                ctx.fillText(gLines[gl], marginX + 9, y + 20 + gl * 22);
-              }
-              y += gH;
-              continue;
-            }
-
-            var cellLines = [];
-            var maxLines = 1;
-            for (var col = 0; col < colWidths.length; col++) {
-              var wrapped = wrapTextLines(cells[col] != null ? cells[col] : "", colWidths[col] - 16, rowFont);
-              cellLines.push(wrapped);
-              if (wrapped.length > maxLines) maxLines = wrapped.length;
-            }
-            var rH = maxLines * 21 + 12;
-            if (y + rH > H - marginBottom) {
-              newPage();
-              renderHeaderRow();
-            }
-
-            var bgCol = isTotal ? "#DBEAFE" : (isHighlight ? "#E0F2FE" : (rIdx % 2 === 1 ? "#F8FAFC" : "#FFFFFF"));
-            var cx2 = marginX;
-            for (var col2 = 0; col2 < colWidths.length; col2++) {
-              var cw2 = colWidths[col2];
-              ctx.fillStyle = bgCol;
-              ctx.fillRect(cx2, y, cw2, rH);
-              ctx.strokeStyle = "#CBD5E1";
-              ctx.lineWidth = 1;
-              ctx.strokeRect(cx2, y, cw2, rH);
-
-              ctx.font = rowFont;
-              ctx.fillStyle = isTotal ? "#1B365D" : "#1E293B";
-              var cLines = cellLines[col2];
-              for (var cl = 0; cl < cLines.length; cl++) {
-                var tx2 = cx2 + 8;
-                if (aligns && aligns[col2] === "right") {
-                  tx2 = cx2 + cw2 - 8 - ctx.measureText(cLines[cl]).width;
-                } else if (aligns && aligns[col2] === "center") {
-                  tx2 = cx2 + (cw2 - ctx.measureText(cLines[cl]).width) / 2;
-                }
-                ctx.fillText(cLines[cl], tx2, y + 20 + cl * 21);
-              }
-              cx2 += cw2;
-            }
-            y += rH;
-          }
-          y += 12;
-        }
-
-        // BẮT ĐẦU VẼ TRANG 1 & TOÀN BỘ 12 MỤC
-        newPage();
-        drawBanner();
-
-        // MỤC 1
-        drawSectionHeading("1. THÔNG TIN KHÁCH HÀNG & CHECKLIST HỒ SƠ ĐẦU VÀO");
-        drawCallout("THÔNG TIN ĐỀ XUẤT CẤP TÍN DỤNG", [
-          "• Tên KH: " + d.companyName + "  |  Ngành nghề: " + d.industry + "  |  MST: " + d.taxCode,
-          "• Hạn mức đề xuất (VAR_HMTD_REQ): " + fmt(d.hmtdReq) + " tỷ  |  Mục đích & Thời hạn: " + d.purpose
-        ], "info");
-        drawTable(
-          ["STT", "Hạng mục Tài liệu", "Trạng thái", "Thời điểm / Ghi chú Kiểm soát"],
-          [74, 520, 170, 340],
-          appState.docs.map(function (doc) {
-            var stText = doc.status === "ok" ? "Đầy đủ" : (doc.status === "missing" ? "Thiếu chi tiết" : "Chưa cung cấp");
-            var fList = (doc.files && doc.files.length) ? (" [" + doc.files.map(function (f) { return f.name; }).join(", ") + "]") : "";
-            return [doc.stt, doc.title.replace(/^\d+\.\s*/, "") + fList, stText, doc.note || "—"];
-          }),
-          ["center", "left", "left", "left"]
-        );
-        drawCallout("KẾT LUẬN / ĐÁNH GIÁ MỤC 1", [
-          "Hồ sơ đã được tiếp nhận, kiểm tra tính hợp lệ và đối chiếu chéo số liệu theo chuẩn Thông tư 200 để phục vụ phân tích dòng tiền vận hành."
-        ], "conclusion");
-
-        // MỤC 2
-        drawSectionHeading("2. ĐÁNH GIÁ PHÁP LÝ & DƯ NỢ TÍN DỤNG");
-        drawCallout("ĐÁNH GIÁ PHÁP LÝ & QUAN HỆ TÍN DỤNG", [
-          "Doanh nghiệp hoạt động hợp pháp theo Giấy chứng nhận ĐKDN, ngành nghề đăng ký phù hợp phương án vay vốn. Tình trạng quan hệ tín dụng trên CIC: Nhóm " + d.cicGroup + ". Dư nợ ngắn hạn hiện hữu tại TCTD khác là " + fmt(d.otherDebt) + " tỷ đồng, nghĩa vụ trả nợ gốc và lãi đến hạn là " + fmt(m.effectiveDebtService) + " tỷ đồng."
-        ], "info");
-        drawCallout("KẾT LUẬN / ĐÁNH GIÁ MỤC 2", [
-          "Tư cách pháp lý đầy đủ, hợp lệ. Dư nợ vay ngắn hạn tại TCTD khác (" + fmt(d.otherDebt) + " tỷ) được khấu trừ trực tiếp khi xác định trần hạn mức bổ sung tại Mục 7."
-        ], "conclusion");
-
-        // MỤC 3
-        drawSectionHeading("3. LỌC NHIỄU BCTC & PHÂN LOẠI ĐỘNG: NĂM T−2, NĂM T−1 & KỲ T (CHUẨN TT200)");
-        drawTable(
-          ["Biến số Hệ thống", "Chỉ tiêu BCTC / Mã số TT200", "Năm T−2 (tỷ)", "Năm T−1 (tỷ)", "Kỳ T (tỷ)"],
-          [220, 404, 160, 160, 160],
-          [
-            ["AR_Gop / DP_NoXau", "Phải thu KH (MS 131) / Dự phòng nợ xấu (MS 137)", fmt(d.arGopT2) + " / (" + fmt(d.dpNoXauT2) + ")", fmt(d.arGopT1) + " / (" + fmt(d.dpNoXauT1) + ")", fmt(d.arGop) + " / (" + fmt(d.dpNoXau) + ")"],
-            { isHighlight: true, cells: ["VAR_AR_CLEAN", "Phải thu khách hàng sạch sau chống trừ trùng", fmt(c.arCleanT2), fmt(c.arCleanT1), fmt(c.arClean)] },
-            ["INV_Gop / DP_GiamGia", "Hàng tồn kho gộp (MS 141) / Dự phòng giảm giá (MS 149)", fmt(d.invGopT2) + " / (" + fmt(d.dpGiamGiaT2) + ")", fmt(d.invGopT1) + " / (" + fmt(d.dpGiamGiaT1) + ")", fmt(d.invGop) + " / (" + fmt(d.dpGiamGia) + ")"],
-            { isHighlight: true, cells: ["VAR_INV_CLEAN", "Hàng tồn kho sạch sau chống trừ trùng", fmt(c.invCleanT2), fmt(c.invCleanT1), fmt(c.invClean)] },
-            { isHighlight: true, cells: ["VAR_AP_CLEAN", "Phải trả người bán sạch (MS 311 / TK 331)", fmt(c.apCleanT2), fmt(c.apCleanT1), fmt(c.apClean)] },
-            ["VAR_DTT / VAR_COGS", "Doanh thu thuần (MS 10) / Giá vốn hàng bán (MS 11)", fmt(d.dttT2) + " / " + fmt(d.cogsT2), fmt(d.dttT1) + " / " + fmt(d.cogsT1), fmt(d.dttYtd) + " / " + fmt(d.cogsYtd)],
-            ["LNTT / D&A / Lãi vay", "LNTT (MS 50) / Khấu hao (MS 02) / CP lãi vay (MS 23)", fmt(d.lnttT2) + " / " + fmt(d.daT2) + " / " + fmt(d.intExpT2), fmt(d.lnttT1) + " / " + fmt(d.daT1) + " / " + fmt(d.intExpT1), fmt(d.lntt) + " / " + fmt(d.da) + " / " + fmt(d.intExp)],
-            ["MS_20 (B03-DN)", "Lưu chuyển tiền thuần từ HĐKD trên BCTC", fmt(d.ms20T2), fmt(d.ms20T1), fmt(d.ms20)]
-          ],
-          ["left", "left", "right", "right", "right"]
-        );
-
-        // MỤC 4
-        drawSectionHeading("4. PHÂN TÍCH TÀI CHÍNH, SO SÁNH NĂM T−2, NĂM T−1 & KỲ T + DỰ PHÓNG T+1");
-        drawSubHeading("4.1. Bảng tính Vốn lưu động vận hành (NWC_op), Dòng tiền OCF & DSCR (tỷ đồng)");
-        drawTable(
-          ["Khoản mục (tỷ đồng)", "Năm T−2", "Năm T−1", "Kỳ T (" + d.tDays + "d)", "Kế hoạch T+1"],
-          [424, 160, 160, 180, 180],
-          [
-            ["Doanh thu thuần / Dự phóng (DTT)", fmt(d.dttT2), fmt(d.dttT1), fmt(d.dttYtd) + " (QN: " + fmt(c.dttAnn) + ")", fmt(d.dttPlan)],
-            ["Giá vốn / LNST Kế hoạch T+1", "—", "—", "—", "GV: " + fmt(d.cogsPlan) + " | LNST: " + fmt(m.lnstPlan)],
-            ["(+) Tài sản ngắn hạn vận hành sạch", fmt(c.arCleanT2 + c.invCleanT2 + d.tsnhKhacT2), fmt(c.arCleanT1 + c.invCleanT1 + d.tsnhKhacT1), fmt(c.arClean + c.invClean + d.tsnhKhac), "—"],
-            ["(−) Nợ ngắn hạn vận hành sạch", fmt(c.apCleanT2 + d.noKhacT2), fmt(c.apCleanT1 + d.noKhacT1), fmt(c.apClean + d.noKhac), "—"],
-            { isTotal: true, cells: ["(=) Vốn lưu động vận hành (NWC_op) / Nhu cầu T+1", fmt(c.nwcOpT2), fmt(c.nwcOpT1), fmt(c.nwcOpEnd), m.nhuCauT1 !== null ? fmt(m.nhuCauT1) : "N/A"] },
-            ["Dòng tiền HĐKD (VAR_OCF) / EBITDA T+1", fmt(m.ocfT2), fmt(m.ocfT1), fmt(m.ocf), fmt(m.ebitdaPlan) + " (EBITDA)"],
-            ["Hệ số khả năng trả nợ (VAR_DSCR)", m.dscrT2 !== null ? fmt(m.dscrT2) + "x" : "N/A", m.dscrT1 !== null ? fmt(m.dscrT1) + "x" : "N/A", m.dscr !== null ? fmt(m.dscr) + "x" : "N/A", m.dscrPlanT1 !== null ? fmt(m.dscrPlanT1) + "x" : "N/A"]
-          ],
-          ["left", "right", "right", "right", "right"]
-        );
-
-        drawSubHeading("4.2. Các chỉ số Vận hành Quy chuẩn năm (Annualized với T_ngày = " + d.tDays + ")");
-        drawCallout("CHỈ SỐ CHU KỲ TIỀN MẶT & VÒNG QUAY VLĐVH QUY CHUẨN NĂM (HỆ SỐ " + fmt(c.annFactor, 4) + ")", [
-          "• Năm T−2: DSO = " + fmt(m.dsoT2, 1) + "d | DIO = " + fmt(m.dioT2, 1) + "d | DPO = " + fmt(m.dpoT2, 1) + "d | CCC = " + (m.cccT2 !== null ? fmt(m.cccT2, 1) + " ngày" : "N/A") + " | Vòng quay VLĐ = " + (m.vqVldT2 !== null ? fmt(m.vqVldT2) + " vòng" : "N/A"),
-          "• Năm T−1: DSO = " + fmt(m.dsoT1, 1) + "d | DIO = " + fmt(m.dioT1, 1) + "d | DPO = " + fmt(m.dpoT1, 1) + "d | CCC = " + (m.cccT1 !== null ? fmt(m.cccT1, 1) + " ngày" : "N/A") + " | Vòng quay VLĐ = " + (m.vqVldT1 !== null ? fmt(m.vqVldT1) + " vòng" : "N/A"),
-          "• Kỳ T (Quy năm): DSO = " + fmt(m.dso, 1) + "d | DIO = " + fmt(m.dio, 1) + "d | DPO = " + fmt(m.dpo, 1) + "d | VAR_CCC = " + (m.ccc !== null ? fmt(m.ccc, 1) + " ngày" : "N/A") + " | VAR_VQ_VLD_T = " + (m.vqVld !== null ? fmt(m.vqVld) + " vòng/năm" : "N/A")
-        ], "formula");
-
-        drawSubHeading("4.3. Bảng Toàn diện 19 Chỉ số Tài chính Doanh nghiệp: Năm T−2, Năm T−1 & Kỳ T");
-        var ratioRows = [];
-        res.ratioGroups.forEach(function (grp) {
-          ratioRows.push({ isGroup: true, cells: [grp.groupTitle] });
-          grp.items.forEach(function (it) {
-            ratioRows.push([it.name, it.formula, it.valT2Str, it.valT1Str, it.valStr, it.evalText]);
-          });
-        });
-        drawTable(
-          ["Tên Chỉ số & Ký hiệu", "Công thức Chuẩn mực TT200", "Năm T−2", "Năm T−1", "Kỳ T", "Đánh giá Kỳ T"],
-          [240, 294, 110, 110, 110, 240],
-          ratioRows,
-          ["left", "left", "right", "right", "right", "left"]
-        );
-
-        drawCallout("KẾT LUẬN / ĐÁNH GIÁ MỤC 4", [
-          "Vòng quay VLĐVH quy chuẩn năm đạt " + (m.vqVld !== null ? fmt(m.vqVld) + " vòng/năm" : "N/A") + ", chu kỳ tiền mặt CCC ở mức " + (m.ccc !== null ? fmt(m.ccc, 1) + " ngày" : "N/A") + ", dòng tiền thuần HĐKD đạt " + fmt(m.ocf) + " tỷ, hệ số thanh toán hiện hành đạt " + (m.currentRatio !== null ? fmt(m.currentRatio) + "x" : "N/A") + ", ROA/ROE quy năm đạt " + (m.roaPct !== null ? fmt(m.roaPct, 1) + "%" : "N/A") + " / " + (m.roePct !== null ? fmt(m.roePct, 1) + "%" : "N/A") + " và hệ số DSCR đạt " + (m.dscr !== null ? fmt(m.dscr) + "x" : "N/A") + "."
-        ], "conclusion");
-
-        // MỤC 5
-        drawSectionHeading("5. ĐỐI SOÁT DOANH THU & DÒNG TIỀN VẬN HÀNH");
-        drawCallout("ĐỐI SOÁT CHÉO DOANH THU KẾ TOÁN, VAT & TIỀN VỀ TK 112", [
-          "• Doanh thu thuần kế toán kỳ báo cáo: " + fmt(d.dttYtd) + " tỷ  |  Tổng giá trị phải thu theo tờ khai VAT: " + fmt(d.dtVat) + " tỷ.",
-          "• Tổng tiền hàng thực tế ghi Có về TK 112: " + fmt(d.cash112) + " tỷ -> Tỷ lệ Tiền về / DT_VAT = " + (m.cashRatioPct !== null ? fmt(m.cashRatioPct, 1) + "%" : "N/A") + "."
-        ], "formula");
-        drawCallout("KẾT LUẬN / ĐÁNH GIÁ MỤC 5", [
-          "Tỷ lệ tiền về thực tế đạt " + (m.cashRatioPct !== null ? fmt(m.cashRatioPct, 1) + "%" : "N/A") + ", phản ánh mức độ luân chuyển dòng tiền thực qua hệ thống ngân hàng."
-        ], "conclusion");
-
-        // MỤC 6
-        drawSectionHeading("6. ĐÁNH GIÁ CHI TIẾT NVL & KHÁCH HÀNG CHỦ LỰC");
-        drawCallout("PHÂN TÍCH CHUỖI CUNG ỨNG & CÔNG NỢ", [
-          "Cơ cấu hàng tồn kho gồm TK 152: " + fmt(d.tk152) + " tỷ, TK 153: " + fmt(d.tk153) + " tỷ, TK 155: " + fmt(d.tk155) + " tỷ, TK 156: " + fmt(d.tk156) + " tỷ. Thời gian tồn kho bình quân DIO = " + fmt(m.dio, 1) + " ngày, kỳ thu tiền bình quân DSO = " + fmt(m.dso, 1) + " ngày, kỳ thanh toán nhà cung cấp DPO = " + fmt(m.dpo, 1) + " ngày."
-        ], "info");
-        drawCallout("KẾT LUẬN / ĐÁNH GIÁ MỤC 6", [
-          "Cần kiểm soát tập trung công nợ phải thu các khách hàng chủ lực và định mức dự trữ hàng tồn kho theo tiến độ hợp đồng."
-        ], "conclusion");
-
-        // MỤC 7
-        drawSectionHeading("7. VÒNG QUAY VLĐVH, NHU CẦU BỔ SUNG & STRESS TEST TOÁN HỌC CHI TIẾT");
-        drawCallout("KHUNG CÔNG THỨC TÍNH HẠN MỨC TÍN DỤNG TỐI ĐA NĂM T+1 (DTT DỰ PHÓNG = " + fmt(d.dttPlan) + " TỶ)", [
-          "• VAR_NHUCAU_T+1 = " + fmt(d.dttPlan) + " / " + fmt(m.vqVld) + " = " + fmt(m.nhuCauT1) + " tỷ  |  Vốn tự có tối thiểu (30%): " + fmt(m.vtcMin30) + " tỷ.",
-          "• HMTD ĐK 1 (Trần 70%): " + fmt(m.hmtdDk1) + " tỷ  |  HMTD ĐK 2 (Trừ VTC & Dư nợ NH khác): " + fmt(m.hmtdDk2) + " tỷ.",
-          "• Trần Hạn mức Tối đa Hợp lý (VAR_HMTD_MAX): " + fmt(m.hmtdMax) + " tỷ đồng."
-        ], "formula");
-        drawTable(
-          ["Kịch bản Căng thẳng", "Thiếu hụt Vốn & Lãi tăng thêm", "DSCR Min", "DSCR Stress", "Đánh giá"],
-          [384, 310, 130, 140, 140],
-          res.stressList.map(function (s) {
-            return [s.code + ": " + s.desc, "Thiếu " + fmt(s.shortVal) + " tỷ; ΔI = " + fmt(s.dI) + " tỷ", ">= " + fmt(s.minReq) + "x", fmt(s.dscr) + "x", s.pass ? "Đạt" : "Không đạt"];
-          }),
-          ["left", "right", "center", "right", "center"]
-        );
-        drawCallout("KẾT LUẬN / ĐÁNH GIÁ MỤC 7", [
-          "Trần HMTD tối đa xác định ở mức " + fmt(m.hmtdMax) + " tỷ đồng. Các kịch bản Stress Test làm suy giảm hệ số DSCR khi kéo dài chu kỳ thu tiền và tồn kho, đòi hỏi chốt chặn quản lý dòng tiền."
-        ], "conclusion");
-
-        // MỤC 8
-        drawSectionHeading("8. CHẨN ĐOÁN KỊCH BẢN TÀI CHÍNH & LUẬN ĐIỂM CỐT LÕI");
-        drawCallout("TỔNG HỢP CHẨN ĐOÁN KỊCH BẢN VẬN HÀNH", [
-          "Kịch bản phân loại: " + v.scenario + " (NWC_op = " + fmt(c.nwcOpEnd) + " tỷ; OCF = " + fmt(m.ocf) + " tỷ; CCC = " + fmt(m.ccc, 1) + " ngày; DSCR = " + fmt(m.dscr) + "x)."
-        ], "info");
-        drawCallout("KẾT LUẬN / ĐÁNH GIÁ MỤC 8", [
-          "Trọng tâm kiểm soát tín dụng tập trung vào tốc độ thu hồi công nợ phải thu và giải phóng hàng tồn kho luân chuyển."
-        ], "conclusion");
-
-        // MỤC 9
-        drawSectionHeading("9. TÓM TẮT PHỎNG VẤN ĐỊNH TÍNH & ĐÁNH GIÁ NGÀNH");
-        drawCallout("ĐÁNH GIÁ ĐỊNH TÍNH BAN ĐIỀU HÀNH & TRIỂN VỌNG NGÀNH", [
-          "Ban điều hành có kinh nghiệm trong lĩnh vực " + d.industry + "; triển vọng ngành duy trì ổn định trong kỳ kế hoạch T+1 nhưng chịu áp lực cạnh tranh về tiến độ thanh toán và chi phí đầu vào."
-        ], "info");
-        drawCallout("KẾT LUẬN / ĐÁNH GIÁ MỤC 9", [
-          "Năng lực điều hành đáp ứng triển khai phương án kinh doanh, cần tăng cường kỷ luật quản trị dòng tiền và minh bạch thuyết minh BCTC."
-        ], "conclusion");
-
-        // MỤC 10
-        drawSectionHeading("10. CHECKLIST THẨM ĐỊNH CHUYÊN SÂU & THỰC ĐỊA");
-        drawCallout("BIÊN BẢN KIỂM TRA THỰC ĐỊA & VẬT LÝ", [
-          "Kiểm tra thực tế kho bãi, điều kiện PCCC, đối chiếu hiện trạng hàng tồn kho (TK 152–156), xác minh hợp đồng đầu ra chủ lực và định giá độc lập Tài sản bảo đảm: " + d.collateral + "."
-        ], "info");
-        drawCallout("KẾT LUẬN / ĐÁNH GIÁ MỤC 10", [
-          "Hoàn tất kiểm tra thực địa, xác nhận tài sản bảo đảm và phong tỏa tài khoản chuyên thu trước khi kích hoạt hạn mức."
-        ], "conclusion");
-
-        // MỤC 11
-        drawSectionHeading("11. MA TRẬN QUYẾT NGHỊ TÍN DỤNG (EWS & RUBRIC THANG ĐIỂM 0–10 ĐỒNG BỘ)");
-        drawCallout("[KIỂM TRA ĐIỀU KIỆN KNOCK-OUT]", [
-          "Nợ xấu nhóm 3–5 CIC OR Gian lận hóa đơn OR Rút vốn/Chuyển vòng OR Ngừng SX -> " + (d.knockout ? "VI PHẠM KNOCK-OUT (TỪ CHỐI)" : "KHÔNG VI PHẠM (Đạt điều kiện xem xét)") + "."
-        ], "knockout");
-        drawTable(
-          ["Tiêu chí chấm điểm EWS", "Trọng số", "Điểm (0–10)", "Điểm quy đổi"],
-          [564, 180, 180, 180],
-          [
-            ["1. Sức khỏe tài chính & Dòng tiền", "30%", fmt(d.ewsTc, 1), fmt(e.w1)],
-            ["2. Hiệu quả quản trị VLĐ (CCC, VQ)", "20%", fmt(d.ewsVld, 1), fmt(e.w2)],
-            ["3. Năng lực quản trị & Uy tín Chủ DN", "25%", fmt(d.ewsQltn, 1), fmt(e.w3)],
-            ["4. Vị thế ngành & TSBĐ", "25%", fmt(d.ewsVtsb, 1), fmt(e.w4)],
-            { isTotal: true, cells: ["ĐIỂM TỔNG HỢP EWS (VAR_EWS_SCORE)", "100%", "—", fmt(e.total) + " / 10,00 (" + e.rank + ")"] }
-          ],
-          ["left", "center", "right", "right"]
-        );
-        drawCallout("KẾT LUẬN / ĐÁNH GIÁ MỤC 11", [
-          "Điểm EWS tổng hợp đạt " + fmt(e.total) + " / 10,00 (" + e.rank + "), làm cơ sở xác định ngưỡng phê duyệt tín dụng tại Mục 12."
-        ], "conclusion");
-
-        // MỤC 12
-        drawSectionHeading("12. NGƯỠNG QUYẾT NGHỊ & PHÊ DUYỆT TÍN DỤNG (FINAL)");
-        drawCallout("CHI TIẾT PHƯƠNG ÁN PHÊ DUYỆT ĐỀ XUẤT", [
-          "• Quyết nghị Cấp tín dụng: " + v.decision,
-          "• HMTD đề xuất / HMTD phê duyệt: " + fmt(d.hmtdReq) + " tỷ đồng / " + fmt(v.approvedLimit) + " tỷ đồng (" + v.limitDiffText + "; Trần tính toán VAR_HMTD_MAX: " + fmt(m.hmtdMax) + " tỷ).",
-          "• Tài sản bảo đảm (TSBĐ): " + d.collateral,
-          "• Điều kiện cấp tín dụng (Covenants): " + v.covenants.join(" ")
-        ], "info");
-        drawCallout("KẾT LUẬN / ĐÁNH GIÁ MỤC 12 (FINAL)", [
-          v.decision + " — HMTD đề xuất / HMTD phê duyệt: " + fmt(d.hmtdReq) + " tỷ đồng / " + fmt(v.approvedLimit) + " tỷ đồng (" + v.limitDiffText + ") trên nền tảng kiểm soát chặt chẽ mục đích luân chuyển vốn, bổ sung đầy đủ thuyết minh chi tiết và giám sát tài khoản chuyên thu theo đúng quy định."
-        ], "conclusion");
-
-        // Bảng chữ ký
-        drawTable(
-          ["Chuyên viên Thẩm định", "Kiểm soát Rủi ro Tín dụng", "Cấp Phê duyệt Tín dụng"],
-          [368, 368, 368],
-          [["(Ký và ghi rõ họ tên)", "(Ký và ghi rõ họ tên)", "(Ký, đóng dấu và ghi rõ họ tên)"]],
-          ["center", "center", "center"]
-        );
-
-        if (canvas) {
-          pages.push(canvas.toDataURL("image/jpeg", 0.92));
-        }
-        return pages;
-      }
-
-      function downloadDirectPdfBlob() {
-        try {
-          runAppraisalEngine(false);
-          notify("Đang khởi tạo tệp PDF chuẩn A4 đầy đủ 12 mục...");
-          var res = appState.lastResult;
-          var jpegPages = renderReportToA4CanvasPages(res);
-          var pdfBlob = buildBinaryPdfFromJpegPages(jpegPages);
-
-          var cleanName = normalizeViKey(res.input.companyName || "KHDN").replace(/\s+/g, "_").toUpperCase();
-          var fileName = "Bao_Cao_Tham_Dinh_" + (cleanName || "KHDN") + "_12_Muc.pdf";
-
-          var url = URL.createObjectURL(pdfBlob);
-          var link = document.createElement("a");
-          link.href = url;
-          link.download = fileName;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          setTimeout(function () {
-            URL.revokeObjectURL(url);
-          }, 15000);
-
-          notify("Đã xuất thành công file " + fileName + " (" + jpegPages.length + " trang A4)!");
-        } catch (err) {
-          console.error("Direct PDF error:", err);
-          notify("Đang mở chế độ In / Lưu PDF dự phòng...");
-          triggerVectorPrintToPdf();
+          var showWorkspace = appState.desktopView === "workspace";
+          if (secDocs) secDocs.classList.toggle("hidden", !showWorkspace);
+          if (secInputs) secInputs.classList.toggle("hidden", !showWorkspace);
+          if (secAnalysis) secAnalysis.classList.toggle("hidden", appState.desktopView !== "analysis");
+          if (secReport) secReport.classList.toggle("hidden", appState.desktopView !== "report");
+          if (secJson) secJson.classList.toggle("hidden", appState.desktopView !== "json");
         }
       }
 
@@ -3468,6 +2913,18 @@
               ? ("Cắt giảm " + fmt(limitDiff) + " tỷ đồng so với đề xuất")
               : "Chấp thuận 100% hạn mức đề xuất");
 
+        var covenants = [
+          "Giải ngân theo chứng từ thanh toán hợp lệ đúng mục đích bổ sung vốn lưu động.",
+          "Duy trì tài khoản chuyên thu tại Ngân hàng để kiểm soát dòng tiền thu nợ khách hàng.",
+          "Bổ sung bảng kê chi tiết tuổi nợ phải thu (TK 131) và tồn kho (TK 152–156) định kỳ."
+        ];
+        if (cashFlag) {
+          covenants.push("Cam kết nâng tỷ lệ dòng tiền thực thu về TK 112 tối thiểu đạt ≥ 70% doanh thu VAT.");
+        }
+        if (hmtdMax !== null && d.hmtdReq > hmtdMax) {
+          covenants.push("Khống chế HMTD phê duyệt không vượt trần tính toán VAR_HMTD_MAX (" + fmt(hmtdMax) + " tỷ đồng).");
+        }
+
         return {
           input: d,
           clean: {
@@ -3514,7 +2971,7 @@
       }
 
       /* =================================================================
-         7. HIỂN THỊ KẾT QUẢ RA GIAO DIỆN & BÁO CÁO 12 MỤC CHUẨN NGÂN HÀNG
+         7. BÁO CÁO 12 MỤC CHUẨN NGÂN HÀNG & HỆ THỐNG XUẤT PDF KÉP
          ================================================================= */
       function buildFormal12SectionMemo(res) {
         var d = res.input;
@@ -3861,28 +3318,643 @@
         }
       }
 
-      /* =================================================================
-         8. XEM TRƯỚC & XUẤT FILE PDF CHUẨN A4
-         ================================================================= */
-      function openReportPreview() {
+      function buildBankStandard12SectionReportHTML() {
         runAppraisalEngine(false);
-        var html = buildFormal12SectionMemo(appState.lastResult);
+        return buildFormal12SectionMemo(appState.lastResult);
+      }
+
+      function openReportPreview() {
+        var html = buildBankStandard12SectionReportHTML();
         $("modal-paper-content").innerHTML = html;
         $("preview-modal").classList.remove("hidden");
       }
 
-      function triggerPrintToPdf() {
-        runAppraisalEngine(false);
-        var html = buildFormal12SectionMemo(appState.lastResult);
-        $("print-only-container").innerHTML = html;
+      function triggerVectorPrintToPdf() {
+        var html = buildBankStandard12SectionReportHTML();
+        var mount = $("print-sheet-mount");
+        mount.innerHTML = html;
         $("preview-modal").classList.add("hidden");
+        void mount.offsetHeight;
+
         setTimeout(function () {
-          window.print();
-        }, 120);
+          try {
+            window.focus();
+            window.print();
+          } catch (e) {
+            notify("Trình duyệt chặn hộp thoại in tự động. Đang chuyển sang tải trực tiếp file .PDF...");
+            downloadDirectPdfBlob();
+          }
+        }, 160);
+      }
+
+      function buildBinaryPdfFromJpegPages(jpegDataUrls) {
+        var pageW = 595.28;
+        var pageH = 841.89;
+        var chunks = [];
+        var byteLen = 0;
+        var offsets = [0];
+
+        function pushAscii(str) {
+          var arr = new Uint8Array(str.length);
+          for (var i = 0; i < str.length; i++) {
+            arr[i] = str.charCodeAt(i) & 0xff;
+          }
+          chunks.push(arr);
+          byteLen += arr.length;
+        }
+
+        function pushBytes(u8) {
+          chunks.push(u8);
+          byteLen += u8.length;
+        }
+
+        function startObj(objNum) {
+          offsets[objNum] = byteLen;
+          pushAscii(objNum + " 0 obj\n");
+        }
+
+        function endObj() {
+          pushAscii("\nendobj\n");
+        }
+
+        function dataUrlToUint8(dataUrl) {
+          var b64 = dataUrl.split(",")[1];
+          var bin = atob(b64);
+          var u8 = new Uint8Array(bin.length);
+          for (var i = 0; i < bin.length; i++) {
+            u8[i] = bin.charCodeAt(i);
+          }
+          return u8;
+        }
+
+        function getJpegDimensions(u8) {
+          var i = 2;
+          while (i + 9 < u8.length) {
+            if (u8[i] === 0xff) {
+              var marker = u8[i + 1];
+              if (marker === 0xc0 || marker === 0xc1 || marker === 0xc2) {
+                var h = (u8[i + 5] << 8) | u8[i + 6];
+                var w = (u8[i + 7] << 8) | u8[i + 8];
+                return { width: w || 1240, height: h || 1754 };
+              }
+              var segLen = (u8[i + 2] << 8) | u8[i + 3];
+              if (segLen < 2) break;
+              i += 2 + segLen;
+            } else {
+              i++;
+            }
+          }
+          return { width: 1240, height: 1754 };
+        }
+
+        pushAscii("%PDF-1.4\n");
+
+        var numPages = jpegDataUrls.length;
+        var pageObjIds = [];
+        for (var p = 0; p < numPages; p++) {
+          pageObjIds.push(3 + p * 3);
+        }
+
+        startObj(1);
+        pushAscii("<< /Type /Catalog /Pages 2 0 R >>");
+        endObj();
+
+        startObj(2);
+        pushAscii("<< /Type /Pages /Kids [" + pageObjIds.map(function (id) { return id + " 0 R"; }).join(" ") + "] /Count " + numPages + " >>");
+        endObj();
+
+        for (var idx = 0; idx < numPages; idx++) {
+          var pageObjId = 3 + idx * 3;
+          var contentObjId = pageObjId + 1;
+          var imgObjId = pageObjId + 2;
+
+          var jpgBytes = dataUrlToUint8(jpegDataUrls[idx]);
+          var dim = getJpegDimensions(jpgBytes);
+
+          startObj(pageObjId);
+          pushAscii(
+            "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 " + pageW.toFixed(2) + " " + pageH.toFixed(2) + "] " +
+            "/Resources << /XObject << /Im0 " + imgObjId + " 0 R >> >> " +
+            "/Contents " + contentObjId + " 0 R >>"
+          );
+          endObj();
+
+          var drawCmd = "q\n" + pageW.toFixed(2) + " 0 0 " + pageH.toFixed(2) + " 0 0 cm\n/Im0 Do\nQ\n";
+          startObj(contentObjId);
+          pushAscii("<< /Length " + drawCmd.length + " >>\nstream\n" + drawCmd + "endstream");
+          endObj();
+
+          startObj(imgObjId);
+          pushAscii(
+            "<< /Type /XObject /Subtype /Image /Width " + dim.width + " /Height " + dim.height + " " +
+            "/ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length " + jpgBytes.length + " >>\nstream\n"
+          );
+          pushBytes(jpgBytes);
+          pushAscii("\nendstream");
+          endObj();
+        }
+
+        var xrefStart = byteLen;
+        var totalObjs = 3 + numPages * 3;
+        pushAscii("xref\n0 " + totalObjs + "\n");
+        pushAscii("0000000000 65535 f \n");
+        for (var o = 1; o < totalObjs; o++) {
+          var offStr = String(offsets[o] || 0);
+          while (offStr.length < 10) offStr = "0" + offStr;
+          pushAscii(offStr + " 00000 n \n");
+        }
+
+        pushAscii(
+          "trailer\n<< /Size " + totalObjs + " /Root 1 0 R >>\n" +
+          "startxref\n" + xrefStart + "\n%%EOF"
+        );
+
+        return new Blob(chunks, { type: "application/pdf" });
+      }
+
+      function renderReportToA4CanvasPages(res) {
+        var d = res.input;
+        var c = res.clean;
+        var m = res.metrics;
+        var v = res.verdict;
+        var e = res.ews;
+
+        var W = 1240;
+        var H = 1754;
+        var marginX = 68;
+        var marginTop = 68;
+        var marginBottom = 78;
+        var usableW = W - marginX * 2;
+        var pages = [];
+        var canvas = null;
+        var ctx = null;
+        var y = marginTop;
+
+        function newPage() {
+          if (canvas) {
+            pages.push(canvas.toDataURL("image/jpeg", 0.92));
+          }
+          canvas = document.createElement("canvas");
+          canvas.width = W;
+          canvas.height = H;
+          ctx = canvas.getContext("2d");
+          ctx.fillStyle = "#FFFFFF";
+          ctx.fillRect(0, 0, W, H);
+          y = marginTop;
+        }
+
+        function ensureSpace(needH) {
+          if (y + needH > H - marginBottom) {
+            newPage();
+          }
+        }
+
+        function wrapTextLines(text, maxW, fontSpec) {
+          ctx.font = fontSpec;
+          var words = String(text || "").split(/\s+/);
+          var lines = [];
+          var line = "";
+          for (var i = 0; i < words.length; i++) {
+            var w = words[i];
+            if (!w) continue;
+            var test = line ? (line + " " + w) : w;
+            if (ctx.measureText(test).width <= maxW) {
+              line = test;
+            } else {
+              if (line) lines.push(line);
+              line = w;
+            }
+          }
+          if (line) lines.push(line);
+          return lines.length ? lines : [""];
+        }
+
+        function drawBanner() {
+          ctx.fillStyle = "#1B365D";
+          ctx.fillRect(marginX, y, usableW, 6);
+          y += 16;
+          ctx.font = "bold 17px Arial, sans-serif";
+          ctx.fillStyle = "#2B6CB0";
+          ctx.fillText("BÁO CÁO THẨM ĐỊNH TÍN DỤNG KHDN CHUYÊN SÂU • CHUẨN MAPPING TT200 & VAS 24", marginX, y + 16);
+          y += 28;
+          ctx.font = "bold 28px Arial, sans-serif";
+          ctx.fillStyle = "#1B365D";
+          ctx.fillText("BÁO CÁO THẨM ĐỊNH TÍN DỤNG & NGHỊ QUYẾT CẤP TÍN DỤNG", marginX, y + 26);
+          y += 38;
+          ctx.font = "18px Arial, sans-serif";
+          ctx.fillStyle = "#334155";
+          ctx.fillText("Kỳ báo cáo: Lũy kế " + d.tDays + " ngày năm T   |   Kỳ kế hoạch: Năm T+1   |   Đơn vị tiền tệ: Tỷ đồng", marginX, y + 18);
+          y += 28;
+          ctx.fillStyle = "#1B365D";
+          ctx.fillRect(marginX, y, usableW, 3);
+          y += 20;
+        }
+
+        function drawSectionHeading(title) {
+          ensureSpace(58);
+          y += 8;
+          ctx.font = "bold 21px Arial, sans-serif";
+          ctx.fillStyle = "#1B365D";
+          ctx.fillText(title, marginX, y + 20);
+          y += 28;
+          ctx.fillStyle = "#1B365D";
+          ctx.fillRect(marginX, y, usableW, 2.5);
+          y += 12;
+        }
+
+        function drawSubHeading(title) {
+          ensureSpace(38);
+          y += 4;
+          ctx.font = "bold 18.5px Arial, sans-serif";
+          ctx.fillStyle = "#1E3A8A";
+          ctx.fillText(title, marginX, y + 18);
+          y += 28;
+        }
+
+        function drawCallout(boxTitle, bulletLines, styleType) {
+          var bg = "#F0F4F8";
+          var border = "#BFDBFE";
+          var accent = "#2B6CB0";
+          var titleColor = "#1B365D";
+          if (styleType === "formula") {
+            bg = "#F0F9FF"; border = "#CBD5E1"; accent = "#0284C7"; titleColor = "#0369A1";
+          } else if (styleType === "conclusion") {
+            bg = "#F1F5F9"; border = "#CBD5E1"; accent = "#1B365D"; titleColor = "#1B365D";
+          } else if (styleType === "knockout") {
+            bg = "#FEF2F2"; border = "#FECACA"; accent = "#B91C1C"; titleColor = "#B91C1C";
+          }
+
+          var bodyFont = "17.5px Arial, sans-serif";
+          var allWrapped = [];
+          for (var i = 0; i < bulletLines.length; i++) {
+            var wl = wrapTextLines(bulletLines[i], usableW - 36, bodyFont);
+            for (var j = 0; j < wl.length; j++) {
+              allWrapped.push(wl[j]);
+            }
+          }
+          var boxH = 38 + allWrapped.length * 24 + 12;
+          ensureSpace(boxH + 10);
+
+          ctx.fillStyle = bg;
+          ctx.fillRect(marginX, y, usableW, boxH);
+          ctx.strokeStyle = border;
+          ctx.lineWidth = 1.5;
+          ctx.strokeRect(marginX, y, usableW, boxH);
+          ctx.fillStyle = accent;
+          ctx.fillRect(marginX, y, 7, boxH);
+
+          ctx.font = "bold 16.5px Arial, sans-serif";
+          ctx.fillStyle = titleColor;
+          ctx.fillText(boxTitle, marginX + 18, y + 24);
+
+          ctx.font = bodyFont;
+          ctx.fillStyle = "#1E293B";
+          var ty = y + 48;
+          for (var k = 0; k < allWrapped.length; k++) {
+            ctx.fillText(allWrapped[k], marginX + 18, ty);
+            ty += 24;
+          }
+          y += boxH + 12;
+        }
+
+        function drawTable(headers, colWidths, rows, aligns) {
+          var cellFont = "16.5px Arial, sans-serif";
+          var headFont = "bold 16.5px Arial, sans-serif";
+
+          function renderHeaderRow() {
+            var hLinesList = [];
+            var maxHLines = 1;
+            for (var cIdx = 0; cIdx < headers.length; cIdx++) {
+              var hl = wrapTextLines(headers[cIdx], colWidths[cIdx] - 16, headFont);
+              hLinesList.push(hl);
+              if (hl.length > maxHLines) maxHLines = hl.length;
+            }
+            var rowH = maxHLines * 22 + 14;
+            ensureSpace(rowH + 34);
+
+            var cx = marginX;
+            for (var cIdx2 = 0; cIdx2 < headers.length; cIdx2++) {
+              var cw = colWidths[cIdx2];
+              ctx.fillStyle = "#1B365D";
+              ctx.fillRect(cx, y, cw, rowH);
+              ctx.strokeStyle = "#CBD5E1";
+              ctx.lineWidth = 1;
+              ctx.strokeRect(cx, y, cw, rowH);
+
+              ctx.font = headFont;
+              ctx.fillStyle = "#FFFFFF";
+              var lines = hLinesList[cIdx2];
+              for (var l = 0; l < lines.length; l++) {
+                var tx = cx + 8;
+                if (aligns && aligns[cIdx2] === "right") {
+                  tx = cx + cw - 8 - ctx.measureText(lines[l]).width;
+                } else if (aligns && aligns[cIdx2] === "center") {
+                  tx = cx + (cw - ctx.measureText(lines[l]).width) / 2;
+                }
+                ctx.fillText(lines[l], tx, y + 21 + l * 22);
+              }
+              cx += cw;
+            }
+            y += rowH;
+          }
+
+          renderHeaderRow();
+
+          for (var rIdx = 0; rIdx < rows.length; rIdx++) {
+            var rowSpec = rows[rIdx];
+            var isGroup = !!rowSpec.isGroup;
+            var isHighlight = !!rowSpec.isHighlight;
+            var isTotal = !!rowSpec.isTotal;
+            var cells = rowSpec.cells || rowSpec;
+            var rowFont = (isGroup || isHighlight || isTotal) ? "bold 16.5px Arial, sans-serif" : cellFont;
+
+            if (isGroup) {
+              var gLines = wrapTextLines(cells[0], usableW - 18, rowFont);
+              var gH = gLines.length * 22 + 12;
+              if (y + gH > H - marginBottom) {
+                newPage();
+                renderHeaderRow();
+              }
+              ctx.fillStyle = "#E0F2FE";
+              ctx.fillRect(marginX, y, usableW, gH);
+              ctx.strokeStyle = "#CBD5E1";
+              ctx.strokeRect(marginX, y, usableW, gH);
+              ctx.font = rowFont;
+              ctx.fillStyle = "#1B365D";
+              for (var gl = 0; gl < gLines.length; gl++) {
+                ctx.fillText(gLines[gl], marginX + 9, y + 20 + gl * 22);
+              }
+              y += gH;
+              continue;
+            }
+
+            var cellLines = [];
+            var maxLines = 1;
+            for (var col = 0; col < colWidths.length; col++) {
+              var wrapped = wrapTextLines(cells[col] != null ? cells[col] : "", colWidths[col] - 16, rowFont);
+              cellLines.push(wrapped);
+              if (wrapped.length > maxLines) maxLines = wrapped.length;
+            }
+            var rH = maxLines * 21 + 12;
+            if (y + rH > H - marginBottom) {
+              newPage();
+              renderHeaderRow();
+            }
+
+            var bgCol = isTotal ? "#DBEAFE" : (isHighlight ? "#E0F2FE" : (rIdx % 2 === 1 ? "#F8FAFC" : "#FFFFFF"));
+            var cx2 = marginX;
+            for (var col2 = 0; col2 < colWidths.length; col2++) {
+              var cw2 = colWidths[col2];
+              ctx.fillStyle = bgCol;
+              ctx.fillRect(cx2, y, cw2, rH);
+              ctx.strokeStyle = "#CBD5E1";
+              ctx.lineWidth = 1;
+              ctx.strokeRect(cx2, y, cw2, rH);
+
+              ctx.font = rowFont;
+              ctx.fillStyle = isTotal ? "#1B365D" : "#1E293B";
+              var cLines = cellLines[col2];
+              for (var cl = 0; cl < cLines.length; cl++) {
+                var tx2 = cx2 + 8;
+                if (aligns && aligns[col2] === "right") {
+                  tx2 = cx2 + cw2 - 8 - ctx.measureText(cLines[cl]).width;
+                } else if (aligns && aligns[col2] === "center") {
+                  tx2 = cx2 + (cw2 - ctx.measureText(cLines[cl]).width) / 2;
+                }
+                ctx.fillText(cLines[cl], tx2, y + 20 + cl * 21);
+              }
+              cx2 += cw2;
+            }
+            y += rH;
+          }
+          y += 12;
+        }
+
+        newPage();
+        drawBanner();
+
+        drawSectionHeading("1. THÔNG TIN KHÁCH HÀNG & CHECKLIST HỒ SƠ ĐẦU VÀO");
+        drawCallout("THÔNG TIN ĐỀ XUẤT CẤP TÍN DỤNG", [
+          "• Tên KH: " + d.companyName + "  |  Ngành nghề: " + d.industry + "  |  MST: " + d.taxCode,
+          "• Hạn mức đề xuất (VAR_HMTD_REQ): " + fmt(d.hmtdReq) + " tỷ  |  Mục đích & Thời hạn: " + d.purpose
+        ], "info");
+        drawTable(
+          ["STT", "Hạng mục Tài liệu", "Trạng thái", "Thời điểm / Ghi chú Kiểm soát"],
+          [74, 520, 170, 340],
+          appState.docs.map(function (doc) {
+            var stText = doc.status === "ok" ? "Đầy đủ" : (doc.status === "missing" ? "Thiếu chi tiết" : "Chưa cung cấp");
+            var fList = (doc.files && doc.files.length) ? (" [" + doc.files.map(function (f) { return f.name; }).join(", ") + "]") : "";
+            return [doc.stt, doc.title.replace(/^\d+\.\s*/, "") + fList, stText, doc.note || "—"];
+          }),
+          ["center", "left", "left", "left"]
+        );
+        drawCallout("KẾT LUẬN / ĐÁNH GIÁ MỤC 1", [
+          "Hồ sơ đã được tiếp nhận, kiểm tra tính hợp lệ và đối chiếu chéo số liệu theo chuẩn Thông tư 200 để phục vụ phân tích dòng tiền vận hành."
+        ], "conclusion");
+
+        drawSectionHeading("2. ĐÁNH GIÁ PHÁP LÝ & DƯ NỢ TÍN DỤNG");
+        drawCallout("ĐÁNH GIÁ PHÁP LÝ & QUAN HỆ TÍN DỤNG", [
+          "Doanh nghiệp hoạt động hợp pháp theo Giấy chứng nhận ĐKDN, ngành nghề đăng ký phù hợp phương án vay vốn. Tình trạng quan hệ tín dụng trên CIC: Nhóm " + d.cicGroup + ". Dư nợ ngắn hạn hiện hữu tại TCTD khác là " + fmt(d.otherDebt) + " tỷ đồng, nghĩa vụ trả nợ gốc và lãi đến hạn là " + fmt(m.effectiveDebtService) + " tỷ đồng."
+        ], "info");
+        drawCallout("KẾT LUẬN / ĐÁNH GIÁ MỤC 2", [
+          "Tư cách pháp lý đầy đủ, hợp lệ. Dư nợ vay ngắn hạn tại TCTD khác (" + fmt(d.otherDebt) + " tỷ) được khấu trừ trực tiếp khi xác định trần hạn mức bổ sung tại Mục 7."
+        ], "conclusion");
+
+        drawSectionHeading("3. LỌC NHIỄU BCTC & PHÂN LOẠI ĐỘNG: NĂM T−2, NĂM T−1 & KỲ T (CHUẨN TT200)");
+        drawTable(
+          ["Biến số Hệ thống", "Chỉ tiêu BCTC / Mã số TT200", "Năm T−2 (tỷ)", "Năm T−1 (tỷ)", "Kỳ T (tỷ)"],
+          [220, 404, 160, 160, 160],
+          [
+            ["AR_Gop / DP_NoXau", "Phải thu KH (MS 131) / Dự phòng nợ xấu (MS 137)", fmt(d.arGopT2) + " / (" + fmt(d.dpNoXauT2) + ")", fmt(d.arGopT1) + " / (" + fmt(d.dpNoXauT1) + ")", fmt(d.arGop) + " / (" + fmt(d.dpNoXau) + ")"],
+            { isHighlight: true, cells: ["VAR_AR_CLEAN", "Phải thu khách hàng sạch sau chống trừ trùng", fmt(c.arCleanT2), fmt(c.arCleanT1), fmt(c.arClean)] },
+            ["INV_Gop / DP_GiamGia", "Hàng tồn kho gộp (MS 141) / Dự phòng giảm giá (MS 149)", fmt(d.invGopT2) + " / (" + fmt(d.dpGiamGiaT2) + ")", fmt(d.invGopT1) + " / (" + fmt(d.dpGiamGiaT1) + ")", fmt(d.invGop) + " / (" + fmt(d.dpGiamGia) + ")"],
+            { isHighlight: true, cells: ["VAR_INV_CLEAN", "Hàng tồn kho sạch sau chống trừ trùng", fmt(c.invCleanT2), fmt(c.invCleanT1), fmt(c.invClean)] },
+            { isHighlight: true, cells: ["VAR_AP_CLEAN", "Phải trả người bán sạch (MS 311 / TK 331)", fmt(c.apCleanT2), fmt(c.apCleanT1), fmt(c.apClean)] },
+            ["VAR_DTT / VAR_COGS", "Doanh thu thuần (MS 10) / Giá vốn hàng bán (MS 11)", fmt(d.dttT2) + " / " + fmt(d.cogsT2), fmt(d.dttT1) + " / " + fmt(d.cogsT1), fmt(d.dttYtd) + " / " + fmt(d.cogsYtd)],
+            ["LNTT / D&A / Lãi vay", "LNTT (MS 50) / Khấu hao (MS 02) / CP lãi vay (MS 23)", fmt(d.lnttT2) + " / " + fmt(d.daT2) + " / " + fmt(d.intExpT2), fmt(d.lnttT1) + " / " + fmt(d.daT1) + " / " + fmt(d.intExpT1), fmt(d.lntt) + " / " + fmt(d.da) + " / " + fmt(d.intExp)],
+            ["MS_20 (B03-DN)", "Lưu chuyển tiền thuần từ HĐKD trên BCTC", fmt(d.ms20T2), fmt(d.ms20T1), fmt(d.ms20)]
+          ],
+          ["left", "left", "right", "right", "right"]
+        );
+
+        drawSectionHeading("4. PHÂN TÍCH TÀI CHÍNH, SO SÁNH NĂM T−2, NĂM T−1 & KỲ T + DỰ PHÓNG T+1");
+        drawSubHeading("4.1. Bảng tính Vốn lưu động vận hành (NWC_op), Dòng tiền OCF & DSCR (tỷ đồng)");
+        drawTable(
+          ["Khoản mục (tỷ đồng)", "Năm T−2", "Năm T−1", "Kỳ T (" + d.tDays + "d)", "Kế hoạch T+1"],
+          [424, 160, 160, 180, 180],
+          [
+            ["Doanh thu thuần / Dự phóng (DTT)", fmt(d.dttT2), fmt(d.dttT1), fmt(d.dttYtd) + " (QN: " + fmt(c.dttAnn) + ")", fmt(d.dttPlan)],
+            ["Giá vốn / LNST Kế hoạch T+1", "—", "—", "—", "GV: " + fmt(d.cogsPlan) + " | LNST: " + fmt(m.lnstPlan)],
+            ["(+) Tài sản ngắn hạn vận hành sạch", fmt(c.arCleanT2 + c.invCleanT2 + d.tsnhKhacT2), fmt(c.arCleanT1 + c.invCleanT1 + d.tsnhKhacT1), fmt(c.arClean + c.invClean + d.tsnhKhac), "—"],
+            ["(−) Nợ ngắn hạn vận hành sạch", fmt(c.apCleanT2 + d.noKhacT2), fmt(c.apCleanT1 + d.noKhacT1), fmt(c.apClean + d.noKhac), "—"],
+            { isTotal: true, cells: ["(=) Vốn lưu động vận hành (NWC_op) / Nhu cầu T+1", fmt(c.nwcOpT2), fmt(c.nwcOpT1), fmt(c.nwcOpEnd), m.nhuCauT1 !== null ? fmt(m.nhuCauT1) : "N/A"] },
+            ["Dòng tiền HĐKD (VAR_OCF) / EBITDA T+1", fmt(m.ocfT2), fmt(m.ocfT1), fmt(m.ocf), fmt(m.ebitdaPlan) + " (EBITDA)"],
+            ["Hệ số khả năng trả nợ (VAR_DSCR)", m.dscrT2 !== null ? fmt(m.dscrT2) + "x" : "N/A", m.dscrT1 !== null ? fmt(m.dscrT1) + "x" : "N/A", m.dscr !== null ? fmt(m.dscr) + "x" : "N/A", m.dscrPlanT1 !== null ? fmt(m.dscrPlanT1) + "x" : "N/A"]
+          ],
+          ["left", "right", "right", "right", "right"]
+        );
+
+        drawSubHeading("4.2. Các chỉ số Vận hành Quy chuẩn năm (Annualized với T_ngày = " + d.tDays + ")");
+        drawCallout("CHỈ SỐ CHU KỲ TIỀN MẶT & VÒNG QUAY VLĐVH QUY CHUẨN NĂM (HỆ SỐ " + fmt(c.annFactor, 4) + ")", [
+          "• Năm T−2: DSO = " + fmt(m.dsoT2, 1) + "d | DIO = " + fmt(m.dioT2, 1) + "d | DPO = " + fmt(m.dpoT2, 1) + "d | CCC = " + (m.cccT2 !== null ? fmt(m.cccT2, 1) + " ngày" : "N/A") + " | Vòng quay VLĐ = " + (m.vqVldT2 !== null ? fmt(m.vqVldT2) + " vòng" : "N/A"),
+          "• Năm T−1: DSO = " + fmt(m.dsoT1, 1) + "d | DIO = " + fmt(m.dioT1, 1) + "d | DPO = " + fmt(m.dpoT1, 1) + "d | CCC = " + (m.cccT1 !== null ? fmt(m.cccT1, 1) + " ngày" : "N/A") + " | Vòng quay VLĐ = " + (m.vqVldT1 !== null ? fmt(m.vqVldT1) + " vòng" : "N/A"),
+          "• Kỳ T (Quy năm): DSO = " + fmt(m.dso, 1) + "d | DIO = " + fmt(m.dio, 1) + "d | DPO = " + fmt(m.dpo, 1) + "d | VAR_CCC = " + (m.ccc !== null ? fmt(m.ccc, 1) + " ngày" : "N/A") + " | VAR_VQ_VLD_T = " + (m.vqVld !== null ? fmt(m.vqVld) + " vòng/năm" : "N/A")
+        ], "formula");
+
+        drawSubHeading("4.3. Bảng Toàn diện 19 Chỉ số Tài chính Doanh nghiệp: Năm T−2, Năm T−1 & Kỳ T");
+        var ratioRows = [];
+        res.ratioGroups.forEach(function (grp) {
+          ratioRows.push({ isGroup: true, cells: [grp.groupTitle] });
+          grp.items.forEach(function (it) {
+            ratioRows.push([it.name, it.formula, it.valT2Str, it.valT1Str, it.valStr, it.evalText]);
+          });
+        });
+        drawTable(
+          ["Tên Chỉ số & Ký hiệu", "Công thức Chuẩn mực TT200", "Năm T−2", "Năm T−1", "Kỳ T", "Đánh giá Kỳ T"],
+          [240, 294, 110, 110, 110, 240],
+          ratioRows,
+          ["left", "left", "right", "right", "right", "left"]
+        );
+
+        drawCallout("KẾT LUẬN / ĐÁNH GIÁ MỤC 4", [
+          "Vòng quay VLĐVH quy chuẩn năm đạt " + (m.vqVld !== null ? fmt(m.vqVld) + " vòng/năm" : "N/A") + ", chu kỳ tiền mặt CCC ở mức " + (m.ccc !== null ? fmt(m.ccc, 1) + " ngày" : "N/A") + ", dòng tiền thuần HĐKD đạt " + fmt(m.ocf) + " tỷ, hệ số thanh toán hiện hành đạt " + (m.currentRatio !== null ? fmt(m.currentRatio) + "x" : "N/A") + ", ROA/ROE quy năm đạt " + (m.roaPct !== null ? fmt(m.roaPct, 1) + "%" : "N/A") + " / " + (m.roePct !== null ? fmt(m.roePct, 1) + "%" : "N/A") + " và hệ số DSCR đạt " + (m.dscr !== null ? fmt(m.dscr) + "x" : "N/A") + "."
+        ], "conclusion");
+
+        drawSectionHeading("5. ĐỐI SOÁT DOANH THU & DÒNG TIỀN VẬN HÀNH");
+        drawCallout("ĐỐI SOÁT CHÉO DOANH THU KẾ TOÁN, VAT & TIỀN VỀ TK 112", [
+          "• Doanh thu thuần kế toán kỳ báo cáo: " + fmt(d.dttYtd) + " tỷ  |  Tổng giá trị phải thu theo tờ khai VAT: " + fmt(d.dtVat) + " tỷ.",
+          "• Tổng tiền hàng thực tế ghi Có về TK 112: " + fmt(d.cash112) + " tỷ -> Tỷ lệ Tiền về / DT_VAT = " + (m.cashRatioPct !== null ? fmt(m.cashRatioPct, 1) + "%" : "N/A") + "."
+        ], "formula");
+        drawCallout("KẾT LUẬN / ĐÁNH GIÁ MỤC 5", [
+          "Tỷ lệ tiền về thực tế đạt " + (m.cashRatioPct !== null ? fmt(m.cashRatioPct, 1) + "%" : "N/A") + ", phản ánh mức độ luân chuyển dòng tiền thực qua hệ thống ngân hàng."
+        ], "conclusion");
+
+        drawSectionHeading("6. ĐÁNH GIÁ CHI TIẾT NVL & KHÁCH HÀNG CHỦ LỰC");
+        drawCallout("PHÂN TÍCH CHUỖI CUNG ỨNG & CÔNG NỢ", [
+          "Cơ cấu hàng tồn kho gồm TK 152: " + fmt(d.tk152) + " tỷ, TK 153: " + fmt(d.tk153) + " tỷ, TK 155: " + fmt(d.tk155) + " tỷ, TK 156: " + fmt(d.tk156) + " tỷ. Thời gian tồn kho bình quân DIO = " + fmt(m.dio, 1) + " ngày, kỳ thu tiền bình quân DSO = " + fmt(m.dso, 1) + " ngày, kỳ thanh toán nhà cung cấp DPO = " + fmt(m.dpo, 1) + " ngày."
+        ], "info");
+        drawCallout("KẾT LUẬN / ĐÁNH GIÁ MỤC 6", [
+          "Cần kiểm soát tập trung công nợ phải thu các khách hàng chủ lực và định mức dự trữ hàng tồn kho theo tiến độ hợp đồng."
+        ], "conclusion");
+
+        drawSectionHeading("7. VÒNG QUAY VLĐVH, NHU CẦU BỔ SUNG & STRESS TEST TOÁN HỌC CHI TIẾT");
+        drawCallout("KHUNG CÔNG THỨC TÍNH HẠN MỨC TÍN DỤNG TỐI ĐA NĂM T+1 (DTT DỰ PHÓNG = " + fmt(d.dttPlan) + " TỶ)", [
+          "• VAR_NHUCAU_T+1 = " + fmt(d.dttPlan) + " / " + fmt(m.vqVld) + " = " + fmt(m.nhuCauT1) + " tỷ  |  Vốn tự có tối thiểu (30%): " + fmt(m.vtcMin30) + " tỷ.",
+          "• HMTD ĐK 1 (Trần 70%): " + fmt(m.hmtdDk1) + " tỷ  |  HMTD ĐK 2 (Trừ VTC & Dư nợ NH khác): " + fmt(m.hmtdDk2) + " tỷ.",
+          "• Trần Hạn mức Tối đa Hợp lý (VAR_HMTD_MAX): " + fmt(m.hmtdMax) + " tỷ đồng."
+        ], "formula");
+        drawTable(
+          ["Kịch bản Căng thẳng", "Thiếu hụt Vốn & Lãi tăng thêm", "DSCR Min", "DSCR Stress", "Đánh giá"],
+          [384, 310, 130, 140, 140],
+          res.stressList.map(function (s) {
+            return [s.code + ": " + s.desc, "Thiếu " + fmt(s.shortVal) + " tỷ; ΔI = " + fmt(s.dI) + " tỷ", ">= " + fmt(s.minReq) + "x", fmt(s.dscr) + "x", s.pass ? "Đạt" : "Không đạt"];
+          }),
+          ["left", "right", "center", "right", "center"]
+        );
+        drawCallout("KẾT LUẬN / ĐÁNH GIÁ MỤC 7", [
+          "Trần HMTD tối đa xác định ở mức " + fmt(m.hmtdMax) + " tỷ đồng. Các kịch bản Stress Test làm suy giảm hệ số DSCR khi kéo dài chu kỳ thu tiền và tồn kho, đòi hỏi chốt chặn quản lý dòng tiền."
+        ], "conclusion");
+
+        drawSectionHeading("8. CHẨN ĐOÁN KỊCH BẢN TÀI CHÍNH & LUẬN ĐIỂM CỐT LÕI");
+        drawCallout("TỔNG HỢP CHẨN ĐOÁN KỊCH BẢN VẬN HÀNH", [
+          "Kịch bản phân loại: " + v.scenario + " (NWC_op = " + fmt(c.nwcOpEnd) + " tỷ; OCF = " + fmt(m.ocf) + " tỷ; CCC = " + fmt(m.ccc, 1) + " ngày; DSCR = " + fmt(m.dscr) + "x)."
+        ], "info");
+        drawCallout("KẾT LUẬN / ĐÁNH GIÁ MỤC 8", [
+          "Trọng tâm kiểm soát tín dụng tập trung vào tốc độ thu hồi công nợ phải thu và giải phóng hàng tồn kho luân chuyển."
+        ], "conclusion");
+
+        drawSectionHeading("9. TÓM TẮT PHỎNG VẤN ĐỊNH TÍNH & ĐÁNH GIÁ NGÀNH");
+        drawCallout("ĐÁNH GIÁ ĐỊNH TÍNH BAN ĐIỀU HÀNH & TRIỂN VỌNG NGÀNH", [
+          "Ban điều hành có kinh nghiệm trong lĩnh vực " + d.industry + "; triển vọng ngành duy trì ổn định trong kỳ kế hoạch T+1 nhưng chịu áp lực cạnh tranh về tiến độ thanh toán và chi phí đầu vào."
+        ], "info");
+        drawCallout("KẾT LUẬN / ĐÁNH GIÁ MỤC 9", [
+          "Năng lực điều hành đáp ứng triển khai phương án kinh doanh, cần tăng cường kỷ luật quản trị dòng tiền và minh bạch thuyết minh BCTC."
+        ], "conclusion");
+
+        drawSectionHeading("10. CHECKLIST THẨM ĐỊNH CHUYÊN SÂU & THỰC ĐỊA");
+        drawCallout("BIÊN BẢN KIỂM TRA THỰC ĐỊA & VẬT LÝ", [
+          "Kiểm tra thực tế kho bãi, điều kiện PCCC, đối chiếu hiện trạng hàng tồn kho (TK 152–156), xác minh hợp đồng đầu ra chủ lực và định giá độc lập Tài sản bảo đảm: " + d.collateral + "."
+        ], "info");
+        drawCallout("KẾT LUẬN / ĐÁNH GIÁ MỤC 10", [
+          "Hoàn tất kiểm tra thực địa, xác nhận tài sản bảo đảm và phong tỏa tài khoản chuyên thu trước khi kích hoạt hạn mức."
+        ], "conclusion");
+
+        drawSectionHeading("11. MA TRẬN QUYẾT NGHỊ TÍN DỤNG (EWS & RUBRIC THANG ĐIỂM 0–10 ĐỒNG BỘ)");
+        drawCallout("[KIỂM TRA ĐIỀU KIỆN KNOCK-OUT]", [
+          "Nợ xấu nhóm 3–5 CIC OR Gian lận hóa đơn OR Rút vốn/Chuyển vòng OR Ngừng SX -> " + (d.knockout ? "VI PHẠM KNOCK-OUT (TỪ CHỐI)" : "KHÔNG VI PHẠM (Đạt điều kiện xem xét)") + "."
+        ], "knockout");
+        drawTable(
+          ["Tiêu chí chấm điểm EWS", "Trọng số", "Điểm (0–10)", "Điểm quy đổi"],
+          [564, 180, 180, 180],
+          [
+            ["1. Sức khỏe tài chính & Dòng tiền", "30%", fmt(d.ewsTc, 1), fmt(e.w1)],
+            ["2. Hiệu quả quản trị VLĐ (CCC, VQ)", "20%", fmt(d.ewsVld, 1), fmt(e.w2)],
+            ["3. Năng lực quản trị & Uy tín Chủ DN", "25%", fmt(d.ewsQltn, 1), fmt(e.w3)],
+            ["4. Vị thế ngành & TSBĐ", "25%", fmt(d.ewsVtsb, 1), fmt(e.w4)],
+            { isTotal: true, cells: ["ĐIỂM TỔNG HỢP EWS (VAR_EWS_SCORE)", "100%", "—", fmt(e.total) + " / 10,00 (" + e.rank + ")"] }
+          ],
+          ["left", "center", "right", "right"]
+        );
+        drawCallout("KẾT LUẬN / ĐÁNH GIÁ MỤC 11", [
+          "Điểm EWS tổng hợp đạt " + fmt(e.total) + " / 10,00 (" + e.rank + "), làm cơ sở xác định ngưỡng phê duyệt tín dụng tại Mục 12."
+        ], "conclusion");
+
+        drawSectionHeading("12. NGƯỠNG QUYẾT NGHỊ & PHÊ DUYỆT TÍN DỤNG (FINAL)");
+        drawCallout("CHI TIẾT PHƯƠNG ÁN PHÊ DUYỆT ĐỀ XUẤT", [
+          "• Quyết nghị Cấp tín dụng: " + v.decision,
+          "• HMTD đề xuất / HMTD phê duyệt: " + fmt(d.hmtdReq) + " tỷ đồng / " + fmt(v.approvedLimit) + " tỷ đồng (" + v.limitDiffText + "; Trần tính toán VAR_HMTD_MAX: " + fmt(m.hmtdMax) + " tỷ).",
+          "• Tài sản bảo đảm (TSBĐ): " + d.collateral,
+          "• Điều kiện cấp tín dụng (Covenants): " + v.covenants.join(" ")
+        ], "info");
+        drawCallout("KẾT LUẬN / ĐÁNH GIÁ MỤC 12 (FINAL)", [
+          v.decision + " — HMTD đề xuất / HMTD phê duyệt: " + fmt(d.hmtdReq) + " tỷ đồng / " + fmt(v.approvedLimit) + " tỷ đồng (" + v.limitDiffText + ") trên nền tảng kiểm soát chặt chẽ mục đích luân chuyển vốn, bổ sung đầy đủ thuyết minh chi tiết và giám sát tài khoản chuyên thu theo đúng quy định."
+        ], "conclusion");
+
+        drawTable(
+          ["Chuyên viên Thẩm định", "Kiểm soát Rủi ro Tín dụng", "Cấp Phê duyệt Tín dụng"],
+          [368, 368, 368],
+          [["(Ký và ghi rõ họ tên)", "(Ký và ghi rõ họ tên)", "(Ký, đóng dấu và ghi rõ họ tên)"]],
+          ["center", "center", "center"]
+        );
+
+        if (canvas) {
+          pages.push(canvas.toDataURL("image/jpeg", 0.92));
+        }
+        return pages;
+      }
+
+      function downloadDirectPdfBlob() {
+        try {
+          runAppraisalEngine(false);
+          notify("Đang khởi tạo tệp PDF chuẩn A4 đầy đủ 12 mục...");
+          var res = appState.lastResult;
+          var jpegPages = renderReportToA4CanvasPages(res);
+          var pdfBlob = buildBinaryPdfFromJpegPages(jpegPages);
+
+          var cleanName = normalizeViKey(res.input.companyName || "KHDN").replace(/\s+/g, "_").toUpperCase();
+          var fileName = "Bao_Cao_Tham_Dinh_" + (cleanName || "KHDN") + "_12_Muc.pdf";
+
+          var url = URL.createObjectURL(pdfBlob);
+          var link = document.createElement("a");
+          link.href = url;
+          link.download = fileName;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          setTimeout(function () {
+            URL.revokeObjectURL(url);
+          }, 15000);
+
+          notify("Đã xuất thành công file " + fileName + " (" + jpegPages.length + " trang A4)!");
+        } catch (err) {
+          console.error("Direct PDF error:", err);
+          notify("Đang mở chế độ In / Lưu PDF dự phòng...");
+          triggerVectorPrintToPdf();
+        }
       }
 
       /* =================================================================
-         9. ĐỌC TỆP CSV / JSON / TXT CỤC BỘ & TẢI MẪU
+         8. ĐỌC TỆP CSV / JSON / TXT CỤC BỘ & TẢI MẪU
          ================================================================= */
       var PLAN_T1_ALIASES = {
         "doanh thu": "dttPlan", "doanh thu thuan": "dttPlan", "doanh thu du phong": "dttPlan", "dttplan": "dttPlan",
@@ -3951,6 +4023,9 @@
               if ($("chk-dtt-plan") && $("inp-dtt-plan")) {
                 $("chk-dtt-plan").value = $("inp-dtt-plan").value;
               }
+              if ($("chk-hmtd-req") && $("inp-hmtd-req")) {
+                $("chk-hmtd-req").value = $("inp-hmtd-req").value;
+              }
               appState.mode = "real";
               syncChoiceButtonsUI();
               updateModeUI();
@@ -4001,7 +4076,7 @@
       }
 
       /* =================================================================
-         10. GẮN SỰ KIỆN & KHỞI CHẠY AN TOÀN
+         9. GẮN SỰ KIỆN & KHỞI CHẠY AN TOÀN
          ================================================================= */
       function bindAllEvents() {
         $("btn-init-new-side").addEventListener("click", initializeNewBlankCase);
@@ -4033,7 +4108,7 @@
           $("preview-modal").classList.add("hidden");
         });
 
-        // Chuyển đổi Thiết bị
+        // Chuyển đổi Thiết bị (Tự động / Máy tính / Điện thoại)
         $("device-choice-group").addEventListener("click", function (e) {
           var btn = e.target.closest(".choice-btn");
           if (!btn) return;
@@ -4041,8 +4116,14 @@
           safeSetStorage(STORAGE_DEV_KEY, appState.devicePref);
           applyDeviceMode(true);
         });
+
+        var resizeTimer = null;
         window.addEventListener("resize", function () {
-          if (appState.devicePref === "auto") applyDeviceMode(false);
+          if (appState.devicePref !== "auto") return;
+          clearTimeout(resizeTimer);
+          resizeTimer = setTimeout(function () {
+            applyDeviceMode(false);
+          }, 80);
         });
 
         // Chọn Kỳ báo cáo Tháng 3 / 6 / 9 / 12
@@ -4152,7 +4233,7 @@
             appState.mobileTab = this.getAttribute("data-mob-tab");
             runAppraisalEngine(false);
             syncLayoutViews();
-            window.scrollTo(0, 0);
+            window.scrollTo({ top: 0, behavior: "smooth" });
           });
         }
 
@@ -4182,6 +4263,7 @@
             appState.docs[idx].status = "ok";
             if (isPlanSlot) appState.docs[idx].planExpanded = true;
             renderDocSlots();
+            runAppraisalEngine(false);
             notify("Đã đính kèm " + addedNames.length + " tệp vào mục " + appState.docs[idx].stt + ": " + addedNames.join(", "));
           }
         });
@@ -4236,6 +4318,7 @@
                 appState.docs[docIdx].status = "pending";
               }
               renderDocSlots();
+              runAppraisalEngine(false);
               notify("Đã gỡ tệp đính kèm.");
             }
           }
@@ -4281,6 +4364,9 @@
           if (e.target && e.target.id === "inp-hmtd-req" && $("chk-hmtd-req")) {
             $("chk-hmtd-req").value = e.target.value;
           }
+          if (e.target && e.target.id === "inp-industry") {
+            syncChoiceButtonsUI();
+          }
           if (e.target && e.target.hasAttribute("data-field") && e.target.value.trim() !== "") {
             appState.mode = "real";
             updateModeUI();
@@ -4289,6 +4375,7 @@
         }
         $("sec-inputs").addEventListener("input", onInputEdit);
         $("sec-inputs").addEventListener("change", function () { runAppraisalEngine(false); });
+        $("sec-docs").addEventListener("input", onInputEdit);
 
         $("btn-save-local").addEventListener("click", function () {
           safeSetStorage(STORAGE_CASE_KEY, JSON.stringify(getEffectiveInput()));
@@ -4303,7 +4390,7 @@
           try {
             var saved = JSON.parse(raw);
             Object.keys(FIELD_MAP).forEach(function (key) {
-              if (saved[key] !== undefined) $(FIELD_MAP[key]).value = saved[key];
+              if (saved[key] !== undefined && $(FIELD_MAP[key])) $(FIELD_MAP[key]).value = saved[key];
             });
             if ($("chk-dtt-plan") && $("inp-dtt-plan")) {
               $("chk-dtt-plan").value = $("inp-dtt-plan").value;
@@ -4340,8 +4427,8 @@
       function bootstrapApp() {
         try {
           bindAllEvents();
-          applyDeviceMode(false);
           activateGhostSampleMode();
+          applyDeviceMode(false);
         } catch (err) {
           console.error("Bootstrap error:", err);
         }
