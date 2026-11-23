@@ -1306,8 +1306,10 @@
       }
     }
 
-    if (isInterimPeriod) {
-      const mThang = text.match(/tháng\s*(\d{1,2})/i);
+    const fnameHint = STATE._currentUploadFilename || "";
+    const fnameMonthMatch = fnameHint.match(/\b(0?[1-9]|1[0-2])[.\-_\/]20\d{2}\b/);
+    if (isInterimPeriod || fnameMonthMatch) {
+      const mThang = text.match(/tháng\s*(\d{1,2})/i) || text.match(/\b(0?[1-9]|1[0-2])[.\-_\/]20\d{2}\b/) || fnameMonthMatch;
       const mQuy = text.match(/quý\s*([1-4])/i);
       if (mThang) {
         const th = parseInt(mThang[1], 10);
@@ -1319,7 +1321,7 @@
         STATE.t_days = parseInt(mQuy[1], 10) * 90;
       }
       notes.push(`Kỳ ${STATE.t_days}d (Tháng X / Năm T)`);
-    } else if (isFullYearBctc) {
+    } else if (isFullYearBctc || /\b2025\b/.test(fnameHint)) {
       STATE.t_days = 365;
       notes.push("Kỳ 365d (Cả năm)");
     }
@@ -1745,20 +1747,25 @@
   }
 
   function detectDocBucketByFilename(fname) {
-    const n = fname.toLowerCase();
-    if (n.includes("dkkd") || n.includes("phap_ly") || n.includes("dieu_le")) return "doc_1";
+    const n = String(fname || "").toLowerCase();
+    if (n.includes("dkkd") || n.includes("phap_ly") || n.includes("phap ly") || n.includes("dieu_le")) return "doc_1";
     if (n.includes("cic")) return "doc_2";
-    if (n.includes("t-1") || n.includes("2024") || n.includes("2025") || n.includes("bctc_nam")) return "doc_3_1";
-    if (n.includes("quy") || n.includes("thang") || n.includes("bctc")) return "doc_3_2";
-    if (n.includes("511") || n.includes("ban_hang")) return "doc_4";
-    if (n.includes("112") || n.includes("ngan_hang")) return "doc_5";
-    if (n.includes("ton_kho") || n.includes("nxt") || n.includes("156")) return "doc_6";
-    if (n.includes("phai_thu") || n.includes("131")) return "doc_7";
-    if (n.includes("phai_tra") || n.includes("331")) return "doc_8";
+    if (n.includes("511") || n.includes("ban_hang") || n.includes("ban hang")) return "doc_4";
+    if (n.includes("112") || n.includes("ngan_hang") || n.includes("ngan hang")) return "doc_5";
+    if (n.includes("ton_kho") || n.includes("ton kho") || n.includes("nxt") || n.includes("156")) return "doc_6";
+    if (n.includes("phai_thu") || n.includes("phai thu") || n.includes("131")) return "doc_7";
+    if (n.includes("phai_tra") || n.includes("phai tra") || n.includes("331")) return "doc_8";
     if (n.includes("vat") || n.includes("gtgt")) return "doc_9";
-    if (n.includes("so_phu") || n.includes("sao_ke")) return "doc_10";
-    if (n.includes("ke_hoach") || n.includes("du_phong") || n.includes("t+1")) return "doc_11";
-    if (n.includes("de_nghi") || n.includes("phuong_an") || n.includes("hmtd")) return "doc_12";
+    if (n.includes("so_phu") || n.includes("so phu") || n.includes("sao_ke") || n.includes("sao ke")) return "doc_10";
+    if (n.includes("ke_hoach") || n.includes("ke hoach") || n.includes("du_phong") || n.includes("du phong") || n.includes("t+1")) return "doc_11";
+    if (n.includes("de_nghi") || n.includes("de nghi") || n.includes("phuong_an") || n.includes("hmtd")) return "doc_12";
+
+    if (/\b(?:0?[1-9]|1[0-2])[.\-_\/]20\d{2}\b/.test(n) || /\b(?:thang|tháng|quy|quý)\s*\d{1,2}\b/.test(n) || /\b2026\b/.test(n)) {
+      return "doc_3_2";
+    }
+    if (n.includes("t-1") || /\b2024\b/.test(n) || /\b2025\b/.test(n) || n.includes("bctc_nam") || n.includes("bctc nam")) {
+      return "doc_3_1";
+    }
     return "doc_3_2";
   }
 
@@ -1771,6 +1778,7 @@
     const summaryLogs = [];
 
     for (const f of files) {
+      STATE._currentUploadFilename = f.name;
       const targetDoc = forcedDocId || detectDocBucketByFilename(f.name);
       STATE.checklist[targetDoc].files.push({ name: f.name, size: f.size });
       STATE.checklist[targetDoc].status = "ok";
@@ -1828,8 +1836,10 @@
           summaryLogs.push(`📎 <strong>${f.name}</strong> → Đã đính kèm vào Mục ${targetDoc.replace("doc_", "").replace("_", ".")} (Hợp lệ)${skippedInfo}.`);
         }
       } else {
-        STATE.checklist[targetDoc].note = "AI Agent 1: Đã tiếp nhận chứng từ đính kèm";
-        summaryLogs.push(`📎 <strong>${f.name}</strong> → Đã đính kèm vào Mục ${targetDoc.replace("doc_", "").replace("_", ".")}.`);
+        const fnMeta = mapExtractedTextToTT200(f.name, targetDoc);
+        totalExtracted += fnMeta.mappedCount;
+        STATE.checklist[targetDoc].note = fnMeta.notes.length ? `AI Agent 1: Nhận diện (${fnMeta.notes.join(", ")})` : "AI Agent 1: Đã tiếp nhận chứng từ đính kèm";
+        summaryLogs.push(`📎 <strong>${f.name}</strong> → Đã tiếp nhận vào Mục ${targetDoc.replace("doc_", "").replace("_", ".")}${fnMeta.notes.length ? " (" + fnMeta.notes.join(", ") + ")" : ""}.`);
       }
     }
 
