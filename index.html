@@ -218,44 +218,6 @@
   }
   .sign-box { border: 1px dashed #94A3B8; border-radius: 8px; padding: 10px 8px 54px 8px; background: #F8FAFC; }
 
-
-  .box-green {
-    background: #ECFDF5; border: 1px solid #6EE7B7; border-left: 5px solid #059669;
-    color: #065F46; border-radius: 8px; padding: 9px 12px; margin: 7px 0;
-  }
-  .box-red {
-    background: #FEF2F2; border: 1px solid #FCA5A5; border-left: 5px solid #DC2626;
-    color: #991B1B; border-radius: 8px; padding: 9px 12px; margin: 7px 0;
-  }
-  .box-amber {
-    background: #FFFBEB; border: 1px solid #FCD34D; border-left: 5px solid #D97706;
-    color: #92400E; border-radius: 8px; padding: 9px 12px; margin: 7px 0;
-  }
-  .box-formula {
-    background: #EFF6FF; border: 1px solid #93C5FD; border-left: 5px solid #1D4ED8;
-    color: #1E3A8A; border-radius: 8px; padding: 8px 12px; margin: 7px 0; font-size: 12px;
-  }
-  .box-conclusion {
-    background: #ECFDF5; border: 2px solid #059669; border-left: 7px solid #047857;
-    color: #064E3B; border-radius: 10px; padding: 12px 14px; margin: 8px 0;
-  }
-  .box-conclusion.box-concl-red {
-    background: #FEF2F2; border: 2px solid #DC2626; border-left: 7px solid #B91C1C;
-    color: #7F1D1D;
-  }
-  .box-conclusion.box-concl-amber {
-    background: #FFFBEB; border: 2px solid #D97706; border-left: 7px solid #B45309;
-    color: #78350F;
-  }
-  .tag-pill {
-    display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: 10.5px;
-    font-weight: 800; margin-right: 6px; text-transform: uppercase;
-  }
-  .tag-green { background: #059669; color: #FFFFFF; }
-  .tag-red { background: #DC2626; color: #FFFFFF; }
-  .tag-amber { background: #D97706; color: #FFFFFF; }
-  .tag-blue { background: #1D4ED8; color: #FFFFFF; }
-
   /* TOAST */
   #toast {
     position: fixed; top: 62px; right: 14px; z-index: 10000;
@@ -274,7 +236,7 @@
     .app-shell { max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
     #panel-report { display: block !important; }
     .report-sheet { border: none !important; padding: 0 !important; box-shadow: none !important; }
-    .rep-header, .rep-sec-title, th, tr.calc-row td, .box-green, .box-red, .box-amber, .box-formula, .box-conclusion, .tag-pill { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .rep-header, .rep-sec-title, th, tr.calc-row td { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     .rep-sec { page-break-inside: auto; }
     .rep-sec-title { page-break-after: avoid; }
     thead { display: table-header-group; }
@@ -365,11 +327,11 @@
   <div class="decision-banner">
     <div class="decision-grid">
       <div class="kpi-box">
-        <div class="kpi-lbl">NWC Vận hành (Kỳ T) • Tự động</div>
+        <div class="kpi-lbl">NWC Vận hành (Kỳ T)</div>
         <div class="kpi-val" id="kpi-nwcop">0.00 tỷ</div>
       </div>
       <div class="kpi-box">
-        <div class="kpi-lbl">OCF Chuẩn VAS 24 / DSCR • Tự động</div>
+        <div class="kpi-lbl">OCF Chuẩn VAS 24 / DSCR</div>
         <div class="kpi-val" id="kpi-ocf-dscr">0.00 tỷ / 0.00x</div>
       </div>
       <div class="kpi-box">
@@ -406,14 +368,8 @@
         </div>
       </div>
       <div class="card-bd">
-        <div class="alert-box info" style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;">
-          <div style="flex:1;min-width:260px;">
-            <strong>Cơ chế AI Agent 1 &amp; 2 Tự động:</strong> Nạp đủ 13 đầu mục theo checklist là tối ưu; khi thẩm định nhanh, chỉ cần có <strong>BCTC Năm T−1</strong> và <strong>BCTC Kỳ T</strong> hệ thống vẫn tính chỉ số, dự phóng doanh thu &amp; trần HMTD tự động (chỉ trả <code>N/A</code> ở các mục thực sự thiếu số liệu đầu vào).
-          </div>
-          <div class="pill-group">
-            <button type="button" class="pill-btn active-green" id="btnFastModeOn" data-action="set-opt" data-key="appraisal_mode" data-val="fast_basic">⚡ Thẩm định nhanh (TT133 / TT200 / Kiểm toán)</button>
-            <button type="button" class="pill-btn" id="btnFastModeOff" data-action="set-opt" data-key="appraisal_mode" data-val="deep_full">📑 Báo cáo chuyên sâu (Checklist đầy đủ)</button>
-          </div>
+        <div class="alert-box info">
+          <strong>Cơ chế AI Agent 1 &amp; 2 Tự động:</strong> Khi bạn bấm <strong>📎 Tải PDF / Excel</strong> ở từng đầu mục (hoặc nạp hàng loạt ở thanh trên), <strong>AI Agent 1</strong> sẽ đọc nội dung tệp, kiểm tra tính đầy đủ/hợp lệ của chứng từ, và bàn giao cho <strong>AI Agent 2</strong> tự động ánh xạ các mã số TT200 (`MS 10`, `MS 11`, `MS 20`, `MS 50`, `MS 131`, `MS 141`, `MS 311`...) vào <strong>Bảng Nhập liệu</strong>.
         </div>
         <div id="parser-audit-log"></div>
         <div class="tbl-wrap">
@@ -1016,8 +972,6 @@
     unit: "tỷ đồng",
     has_exclusion_notes: true,
     cic_group: 1,
-    fast_mode: true,
-    appraisal_mode: "fast_basic",
     ews: { tc: 7.5, vld: 7.0, qltn: 8.0, vtsb: 7.5 },
     checklist: {},
     parserLogs: []
@@ -1078,63 +1032,18 @@
     window._toastTimer = setTimeout(() => { t.style.display = "none"; }, 3000);
   }
 
-  STATE.realDataStarted = false;
-
-  function hasRealInputValue() {
-    const allInputs = document.querySelectorAll("#panel-inputs input[type='number'], #panel-inputs input[type='text']");
-    for (let i = 0; i < allInputs.length; i++) {
-      if (allInputs[i].value.trim() !== "") return true;
-    }
-    return false;
-  }
-
-  function isDemoSampleMode() {
-    return !STATE.realDataStarted && !hasRealInputValue();
-  }
-
-  function switchToRealDataMode(preserveExistingValues) {
-    if (STATE.realDataStarted) return;
-    STATE.realDataStarted = true;
-    // Strip all Hoàng Nam faint placeholders so unentered fields are strictly empty (N/A) and NEVER fallback to sample numbers
-    document.querySelectorAll("#panel-inputs input").forEach(inp => {
-      if (inp.id === "dtt_plan_t1") inp.placeholder = "Nhập tay DTT T+1 (trống = N/A)";
-      else if (inp.id === "inp_hmtd_req") inp.placeholder = "Nhập tay HMTD ĐX (trống = N/A)";
-      else inp.placeholder = "N/A";
-    });
-  }
-
-  function hasFieldData(id) {
-    const el = $(id);
-    if (!el) return false;
-    if (el.value.trim() !== "") return Number.isFinite(parseFloat(el.value));
-    if (isDemoSampleMode() && el.placeholder !== "") return Number.isFinite(parseFloat(el.placeholder));
-    return false;
-  }
-
   function numVal(id) {
     const el = $(id);
     if (!el) return 0;
-    if (el.value.trim() !== "") {
-      const v = parseFloat(el.value);
-      return Number.isFinite(v) ? v : 0;
-    }
-    if (isDemoSampleMode() && el.placeholder !== "") {
-      const vp = parseFloat(el.placeholder);
-      return Number.isFinite(vp) ? vp : 0;
-    }
-    return 0;
-  }
-
-  function numValOrNull(id) {
-    return hasFieldData(id) ? numVal(id) : null;
+    const raw = el.value !== "" ? el.value : el.placeholder;
+    const v = parseFloat(raw);
+    return Number.isFinite(v) ? v : 0;
   }
 
   function strVal(id, fallback) {
     const el = $(id);
     if (!el) return fallback || "";
-    if (el.value.trim() !== "") return el.value.trim();
-    if (isDemoSampleMode() && el.placeholder && el.placeholder !== "N/A") return el.placeholder;
-    return fallback || "N/A (Chưa nhập tên DN)";
+    return el.value.trim() !== "" ? el.value.trim() : (el.placeholder || fallback || "");
   }
 
   function safeDiv(num, den) {
@@ -1221,109 +1130,23 @@
     return count;
   }
 
-  function isSummaryTotalRowText(rowText) {
-    if (!rowText) return false;
-    const norm = String(rowText).trim().toLowerCase().replace(/\s+/g, " ");
-    // Exclude bottom summary / total rows in Excel/CSV ledgers & tables so totals are NEVER double-counted (x2)
-    return /^(tổng\s*cộng|tổng\s*số|tổng\s*phát\s*sinh|tổng\s*tiền|tổng\s*doanh\s*thu|tổng\s*thu|tổng\s*chi|cộng\s*phát\s*sinh|cộng\s*lũy\s*kế|cộng\s*dòng|lũy\s*kế\s*cuối\s*kỳ|tổng\s*hợp|total|grand\s*total|sub\s*total|sum)\b/i.test(norm)
-      || /\b(tổng\s*cộng\s*phát\s*sinh|cộng\s*số\s*phát\s*sinh|tổng\s*cộng\s*cuối\s*kỳ|tổng\s*cộng\s*sổ|tổng\s*cộng\s*bảng|cộng\s*phát\s*sinh\s*trong\s*kỳ)\b/i.test(norm);
-  }
-
-  function filterSummaryRowsFromCsvOrLines(rawText) {
-    return String(rawText || "")
-      .split(/\r?\n/)
-      .filter(ln => !isSummaryTotalRowText(ln.replace(/[,;\t|]/g, " ")))
-      .join("\n");
-  }
-
-  function sumLedgerDetailRows(rawText) {
-    // Only sum genuine detail transaction rows and strictly skip summary/total rows at the bottom (preventing 2x double-counting)
-    const lines = String(rawText || "").split(/\r?\n/).filter(l => l.trim().length > 0);
-    if (lines.length < 2) return null;
-    let sumAmt = 0, detailRowCount = 0, skippedSummaryCount = 0;
-
-    for (let i = 0; i < lines.length; i++) {
-      const ln = lines[i];
-      const joinedLabel = ln.replace(/[,;\t|]/g, " ");
-      if (isSummaryTotalRowText(joinedLabel)) {
-        skippedSummaryCount++;
-        continue;
-      }
-      // Also skip header rows (e.g. "Ngày chứng từ", "Diễn giải", "Số tiền", "Thu", "Chi"...)
-      if (/^(ngày|ngay|stt|số\s*ct|chứng\s*từ|diễn\s*giải|dien\s*giai|nội\s*dung|tài\s*khoản|tk\b)/i.test(joinedLabel.trim()) && !/\d{1,2}[\/-]\d{1,2}[\/-]\d{2,4}/.test(joinedLabel)) {
-        continue;
-      }
-
-      const cols = ln.includes("\t") ? ln.split("\t") : ln.split(/[;,]/);
-      if (cols.length < 2) continue;
-      const nums = [];
-      for (const c of cols) {
-        const clean = c.trim();
-        if (!clean || /^\d{1,2}[\/-]\d{1,2}[\/-]\d{2,4}$/.test(clean)) continue;
-        if (/^(111|112|131|141|151|152|153|154|155|156|331|333|511|632|641|642)$/.test(clean)) continue;
-        const v = parseNumberSmart(clean);
-        if (v !== null && Math.abs(v) > 0) nums.push(v);
-      }
-      if (nums.length > 0) {
-        detailRowCount++;
-        const posVals = nums.filter(x => x > 0);
-        if (posVals.length > 0) sumAmt += posVals[posVals.length - 1];
-      }
-    }
-    if (detailRowCount < 1) return null;
-    const scale = (v) => (Math.abs(v) >= 1000000 ? v / 1e9 : (Math.abs(v) >= 10000 ? v / 1e3 : v));
-    return { detailRowCount, skippedSummaryCount, total: scale(sumAmt) };
-  }
-
-  function mapExtractedTextToTT200(text, targetDoc) {
+  function mapExtractedTextToTT200(text) {
     let mappedCount = 0;
     const notes = [];
-
-    // Refine bucket if file is a full-year BCTC (31/12/YYYY or "Năm 2025" without "Tháng" / "Quý") vs interim period ("Tháng X" / "Quý")
-    let effectiveDoc = targetDoc || "doc_3_2";
-    const isInterimPeriod = /\b(?:tháng\s*\d{1,2}|quý\s*[1-4]|lũy\s*kế\s*\d+\s*tháng|6t|9t)\b/i.test(text);
-    const isFullYearBctc = !isInterimPeriod && /(?:báo\s*cáo\s*tình\s*hình\s*tài\s*chính\s*tại\s*ngày\s*31\s*tháng\s*12|báo\s*cáo\s*kết\s*quả\s*hoạt\s*động\s*kinh\s*doanh\s*năm\s*20\d\d|bảng\s*cân\s*đối\s*tài\s*khoản\s*năm\s*20\d\d)/i.test(text);
-    if (!targetDoc && isFullYearBctc) effectiveDoc = "doc_3_1";
-
-    // Detect audit status if mentioned in BCTC header/footer
-    if (/(?:bctc\s*đã\s*được\s*kiểm\s*toán\s*:\s*\[x\]|báo\s*cáo\s*kiểm\s*toán|kiểm\s*toán\s*độc\s*lập)/i.test(text)) {
-      notes.push("BCTC Kiểm toán / Chuẩn hóa");
-    }
-
-    const mstMatch = text.match(/(?:\[02\]\s*Mã\s*số\s*thuế|\[03\]\s*Mã\s*số\s*thuế|MST|Mã số thuế|MÃ SỐ THUẾ)[:\s-]*([0-9]{10}(?:-[0-9]{3})?)/i);
+    const mstMatch = text.match(/(?:MST|Mã số thuế|MÃ SỐ THUẾ)[:\s-]*([0-9]{10}(?:-[0-9]{3})?)/i);
     if (mstMatch && $("inp_mst")) {
       $("inp_mst").value = mstMatch[1];
       mappedCount++;
       notes.push(`MST=${mstMatch[1]}`);
     }
 
-    const nameMatch = text.match(/(?:\[01\]\s*Tên\s*người\s*nộp\s*thuế|\[02\]\s*Tên\s*người\s*nộp\s*thuế|Tên doanh nghiệp|Người nộp thuế|CÔNG TY[^\n\r\t]{4,90})/i);
+    const nameMatch = text.match(/(?:Tên doanh nghiệp|Người nộp thuế|CÔNG TY[^\n\r]{4,90})/i);
     if (nameMatch && $("inp_company_name")) {
-      const cleanName = nameMatch[0].replace(/^(?:\[\d+\]\s*Tên\s*người\s*nộp\s*thuế|Tên doanh nghiệp|Người nộp thuế)[:\s-]*/i, "").trim();
+      const cleanName = nameMatch[0].replace(/^(?:Tên doanh nghiệp|Người nộp thuế)[:\s-]*/i, "").trim();
       if (cleanName.length >= 6 && cleanName.length <= 100) {
         $("inp_company_name").value = cleanName;
         mappedCount++;
       }
-    }
-
-    const fnameHint = STATE._currentUploadFilename || "";
-    const fnameMonthMatch = fnameHint.match(/\b(0?[1-9]|1[0-2])[.\-_\/]20\d{2}\b/);
-    if (isInterimPeriod || fnameMonthMatch) {
-      const mThang = text.match(/tháng\s*(\d{1,2})/i) || text.match(/\b(0?[1-9]|1[0-2])[.\-_\/]20\d{2}\b/) || fnameMonthMatch;
-      const mQuy = text.match(/quý\s*([1-4])/i);
-      if (mThang) {
-        const th = parseInt(mThang[1], 10);
-        if (th <= 3) STATE.t_days = 90;
-        else if (th <= 6) STATE.t_days = 180;
-        else if (th <= 9) STATE.t_days = 270;
-        else STATE.t_days = 365;
-      } else if (mQuy) {
-        STATE.t_days = parseInt(mQuy[1], 10) * 90;
-      }
-      notes.push(`Kỳ ${STATE.t_days}d (Tháng X / Năm T)`);
-    } else if (isFullYearBctc || /\b2025\b/.test(fnameHint)) {
-      STATE.t_days = 365;
-      notes.push("Kỳ 365d (Cả năm)");
     }
 
     if (/nhóm\s*[345]|nợ\s*xấu|nợ\s*nghi\s*ngờ|nợ\s*có\s*khả\s*năng\s*mất\s*vốn/i.test(text)) {
@@ -1334,113 +1157,49 @@
       notes.push("CIC Nhóm 2");
     }
 
-    // Scale raw currency values (e.g., VND -> tỷ đồng: / 1e9)
-    const scaleNum = (num) => {
-      if (Math.abs(num) >= 1000000) return num / 1e9;
-      if (Math.abs(num) >= 10000) return num / 1e3;
-      return num;
-    };
-
-    // Each rule specifies:
-    // - `tSlot`: target field for current/ending column of Kỳ T (`doc_3_2` / interim)
-    // - `t1Slot`: target field for Năm T-1 (ending column of `doc_3_1` BCTC T-1, OR beginning/prior column of `doc_3_2` Tháng X Năm T)
-    // - `t2Slot`: target field for Năm T-2 (beginning/prior column of `doc_3_1` BCTC T-1)
-    const rowRules = [
-      { re: /(?:Doanh thu thuần về bán hàng|Doanh thu thuần\b|\b10\b)/i, tSlot: "dtt_t", t1Slot: "dtt_t1", t2Slot: "dtt_t2", label: "DTT(10)" },
-      { re: /(?:Giá vốn hàng bán|\b11\b)/i, tSlot: "cogs_t", t1Slot: "cogs_t1", t2Slot: "cogs_t2", label: "GVHB(11)" },
-      { re: /(?:Chi phí bán hàng|\b25\b)/i, tSlot: "opex_t", t1Slot: "opex_t1", t2Slot: "opex_t2", addMode: true, label: "CPBH(25)" },
-      { re: /(?:Chi phí quản lý doanh nghiệp|Chi phí quản lý kinh doanh|\b26\b|\b24\b)/i, tSlot: "opex_t", t1Slot: "opex_t1", t2Slot: "opex_t2", addMode: true, label: "CPQL(24/26)" },
-      { re: /(?:Chi phí lãi vay|\b23\b)/i, tSlot: "int_exp_t", t1Slot: "int_exp_t1", t2Slot: "int_exp_t2", label: "Lãi vay(23)" },
-      { re: /(?:Tổng lợi nhuận kế toán trước thuế|Lợi nhuận kế toán trước thuế|\b50\b)/i, tSlot: "lntt_t", t1Slot: "lntt_t1", t2Slot: "lntt_t2", label: "LNTT(50)" },
-      { re: /(?:Chi phí thuế TNDN|Thuế TNDN|\b51\b)/i, tSlot: "tax_t", t1Slot: "tax_t1", t2Slot: "tax_t2", label: "Thuế TNDN(51)" },
-      { re: /(?:Khấu hao TSCĐ|\b02\b)/i, tSlot: "da_t", t1Slot: "da_t1", t2Slot: "da_t2", label: "Khấu hao(02)" },
-      { re: /(?:Tiền lãi vay đã trả|\b04\b|\b14\b)/i, tSlot: "int_paid_t", t1Slot: "int_paid_t1", t2Slot: "int_paid_t2", label: "Lãi trả(04/14)" },
-      { re: /(?:Lưu chuyển tiền thuần từ hoạt động kinh doanh|\b20\b)/i, tSlot: "ms20_t", t1Slot: "ms20_t1", t2Slot: "ms20_t2", label: "OCF(20)" },
-      { re: /(?:Tiền và các khoản tương đương tiền|\b110\b)/i, tSlot: "cash_t", t1Slot: "cash_t1", t2Slot: "cash_t2", label: "Tiền(110)" },
-      { re: /(?:Các khoản phải thu|\b130\b)/i, tSlot: "ca_t", t1Slot: "ca_t1", t2Slot: "ca_t2", addCaMode: true, label: "Phải thu(130)" },
-      { re: /(?:Phải thu ngắn hạn của khách hàng|Phải thu của khách hàng|\b131\b)/i, tSlot: "ar_gop_t", t1Slot: "ar_gop_t1", t2Slot: "ar_gop_t2", label: "AR(131)" },
-      { re: /(?:Dự phòng phải thu khó đòi|\b136\b|\b137\b)/i, tSlot: "dp_ar_t", t1Slot: "dp_ar_t1", t2Slot: "dp_ar_t2", label: "DP_AR(136/137)" },
-      { re: /(?:Hàng tồn kho\b|\b140\b|\b141\b)/i, tSlot: "inv_gop_t", t1Slot: "inv_gop_t1", t2Slot: "inv_gop_t2", label: "INV(140/141)" },
-      { re: /(?:Dự phòng giảm giá hàng tồn kho|\b142\b|\b149\b)/i, tSlot: "dp_inv_t", t1Slot: "dp_inv_t1", t2Slot: "dp_inv_t2", label: "DP_INV(142/149)" },
-      { re: /(?:TỔNG CỘNG TÀI SẢN|Tổng cộng tài sản|\b200\b|\b270\b)/i, tSlot: "ta_t", t1Slot: "ta_t1", t2Slot: "ta_t2", label: "TổngTS(200/270)" },
-      { re: /(?:Nợ phải trả\b|\b300\b)/i, tSlot: "tl_t", t1Slot: "tl_t1", t2Slot: "tl_t2", label: "TổngNợ(300)" },
-      { re: /(?:Phải trả người bán|Phải trả cho người bán|\b311\b)/i, tSlot: "ap_gop_t", t1Slot: "ap_gop_t1", t2Slot: "ap_gop_t2", label: "AP(311)" },
-      { re: /(?:Vốn chủ sở hữu\b|\b400\b)/i, tSlot: "eq_t", t1Slot: "eq_t1", t2Slot: "eq_t2", label: "VCSH(400)" }
+    const rules = [
+      { re: /(?:Doanh thu thuần[^\n\r]{0,40}|Mã số\s*10\b|\bMS\s*10\b)[^\d\n\r-]{1,25}([\d.,()-]+)/i, target: "dtt_t", label: "DTT(MS10)" },
+      { re: /(?:Giá vốn hàng bán[^\n\r]{0,40}|Mã số\s*11\b|\bMS\s*11\b)[^\d\n\r-]{1,25}([\d.,()-]+)/i, target: "cogs_t", label: "GVHB(MS11)" },
+      { re: /(?:Chi phí lãi vay[^\n\r]{0,40}|Mã số\s*23\b|\bMS\s*23\b)[^\d\n\r-]{1,25}([\d.,()-]+)/i, target: "int_exp_t", label: "Lãi vay(MS23)" },
+      { re: /(?:Lợi nhuận kế toán trước thuế[^\n\r]{0,40}|Mã số\s*50\b|\bMS\s*50\b)[^\d\n\r-]{1,25}([\d.,()-]+)/i, target: "lntt_t", label: "LNTT(MS50)" },
+      { re: /(?:Tiền và các khoản tương đương tiền[^\n\r]{0,40}|Mã số\s*110\b|\bMS\s*110\b)[^\d\n\r-]{1,25}([\d.,()-]+)/i, target: "cash_t", label: "Tiền(MS110)" },
+      { re: /(?:Phải thu ngắn hạn của khách hàng[^\n\r]{0,40}|Mã số\s*131\b|\bMS\s*131\b)[^\d\n\r-]{1,25}([\d.,()-]+)/i, target: "ar_gop_t", label: "AR(MS131)" },
+      { re: /(?:Dự phòng phải thu ngắn hạn khó đòi[^\n\r]{0,40}|Mã số\s*137\b|\bMS\s*137\b)[^\d\n\r-]{1,25}([\d.,()-]+)/i, target: "dp_ar_t", label: "DP_AR(MS137)" },
+      { re: /(?:Hàng tồn kho[^\n\r]{0,40}|Mã số\s*141\b|\bMS\s*141\b)[^\d\n\r-]{1,25}([\d.,()-]+)/i, target: "inv_gop_t", label: "INV(MS141)" },
+      { re: /(?:Dự phòng giảm giá hàng tồn kho[^\n\r]{0,40}|Mã số\s*149\b|\bMS\s*149\b)[^\d\n\r-]{1,25}([\d.,()-]+)/i, target: "dp_inv_t", label: "DP_INV(MS149)" },
+      { re: /(?:Tổng cộng tài sản[^\n\r]{0,40}|Mã số\s*270\b|\bMS\s*270\b)[^\d\n\r-]{1,25}([\d.,()-]+)/i, target: "ta_t", label: "TổngTS(MS270)" },
+      { re: /(?:Nợ ngắn hạn[^\n\r]{0,40}|Mã số\s*310\b|\bMS\s*310\b)[^\d\n\r-]{1,25}([\d.,()-]+)/i, target: "cl_t", label: "NợNH(MS310)" },
+      { re: /(?:Phải trả người bán ngắn hạn[^\n\r]{0,40}|Mã số\s*311\b|\bMS\s*311\b)[^\d\n\r-]{1,25}([\d.,()-]+)/i, target: "ap_gop_t", label: "AP(MS311)" },
+      { re: /(?:Vốn chủ sở hữu[^\n\r]{0,40}|Mã số\s*400\b|\bMS\s*400\b)[^\d\n\r-]{1,25}([\d.,()-]+)/i, target: "eq_t", label: "VCSH(MS400)" },
+      { re: /(?:Lưu chuyển tiền thuần từ hoạt động kinh doanh[^\n\r]{0,40}|Mã số\s*20\b|\bMS\s*20\b)[^\d\n\r-]{1,25}([\d.,()-]+)/i, target: "ms20_t", label: "OCF(MS20)" },
+      { re: /(?:Doanh thu dự phóng|Kế hoạch doanh thu|VAR_DT_KH_T\+1)[^\d\n\r-]{1,25}([\d.,()-]+)/i, target: "dtt_plan_t1", label: "DT_KH_T+1" },
+      { re: /(?:HMTD đề xuất|Hạn mức đề xuất|VAR_HMTD_REQ)[^\d\n\r-]{1,25}([\d.,()-]+)/i, target: "inp_hmtd_req", label: "HMTD_ĐX" }
     ];
 
-    const opexAccum = { opex_t: 0, opex_t1: 0, opex_t2: 0 };
-    const lines = text.split(/\r?\n/);
-
-    lines.forEach(ln => {
-      if (isSummaryTotalRowText(ln.replace(/[,;\t|]/g, " "))) return;
-
-      const kvParts = ln.split(/[,;\t=:]/).map(s => s.trim());
-      if (kvParts.length >= 2 && SAMPLE_VALUES[kvParts[0]] !== undefined && kvParts[0] !== "dtt_plan_t1" && kvParts[0] !== "inp_hmtd_req") {
-        const val = parseNumberSmart(kvParts[1]);
-        if (val !== null && $(kvParts[0])) {
-          $(kvParts[0]).value = val.toFixed(2);
+    rules.forEach(r => {
+      const m = text.match(r.re);
+      if (m && m[1]) {
+        let num = parseNumberSmart(m[1]);
+        if (num !== null) {
+          if (Math.abs(num) >= 1000000) num = num / 1e9;
+          else if (Math.abs(num) >= 10000) num = num / 1e3;
+          $(r.target).value = num.toFixed(2);
           mappedCount++;
-          notes.push(`${kvParts[0]}=${val.toFixed(2)}`);
-          return;
+          notes.push(`${r.label}=${num.toFixed(2)}`);
         }
       }
+    });
 
-      const cells = ln.includes("\t") ? ln.split("\t").map(c => c.trim()).filter(Boolean) : [ln.trim()];
-      if (!cells.length) return;
-
-      for (const rule of rowRules) {
-        if (!rule.re.test(ln)) continue;
-
-        // Extract candidate numeric cells (skipping pure line code / note references like "V.01", "VI.1", "10", "110")
-        const numCells = [];
-        const rawTokens = cells.length > 1
-          ? cells
-          : (ln.match(/-?\d{1,3}(?:[.,]\d{3})*(?:[.,]\d+)?|-?\d+(?:[.,]\d+)?/g) || []);
-
-        rawTokens.forEach((c, idx) => {
-          const clean = c.trim();
-          if (!/[\d.,]/.test(clean)) return;
-          if (cells.length > 1 && idx === 0 && !/^[\d.,()-]+$/.test(clean)) return;
-          // Skip pure TT200/TT133 line code or note numbers
-          if (/^(01|02|04|10|11|14|15|20|23|24|25|26|30|40|50|51|52|60|100|110|120|130|131|132|136|137|140|141|142|149|150|170|180|200|270|300|310|311|312|313|316|400|411|417|500)$/.test(clean)) return;
-          // Skip standalone small integers (1..6) that represent column index or note ref
-          if (/^[1-6]$/.test(clean) && rawTokens.length > 2) return;
-          const parsed = parseNumberSmart(clean);
-          if (parsed !== null) numCells.push(Math.abs(scaleNum(parsed)));
-        });
-
-        if (numCells.length > 0) {
-          // Column 0 = Số cuối kỳ / Năm nay (hoặc Tháng X Năm T)
-          // Column 1 = Số đầu năm / Năm trước (hoặc Năm T-1)
-          const valEnd = numCells[0];
-          const valBeg = numCells.length >= 2 ? numCells[1] : null;
-
-          let curTarget, prevTarget;
-          if (effectiveDoc === "doc_3_1") {
-            // File BCTC T-1 (vd 2025): Số cuối kỳ -> T-1 (`_t1`), Số đầu năm -> T-2 (`_t2`)
-            curTarget = rule.t1Slot;
-            prevTarget = rule.t2Slot;
-          } else {
-            // File Báo cáo nhanh Tháng X Năm T: Số cuối kỳ -> Kỳ T (`_t`), Số đầu kỳ -> Năm T-1 (`_t1`)
-            curTarget = rule.tSlot;
-            prevTarget = rule.t1Slot;
-          }
-
-          if (rule.addMode) {
-            opexAccum[curTarget] = (opexAccum[curTarget] || 0) + valEnd;
-            if ($(curTarget)) $(curTarget).value = opexAccum[curTarget].toFixed(2);
-            if (valBeg !== null && prevTarget && $(prevTarget)) {
-              opexAccum[prevTarget] = (opexAccum[prevTarget] || 0) + valBeg;
-              $(prevTarget).value = opexAccum[prevTarget].toFixed(2);
-            }
-          } else {
-            if ($(curTarget)) $(curTarget).value = valEnd.toFixed(2);
-            if (valBeg !== null && prevTarget && $(prevTarget)) $(prevTarget).value = valBeg.toFixed(2);
-          }
+    const lines = text.split(/\r?\n/);
+    lines.forEach(ln => {
+      const parts = ln.split(/[,;\t=:]/).map(s => s.trim());
+      if (parts.length >= 2 && SAMPLE_VALUES[parts[0]] !== undefined) {
+        const val = parseNumberSmart(parts[1]);
+        if (val !== null) {
+          $(parts[0]).value = val.toFixed(2);
           mappedCount++;
-          notes.push(`${rule.label}=${valEnd.toFixed(2)}`);
+          notes.push(`${parts[0]}=${val.toFixed(2)}`);
         }
-        break;
       }
     });
 
@@ -1453,7 +1212,7 @@
     const view = new DataView(arrayBuffer);
     const decoder = new TextDecoder("utf-8", { fatal: false });
     let offset = 0;
-    const xmlFiles = {};
+    const xmlTexts = [];
 
     while (offset + 30 < u8.length) {
       const sig = view.getUint32(offset, true);
@@ -1470,302 +1229,42 @@
       if (fname.endsWith(".xml") && (fname.includes("sharedStrings") || fname.includes("sheet"))) {
         try {
           if (method === 0) {
-            xmlFiles[fname] = decoder.decode(compData);
+            xmlTexts.push(decoder.decode(compData));
           } else if (method === 8) {
             const ds = new DecompressionStream("deflate-raw");
             const writer = ds.writable.getWriter();
             writer.write(compData);
             writer.close();
             const buf = await new Response(ds.readable).arrayBuffer();
-            xmlFiles[fname] = decoder.decode(buf);
+            xmlTexts.push(decoder.decode(buf));
           }
         } catch (err) {}
       }
     }
-
-    const sharedStrings = [];
-    const ssKey = Object.keys(xmlFiles).find(k => k.includes("sharedStrings"));
-    if (ssKey) {
-      const siMatches = xmlFiles[ssKey].match(/<si\b[^>]*>[\s\S]*?<\/si>/g) || [];
-      siMatches.forEach(si => {
-        const tParts = si.match(/<t\b[^>]*>([\s\S]*?)<\/t>/g) || [];
-        const joined = tParts.map(tp => tp.replace(/<[^>]+>/g, "")).join("");
-        sharedStrings.push(joined);
-      });
-    }
-
-    const sheetKeys = Object.keys(xmlFiles).filter(k => k.includes("worksheets/sheet")).sort();
-    const cleanRowLines = [];
-    let skippedTotalRows = 0;
-
-    sheetKeys.forEach(sk => {
-      const rowMatches = xmlFiles[sk].match(/<row\b[^>]*>[\s\S]*?<\/row>/g) || [];
-      rowMatches.forEach(rowXml => {
-        const cells = [];
-        const cellMatches = rowXml.match(/<c\b[^>]*>[\s\S]*?<\/c>/g) || [];
-        cellMatches.forEach(cXml => {
-          const typeMatch = cXml.match(/\bt="([^"]+)"/);
-          const cType = typeMatch ? typeMatch[1] : "";
-          const vMatch = cXml.match(/<v\b[^>]*>([\s\S]*?)<\/v>/);
-          const isMatch = cXml.match(/<is\b[^>]*>[\s\S]*?<\/is>/);
-          let val = "";
-          if (cType === "s" && vMatch) {
-            const idx = parseInt(vMatch[1], 10);
-            val = sharedStrings[idx] !== undefined ? sharedStrings[idx] : "";
-          } else if (cType === "inlineStr" && isMatch) {
-            val = isMatch[0].replace(/<[^>]+>/g, "");
-          } else if (vMatch) {
-            val = vMatch[1];
-          }
-          val = val.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").trim();
-          if (val !== "") cells.push(val);
-        });
-
-        if (cells.length === 0) return;
-        const rowLabelText = cells.join(" ");
-        if (isSummaryTotalRowText(rowLabelText)) {
-          skippedTotalRows++;
-          return;
-        }
-        cleanRowLines.push(cells.join("\t"));
-      });
-    });
-
-    STATE._lastXlsxSkippedTotalRows = skippedTotalRows;
-    return cleanRowLines.join("\n");
+    return xmlTexts.join("\n").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
   }
 
-  function decodePdfStringLiteral(str) {
-    if (!str) return "";
-    if (str.length >= 2 && str.charCodeAt(0) === 0xFE && str.charCodeAt(1) === 0xFF) {
-      let out = "";
-      for (let i = 2; i + 1 < str.length; i += 2) {
-        const code = (str.charCodeAt(i) << 8) | str.charCodeAt(i + 1);
-        if (code === 0x000A || code === 0x000D) out += "\n";
-        else if (code >= 0x0020) out += String.fromCharCode(code);
-      }
-      return out;
-    }
-    let out = "";
-    for (let i = 0; i < str.length; i++) {
-      const ch = str[i];
-      if (ch === "\\") {
-        i++;
-        if (i >= str.length) break;
-        const n = str[i];
-        if (n === "n") out += "\n";
-        else if (n === "r") out += "\r";
-        else if (n === "t") out += "\t";
-        else if (n === "b" || n === "f") out += " ";
-        else if (n === "(" || n === ")" || n === "\\") out += n;
-        else if (/[0-7]/.test(n)) {
-          let oct = n;
-          for (let k = 0; k < 2 && i + 1 < str.length && /[0-7]/.test(str[i + 1]); k++) {
-            i++;
-            oct += str[i];
-          }
-          out += String.fromCharCode(parseInt(oct, 8));
-        } else {
-          out += n;
-        }
-      } else {
-        out += ch;
-      }
-    }
-    return out;
-  }
-
-  function decodePdfHexString(hexStr) {
-    const clean = String(hexStr || "").replace(/[^0-9a-fA-F]/g, "");
-    if (clean.length < 2) return "";
-    let bytes = "";
-    for (let i = 0; i + 1 < clean.length; i += 2) {
-      bytes += String.fromCharCode(parseInt(clean.slice(i, i + 2), 16));
-    }
-    return decodePdfStringLiteral(bytes);
-  }
-
-  function extractTextFromContentStream(streamText) {
-    if (!streamText) return "";
-    const lines = [];
-    let curLine = "";
-    let lastY = null;
-
-    // Track y-coordinate in Tm (`a b c d e f Tm`) or Td (`tx ty Td`) to separate rows cleanly
-    const opRe = /(-?\d+(?:\.\d+)?)\s+(-?\d+(?:\.\d+)?)\s+(-?\d+(?:\.\d+)?)\s+(-?\d+(?:\.\d+)?)\s+(-?\d+(?:\.\d+)?)\s+(-?\d+(?:\.\d+)?)\s+Tm|(-?\d+(?:\.\d+)?)\s+(-?\d+(?:\.\d+)?)\s+T[dD]|\[((?:[^\[\]]|\([^\)]*\)|<[^>]*>)*)\]\s*TJ|\(((?:\\.|[^\\)])*)\)\s*(?:Tj|'|")|<([0-9a-fA-F\s]{4,})>\s*(?:Tj|'|")|(T\*)\b/g;
-    let m;
-    while ((m = opRe.exec(streamText)) !== null) {
-      if (m[1] !== undefined && m[6] !== undefined) {
-        const yPos = parseFloat(m[6]);
-        if (lastY !== null && Math.abs(yPos - lastY) > 2.5 && curLine.trim()) {
-          lines.push(curLine.trim());
-          curLine = "";
-        } else if (curLine && !curLine.endsWith("\t") && !curLine.endsWith(" ")) {
-          curLine += "\t";
-        }
-        lastY = yPos;
-      } else if (m[7] !== undefined && m[8] !== undefined) {
-        const dy = parseFloat(m[8]);
-        if (Math.abs(dy) > 2.0 && curLine.trim()) {
-          lines.push(curLine.trim());
-          curLine = "";
-        } else if (curLine && !curLine.endsWith("\t") && !curLine.endsWith(" ")) {
-          curLine += "\t";
-        }
-      } else if (m[9] !== undefined) {
-        const arrBody = m[9];
-        const partRe = /\(((?:\\.|[^\\)])*)\)|<([0-9a-fA-F\s]{2,})>|(-?\d+(?:\.\d+)?)/g;
-        let pm;
-        let lineBreak = false;
-        while ((pm = partRe.exec(arrBody)) !== null) {
-          if (pm[1] !== undefined) {
-            curLine += decodePdfStringLiteral(pm[1]);
-          } else if (pm[2] !== undefined) {
-            curLine += decodePdfHexString(pm[2]);
-          } else if (pm[3] !== undefined) {
-            const kern = parseFloat(pm[3]);
-            if (kern < -160 && curLine && !curLine.endsWith(" ") && !curLine.endsWith("\t")) {
-              curLine += " ";
-            }
-            if (kern < -650) lineBreak = true;
-          }
-        }
-        if (lineBreak && curLine.trim()) {
-          lines.push(curLine.trim());
-          curLine = "";
-        }
-      } else if (m[10] !== undefined) {
-        curLine += decodePdfStringLiteral(m[10]);
-        if (/\r|\n/.test(curLine)) {
-          curLine.split(/\r?\n/).forEach(seg => { if (seg.trim()) lines.push(seg.trim()); });
-          curLine = "";
-        }
-      } else if (m[11] !== undefined) {
-        curLine += decodePdfHexString(m[11]);
-      } else if (m[12] !== undefined) {
-        if (curLine.trim()) {
-          lines.push(curLine.trim());
-          curLine = "";
-        }
-      }
-    }
-    if (curLine.trim()) lines.push(curLine.trim());
-
-    if (lines.length === 0) {
-      const litMatches = streamText.match(/\(([^()\\]{2,160})\)/g) || [];
-      litMatches.forEach(s => {
-        const d = decodePdfStringLiteral(s.slice(1, -1)).trim();
-        if (d.length >= 2) lines.push(d);
-      });
-    }
-    return lines.join("\n");
-  }
-
-  async function inflateBytesIfPossible(compBytes) {
-    if (typeof DecompressionStream === "undefined") return null;
-    for (const fmt of ["deflate", "deflate-raw"]) {
-      try {
-        const ds = new DecompressionStream(fmt);
-        const writer = ds.writable.getWriter();
-        writer.write(compBytes);
-        writer.close();
-        const buf = await new Response(ds.readable).arrayBuffer();
-        const u8 = new Uint8Array(buf);
-        if (u8.length > 0) {
-          return new TextDecoder("latin1").decode(u8);
-        }
-      } catch (e) {}
-    }
-    return null;
-  }
-
-  async function extractTextFromPdfBytes(arrayBuffer) {
-    const u8 = new Uint8Array(arrayBuffer);
-    const raw = new TextDecoder("latin1").decode(u8);
-    const extractedChunks = [];
-
-    const streamRegex = /stream\r?\n([\s\S]*?)endstream/g;
-    let match;
-    while ((match = streamRegex.exec(raw)) !== null) {
-      const startByte = match.index + match[0].indexOf("\n") + 1;
-      const endByte = match.index + match[0].lastIndexOf("endstream");
-      let streamLen = endByte - startByte;
-      if (streamLen > 0 && raw[endByte - 1] === "\n") streamLen--;
-      if (streamLen > 0 && raw[endByte - 1] === "\r") streamLen--;
-      if (streamLen <= 0) continue;
-
-      const sliceBytes = u8.subarray(startByte, startByte + streamLen);
-      const headerWindow = raw.slice(Math.max(0, match.index - 320), match.index);
-      const isFlate = /\/FlateDecode\b/.test(headerWindow) || (sliceBytes.length >= 2 && sliceBytes[0] === 0x78);
-
-      let streamContent = null;
-      if (isFlate) {
-        streamContent = await inflateBytesIfPossible(sliceBytes);
-      }
-      if (!streamContent) {
-        streamContent = new TextDecoder("latin1").decode(sliceBytes);
-      }
-      const parsedText = extractTextFromContentStream(streamContent);
-      if (parsedText && parsedText.trim().length > 0) {
-        extractedChunks.push(parsedText);
-      }
-    }
-
-    if (extractedChunks.length === 0) {
-      const fallbackText = extractTextFromContentStream(raw);
-      if (fallbackText) extractedChunks.push(fallbackText);
-    }
-
-    const combinedLines = extractedChunks.join("\n").split(/\r?\n/).map(l => l.trim()).filter(Boolean);
-    const mergedRows = [];
-    const tt200ItemHeadRe = /^(?:Doanh thu|Giá vốn|Lợi nhuận|Chi phí|Tiền|Tài sản|Phải thu|Hàng tồn kho|Dự phòng|Nợ phải trả|Nợ ngắn hạn|Phải trả người bán|Vốn chủ sở hữu|Lưu chuyển tiền|Tiền lãi vay|Khấu hao|Dư nợ|Nợ gốc|\bMS\s*\d+\b|\bMã số\s*\d+\b)/i;
-
-    for (let i = 0; i < combinedLines.length; i++) {
-      const ln = combinedLines[i];
-      if (isSummaryTotalRowText(ln)) continue;
-      if (tt200ItemHeadRe.test(ln) && i + 1 < combinedLines.length) {
-        let joint = ln;
-        let look = i + 1;
-        while (look < combinedLines.length && look <= i + 6) {
-          const nxt = combinedLines[look];
-          if (tt200ItemHeadRe.test(nxt) || isSummaryTotalRowText(nxt)) break;
-          if (/^(?:MS\s*)?\d{1,3}$/i.test(nxt) || /^-?[\d.,()]+$/.test(nxt)) {
-            joint += "\t" + nxt;
-            i = look;
-            look++;
-          } else {
-            break;
-          }
-        }
-        mergedRows.push(joint);
-      } else {
-        mergedRows.push(ln);
-      }
-    }
-
-    return mergedRows.join("\n");
+  function extractTextFromPdfBytes(arrayBuffer) {
+    const raw = new TextDecoder("latin1").decode(new Uint8Array(arrayBuffer));
+    const matches = raw.match(/\(([^()\\]{2,120})\)/g) || [];
+    return matches.map(s => s.slice(1, -1)).join(" ");
   }
 
   function detectDocBucketByFilename(fname) {
-    const n = String(fname || "").toLowerCase();
-    if (n.includes("dkkd") || n.includes("phap_ly") || n.includes("phap ly") || n.includes("dieu_le")) return "doc_1";
+    const n = fname.toLowerCase();
+    if (n.includes("dkkd") || n.includes("phap_ly") || n.includes("dieu_le")) return "doc_1";
     if (n.includes("cic")) return "doc_2";
-    if (n.includes("511") || n.includes("ban_hang") || n.includes("ban hang")) return "doc_4";
-    if (n.includes("112") || n.includes("ngan_hang") || n.includes("ngan hang")) return "doc_5";
-    if (n.includes("ton_kho") || n.includes("ton kho") || n.includes("nxt") || n.includes("156")) return "doc_6";
-    if (n.includes("phai_thu") || n.includes("phai thu") || n.includes("131")) return "doc_7";
-    if (n.includes("phai_tra") || n.includes("phai tra") || n.includes("331")) return "doc_8";
+    if (n.includes("t-1") || n.includes("2024") || n.includes("2025") || n.includes("bctc_nam")) return "doc_3_1";
+    if (n.includes("quy") || n.includes("thang") || n.includes("bctc")) return "doc_3_2";
+    if (n.includes("511") || n.includes("ban_hang")) return "doc_4";
+    if (n.includes("112") || n.includes("ngan_hang")) return "doc_5";
+    if (n.includes("ton_kho") || n.includes("nxt") || n.includes("156")) return "doc_6";
+    if (n.includes("phai_thu") || n.includes("131")) return "doc_7";
+    if (n.includes("phai_tra") || n.includes("331")) return "doc_8";
     if (n.includes("vat") || n.includes("gtgt")) return "doc_9";
-    if (n.includes("so_phu") || n.includes("so phu") || n.includes("sao_ke") || n.includes("sao ke")) return "doc_10";
-    if (n.includes("ke_hoach") || n.includes("ke hoach") || n.includes("du_phong") || n.includes("du phong") || n.includes("t+1")) return "doc_11";
-    if (n.includes("de_nghi") || n.includes("de nghi") || n.includes("phuong_an") || n.includes("hmtd")) return "doc_12";
-
-    if (/\b(?:0?[1-9]|1[0-2])[.\-_\/]20\d{2}\b/.test(n) || /\b(?:thang|tháng|quy|quý)\s*\d{1,2}\b/.test(n) || /\b2026\b/.test(n)) {
-      return "doc_3_2";
-    }
-    if (n.includes("t-1") || /\b2024\b/.test(n) || /\b2025\b/.test(n) || n.includes("bctc_nam") || n.includes("bctc nam")) {
-      return "doc_3_1";
-    }
+    if (n.includes("so_phu") || n.includes("sao_ke")) return "doc_10";
+    if (n.includes("ke_hoach") || n.includes("du_phong") || n.includes("t+1")) return "doc_11";
+    if (n.includes("de_nghi") || n.includes("phuong_an") || n.includes("hmtd")) return "doc_12";
     return "doc_3_2";
   }
 
@@ -1773,12 +1272,10 @@
     const files = Array.from(fileList || []);
     if (!files.length) return;
 
-    switchToRealDataMode();
     let totalExtracted = 0;
     const summaryLogs = [];
 
     for (const f of files) {
-      STATE._currentUploadFilename = f.name;
       const targetDoc = forcedDocId || detectDocBucketByFilename(f.name);
       STATE.checklist[targetDoc].files.push({ name: f.name, size: f.size });
       STATE.checklist[targetDoc].status = "ok";
@@ -1795,51 +1292,31 @@
           summaryLogs.push(`📄 <strong>${f.name}</strong> → Nạp chuẩn JSON v7.2 (${cnt} trường dữ liệu).`);
           continue;
         } else if (ext === "csv" || ext === "txt" || ext === "xml") {
-          STATE._lastXlsxSkippedTotalRows = 0;
-          extractedText = filterSummaryRowsFromCsvOrLines(await f.text());
+          extractedText = await f.text();
         } else if (ext === "xlsx") {
-          STATE._lastXlsxSkippedTotalRows = 0;
-          extractedText = await extractTextFromXlsx(await f.arrayBuffer());
+          const buf = await f.arrayBuffer();
+          extractedText = await extractTextFromXlsx(buf);
         } else if (ext === "pdf") {
-          STATE._lastXlsxSkippedTotalRows = 0;
-          extractedText = await extractTextFromPdfBytes(await f.arrayBuffer());
+          const buf = await f.arrayBuffer();
+          extractedText = extractTextFromPdfBytes(buf);
         }
       } catch (err) {
         summaryLogs.push(`⚠️ <strong>${f.name}</strong>: Đã lưu chứng từ (cần kiểm tra nhập tay nếu là PDF scan ảnh).`);
       }
 
       if (extractedText && extractedText.length > 5) {
-        const res = mapExtractedTextToTT200(extractedText, targetDoc);
-        if (res.mappedCount === 0 && (targetDoc === "doc_5" || targetDoc === "doc_10" || targetDoc === "doc_4")) {
-          const ledgerSum = sumLedgerDetailRows(extractedText);
-          if (ledgerSum) {
-            if (targetDoc === "doc_5" || targetDoc === "doc_10") {
-              $("cash_in_112").value = ledgerSum.total.toFixed(2);
-              res.mappedCount++;
-              res.notes.push(`Tiền về TK 112=${ledgerSum.total.toFixed(2)} (loại ${ledgerSum.skippedSummaryCount} dòng tổng)`);
-            } else if (targetDoc === "doc_4") {
-              $("dtt_t").value = ledgerSum.total.toFixed(2);
-              res.mappedCount++;
-              res.notes.push(`Sổ 511=${ledgerSum.total.toFixed(2)} (loại ${ledgerSum.skippedSummaryCount} dòng tổng)`);
-            }
-          }
-        }
-        const skippedInfo = (STATE._lastXlsxSkippedTotalRows || 0) > 0
-          ? ` [Đã loại ${STATE._lastXlsxSkippedTotalRows} dòng Tổng cộng cuối bảng chống x2]`
-          : "";
+        const res = mapExtractedTextToTT200(extractedText);
         totalExtracted += res.mappedCount;
         if (res.mappedCount > 0) {
-          STATE.checklist[targetDoc].note = `AI Agent 2 trích ${res.mappedCount} chỉ tiêu (${res.notes.slice(0, 3).join(", ")})${skippedInfo}`;
-          summaryLogs.push(`✅ <strong>${f.name}</strong> → AI Agent 1 kiểm hợp lệ &amp; AI Agent 2 tự điền <strong>${res.mappedCount}</strong> chỉ tiêu (${res.notes.slice(0, 4).join(", ")})${skippedInfo}.`);
+          STATE.checklist[targetDoc].note = `AI Agent 2 đã trích ${res.mappedCount} chỉ tiêu (${res.notes.slice(0, 3).join(", ")})`;
+          summaryLogs.push(`✅ <strong>${f.name}</strong> → AI Agent 1 kiểm hợp lệ &amp; AI Agent 2 tự điền <strong>${res.mappedCount}</strong> chỉ tiêu (${res.notes.slice(0, 4).join(", ")}).`);
         } else {
-          STATE.checklist[targetDoc].note = `AI Agent 1: Chứng từ hợp lệ${skippedInfo}`;
-          summaryLogs.push(`📎 <strong>${f.name}</strong> → Đã đính kèm vào Mục ${targetDoc.replace("doc_", "").replace("_", ".")} (Hợp lệ)${skippedInfo}.`);
+          STATE.checklist[targetDoc].note = "AI Agent 1: Chứng từ hợp lệ (PDF scan/biểu mẫu tùy chỉnh)";
+          summaryLogs.push(`📎 <strong>${f.name}</strong> → Đã đính kèm vào Mục ${targetDoc.replace("doc_", "").replace("_", ".")} (Hợp lệ).`);
         }
       } else {
-        const fnMeta = mapExtractedTextToTT200(f.name, targetDoc);
-        totalExtracted += fnMeta.mappedCount;
-        STATE.checklist[targetDoc].note = fnMeta.notes.length ? `AI Agent 1: Nhận diện (${fnMeta.notes.join(", ")})` : "AI Agent 1: Đã tiếp nhận chứng từ đính kèm";
-        summaryLogs.push(`📎 <strong>${f.name}</strong> → Đã tiếp nhận vào Mục ${targetDoc.replace("doc_", "").replace("_", ".")}${fnMeta.notes.length ? " (" + fnMeta.notes.join(", ") + ")" : ""}.`);
+        STATE.checklist[targetDoc].note = "AI Agent 1: Đã tiếp nhận chứng từ đính kèm";
+        summaryLogs.push(`📎 <strong>${f.name}</strong> → Đã đính kèm vào Mục ${targetDoc.replace("doc_", "").replace("_", ".")}.`);
       }
     }
 
@@ -1897,8 +1374,8 @@
 
   function renderChecklist() {
     const tbody = $("checklist-tbody");
-    const dttPlan = $("dtt_plan_t1") && $("dtt_plan_t1").value !== "" ? $("dtt_plan_t1").value : "";
-    const hmtdReq = $("inp_hmtd_req") && $("inp_hmtd_req").value !== "" ? $("inp_hmtd_req").value : "";
+    const dttPlan = numVal("dtt_plan_t1");
+    const hmtdReq = numVal("inp_hmtd_req");
 
     tbody.innerHTML = CHECKLIST_ITEMS.map(item => {
       const st = STATE.checklist[item.id];
@@ -1914,12 +1391,12 @@
       } else if (item.hasPlanQuick) {
         extraQuick = `<div style="margin-top:5px;display:flex;align-items:center;gap:6px;">
           <span style="font-size:11px;font-weight:700;color:#1D4ED8;white-space:nowrap;">DTT T+1:</span>
-          <input type="number" step="0.01" value="${dttPlan}" placeholder="${isDemoSampleMode() ? "460.00 (Mẫu)" : "N/A (Nhập DTT T+1)"}" data-sync-target="dtt_plan_t1" style="padding:4px 6px;font-size:12px;">
+          <input type="number" step="0.01" value="${dttPlan}" data-sync-target="dtt_plan_t1" style="padding:4px 6px;font-size:12px;">
         </div>`;
       } else if (item.hasReqQuick) {
         extraQuick = `<div style="margin-top:5px;display:flex;align-items:center;gap:6px;">
           <span style="font-size:11px;font-weight:700;color:#059669;white-space:nowrap;">HMTD ĐX:</span>
-          <input type="number" step="0.01" value="${hmtdReq}" placeholder="${isDemoSampleMode() ? "45.00 (Mẫu)" : "N/A (Nhập HMTD ĐX)"}" data-sync-target="inp_hmtd_req" style="padding:4px 6px;font-size:12px;">
+          <input type="number" step="0.01" value="${hmtdReq}" data-sync-target="inp_hmtd_req" style="padding:4px 6px;font-size:12px;">
         </div>`;
       }
 
@@ -1952,41 +1429,56 @@
   }
 
   function computeCleanWC(suffix) {
-    const hasAnyWC = hasFieldData("ar_gop_" + suffix) || hasFieldData("inv_gop_" + suffix) || hasFieldData("ap_gop_" + suffix) || hasFieldData("tsnh_vh_" + suffix) || hasFieldData("no_vh_" + suffix);
-    if (!hasAnyWC) {
-      return { arClean: null, invClean: null, apClean: null, nwcOp: null };
-    }
-
-    const arGop = numValOrNull("ar_gop_" + suffix);
+    const arGop = numVal("ar_gop_" + suffix);
     const arTreo = STATE.has_exclusion_notes ? numVal("ar_treo_" + suffix) : 0;
     const dpAr = STATE.has_exclusion_notes ? numVal("dp_ar_" + suffix) : 0;
-    const invGop = numValOrNull("inv_gop_" + suffix);
+    const invGop = numVal("inv_gop_" + suffix);
     const invUd = STATE.has_exclusion_notes ? numVal("inv_ud_" + suffix) : 0;
     const dpInv = STATE.has_exclusion_notes ? numVal("dp_inv_" + suffix) : 0;
-    const apGop = numValOrNull("ap_gop_" + suffix);
+    const apGop = numVal("ap_gop_" + suffix);
     const apTreo = STATE.has_exclusion_notes ? numVal("ap_treo_" + suffix) : 0;
     const apCapex = STATE.has_exclusion_notes ? numVal("ap_capex_" + suffix) : 0;
     const tsnhVh = numVal("tsnh_vh_" + suffix);
     const noVh = numVal("no_vh_" + suffix);
 
-    const arClean = arGop !== null ? Math.max(0, arGop - Math.max(arTreo, dpAr)) : null;
-    const invClean = invGop !== null ? Math.max(0, invGop - Math.max(invUd, dpInv)) : null;
-    const apClean = apGop !== null ? Math.max(0, apGop - apTreo - apCapex) : null;
-
-    let nwcOp = null;
-    if (arClean !== null || invClean !== null || apClean !== null) {
-      const aVal = arClean !== null ? arClean : 0;
-      const iVal = invClean !== null ? invClean : 0;
-      const pVal = apClean !== null ? apClean : 0;
-      nwcOp = (iVal + aVal + tsnhVh) - (pVal + noVh);
-    }
-
+    const arClean = Math.max(0, arGop - Math.max(arTreo, dpAr));
+    const invClean = Math.max(0, invGop - Math.max(invUd, dpInv));
+    const apClean = Math.max(0, apGop - apTreo - apCapex);
+    const nwcOp = (invClean + arClean + tsnhVh) - (apClean + noVh);
     return { arClean, invClean, apClean, nwcOp };
+  }
+
+  function getRatioRows(m) {
+    return [
+      { grp: "NHÓM 1: KHẢ NĂNG THANH TOÁN (LIQUIDITY)" },
+      { name: "1. Hệ số thanh toán hiện hành", f: "TSNH / Nợ ngắn hạn", v2: fmtNum(m.t2.currentRatio, 2)+"x", v1: fmtNum(m.t1.currentRatio, 2)+"x", vt: fmtNum(m.t.currentRatio, 2)+"x", ok: m.t.currentRatio >= 1.2 },
+      { name: "2. Hệ số thanh toán nhanh", f: "(TSNH − HTK) / Nợ ngắn hạn", v2: fmtNum(m.t2.quickRatio, 2)+"x", v1: fmtNum(m.t1.quickRatio, 2)+"x", vt: fmtNum(m.t.quickRatio, 2)+"x", ok: m.t.quickRatio >= 0.7 },
+      { name: "3. Hệ số thanh toán tức thời", f: "Tiền & TĐ tiền / Nợ ngắn hạn", v2: fmtNum(m.t2.cashRatio, 2)+"x", v1: fmtNum(m.t1.cashRatio, 2)+"x", vt: fmtNum(m.t.cashRatio, 2)+"x", ok: m.t.cashRatio >= 0.1 },
+      { name: "4. Thanh toán bằng dòng tiền HĐKD", f: "OCF (quy năm) / Nợ ngắn hạn", v2: fmtNum(m.t2.ocfToCl, 2)+"x", v1: fmtNum(m.t1.ocfToCl, 2)+"x", vt: fmtNum(m.t.ocfToCl, 2)+"x", ok: m.t.ocfToCl >= 0.1 },
+      { grp: "NHÓM 2: HIỆU QUẢ HOẠT ĐỘNG & VẬN HÀNH (ACTIVITY)" },
+      { name: "5. Vòng quay Phải thu khách hàng", f: "DTT (quy năm) / AR_Clean BQ", v2: fmtNum(m.t2.arTurn, 2)+"v", v1: fmtNum(m.t1.arTurn, 2)+"v", vt: fmtNum(m.t.arTurn, 2)+"v", ok: m.t.arTurn >= 4.0 },
+      { name: "6. Kỳ thu tiền bình quân (DSO)", f: "(AR_Clean BQ / DTT) × T_ngày", v2: fmtNum(m.t2.dso, 1)+" ng", v1: fmtNum(m.t1.dso, 1)+" ng", vt: fmtNum(m.t.dso, 1)+" ng", ok: m.t.dso <= 75 },
+      { name: "7. Vòng quay Hàng tồn kho", f: "GVHB (quy năm) / INV_Clean BQ", v2: fmtNum(m.t2.invTurn, 2)+"v", v1: fmtNum(m.t1.invTurn, 2)+"v", vt: fmtNum(m.t.invTurn, 2)+"v", ok: m.t.invTurn >= 4.0 },
+      { name: "8. Số ngày lưu kho bình quân (DIO)", f: "(INV_Clean BQ / GVHB) × T_ngày", v2: fmtNum(m.t2.dio, 1)+" ng", v1: fmtNum(m.t1.dio, 1)+" ng", vt: fmtNum(m.t.dio, 1)+" ng", ok: m.t.dio <= 90 },
+      { name: "9. Số ngày phải trả bình quân (DPO)", f: "(AP_Clean BQ / COGS|Purch) × T_ngày", v2: fmtNum(m.t2.dpo, 1)+" ng", v1: fmtNum(m.t1.dpo, 1)+" ng", vt: fmtNum(m.t.dpo, 1)+" ng", ok: true },
+      { name: "10. Chu kỳ chuyển đổi tiền mặt (CCC)", f: "DIO + DSO − DPO", v2: fmtNum(m.t2.ccc, 1)+" ng", v1: fmtNum(m.t1.ccc, 1)+" ng", vt: fmtNum(m.t.ccc, 1)+" ng", ok: m.t.ccc <= 110 },
+      { name: "11. Vòng quay Tổng tài sản", f: "DTT (quy năm) / Tổng Tài sản", v2: fmtNum(m.t2.assetTurn, 2)+"v", v1: fmtNum(m.t1.assetTurn, 2)+"v", vt: fmtNum(m.t.assetTurn, 2)+"v", ok: m.t.assetTurn >= 1.0 },
+      { name: "12. Vòng quay VLĐ Vận hành (VAR_VQ_VLD_T)", f: "DTT (quy năm) / NWC_op_avg", v2: fmtNum(m.t2.vqVld, 2)+"v", v1: fmtNum(m.t1.vqVld, 2)+"v", vt: fmtNum(m.t.vqVld, 2)+"v", ok: m.t.vqVld !== null && m.t.vqVld >= 3.5 },
+      { grp: "NHÓM 3: KHẢ NĂNG SINH LỜI (PROFITABILITY)" },
+      { name: "13. Biên Lợi nhuận gộp (Gross Margin)", f: "(DTT − GVHB) / DTT", v2: fmtNum(m.t2.grossMargin, 1)+"%", v1: fmtNum(m.t1.grossMargin, 1)+"%", vt: fmtNum(m.t.grossMargin, 1)+"%", ok: m.t.grossMargin >= 12.0 },
+      { name: "14. Biên Lợi nhuận hoạt động (EBIT Margin)", f: "EBIT / DTT", v2: fmtNum(m.t2.ebitMargin, 1)+"%", v1: fmtNum(m.t1.ebitMargin, 1)+"%", vt: fmtNum(m.t.ebitMargin, 1)+"%", ok: m.t.ebitMargin >= 6.0 },
+      { name: "15. Biên Lợi nhuận ròng (Net Margin)", f: "LNST / DTT", v2: fmtNum(m.t2.netMargin, 1)+"%", v1: fmtNum(m.t1.netMargin, 1)+"%", vt: fmtNum(m.t.netMargin, 1)+"%", ok: m.t.netMargin >= 4.0 },
+      { name: "16. Tỷ suất sinh lời Tổng tài sản (ROA)", f: "LNST (quy năm) / Tổng Tài sản", v2: fmtNum(m.t2.roa, 1)+"%", v1: fmtNum(m.t1.roa, 1)+"%", vt: fmtNum(m.t.roa, 1)+"%", ok: m.t.roa >= 5.0 },
+      { name: "17. Tỷ suất sinh lời Vốn CSH (ROE)", f: "LNST (quy năm) / Vốn CSH", v2: fmtNum(m.t2.roe, 1)+"%", v1: fmtNum(m.t1.roe, 1)+"%", vt: fmtNum(m.t.roe, 1)+"%", ok: m.t.roe >= 12.0 },
+      { grp: "NHÓM 4: ĐÒN BẨY TÀI CHÍNH & KHẢ NĂNG TRẢ NỢ" },
+      { name: "18. Hệ số Nợ / Tổng tài sản & D/E", f: "Tổng Nợ / Tổng TS (và Nợ / VCSH)", v2: `${fmtNum(m.t2.debtToAssets, 1)}% (${fmtNum(m.t2.debtToEquity, 2)}x)`, v1: `${fmtNum(m.t1.debtToAssets, 1)}% (${fmtNum(m.t1.debtToEquity, 2)}x)`, vt: `${fmtNum(m.t.debtToAssets, 1)}% (${fmtNum(m.t.debtToEquity, 2)}x)`, ok: m.t.debtToEquity <= 2.5 },
+      { name: "19. Hệ số Trả nợ (DSCR) & Lãi vay (ICR)", f: "OCF / (Gốc + Lãi) | EBIT / Lãi vay", v2: `${fmtNum(m.t2.dscr, 2)}x | ${fmtNum(m.t2.icr, 2)}x`, v1: `${fmtNum(m.t1.dscr, 2)}x | ${fmtNum(m.t1.icr, 2)}x`, vt: `${fmtNum(m.t.dscr, 2)}x | ${fmtNum(m.t.icr, 2)}x`, ok: m.t.dscr >= 1.15 }
+    ];
   }
 
   function computeModel() {
     const warnings = [];
-    if (STATE.realDataStarted && !STATE.has_exclusion_notes) {
+    if (!STATE.has_exclusion_notes) {
       warnings.push("[CẢNH BÁO THIẾU THUYẾT MINH BÓC TÁCH]: Giá trị khoản loại trừ được gán = 0 theo quy tắc thận trọng v7.2.");
     }
 
@@ -2002,8 +1494,7 @@
       $("calc_nwcop_" + s).textContent = fmtNum(obj.nwcOp, 2);
     });
 
-    const hasAnyInvSub = ["inv_151", "inv_152", "inv_153", "inv_154", "inv_155", "inv_156"].some(id => hasFieldData(id));
-    const invSubSum = hasAnyInvSub ? ["inv_151", "inv_152", "inv_153", "inv_154", "inv_155", "inv_156"].reduce((a, b) => a + numVal(b), 0) : null;
+    const invSubSum = ["inv_151", "inv_152", "inv_153", "inv_154", "inv_155", "inv_156"].reduce((a, b) => a + numVal(b), 0);
     $("inv_sub_total").textContent = fmtNum(invSubSum, 2);
 
     const tDays = STATE.t_days;
@@ -2019,181 +1510,130 @@
     periods.forEach(p => {
       const k = p.key;
       const af = 365.0 / p.days;
-      const dtt = numValOrNull("dtt_" + k);
-      const cogs = numValOrNull("cogs_" + k);
-      const purch = numValOrNull("purch_" + k);
-      const opex = numValOrNull("opex_" + k);
-      const da = numValOrNull("da_" + k);
-      const intExp = numValOrNull("int_exp_" + k);
-      const lntt = numValOrNull("lntt_" + k);
-      const tax = numValOrNull("tax_" + k);
-      const intPaid = numValOrNull("int_paid_" + k);
-      const ms20 = numValOrNull("ms20_" + k);
-      const cash = numValOrNull("cash_" + k);
-      const ca = numValOrNull("ca_" + k);
-      const ta = numValOrNull("ta_" + k);
-      const cl = numValOrNull("cl_" + k);
-      const tl = numValOrNull("tl_" + k);
-      const eq = numValOrNull("eq_" + k);
+      const dtt = numVal("dtt_" + k);
+      const cogs = numVal("cogs_" + k);
+      const purch = numVal("purch_" + k);
+      const opex = numVal("opex_" + k);
+      const da = numVal("da_" + k);
+      const intExp = numVal("int_exp_" + k);
+      const lntt = numVal("lntt_" + k);
+      const tax = numVal("tax_" + k);
+      const intPaid = numVal("int_paid_" + k);
+      const ms20 = numVal("ms20_" + k);
+      const cash = numVal("cash_" + k);
+      const ca = numVal("ca_" + k);
+      const ta = numVal("ta_" + k);
+      const cl = numVal("cl_" + k);
+      const tl = numVal("tl_" + k);
+      const eq = numVal("eq_" + k);
 
-      const dttAnn = dtt !== null ? dtt * af : null;
-      const cogsAnn = cogs !== null ? cogs * af : null;
-      const lnst = (lntt !== null && tax !== null) ? (lntt - tax) : (lntt !== null ? lntt : null);
-      const lnstAnn = lnst !== null ? lnst * af : null;
-      const ebit = (lntt !== null && intExp !== null) ? (lntt + intExp) : (lntt !== null ? lntt : null);
+      const dttAnn = dtt * af;
+      const cogsAnn = cogs * af;
+      const lnst = lntt - tax;
+      const lnstAnn = lnst * af;
+      const ebit = lntt + intExp;
 
-      const arAvg = (p.key === "t2")
-        ? p.wc.arClean
-        : ((p.wc.arClean !== null && p.wcPrev.arClean !== null) ? (p.wc.arClean + p.wcPrev.arClean) / 2 : (p.wc.arClean !== null ? p.wc.arClean : p.wcPrev.arClean));
-      const invAvg = (p.key === "t2")
-        ? p.wc.invClean
-        : ((p.wc.invClean !== null && p.wcPrev.invClean !== null) ? (p.wc.invClean + p.wcPrev.invClean) / 2 : (p.wc.invClean !== null ? p.wc.invClean : p.wcPrev.invClean));
-      const apAvg = (p.key === "t2")
-        ? p.wc.apClean
-        : ((p.wc.apClean !== null && p.wcPrev.apClean !== null) ? (p.wc.apClean + p.wcPrev.apClean) / 2 : (p.wc.apClean !== null ? p.wc.apClean : p.wcPrev.apClean));
-      const nwcAvg = (p.key === "t2")
-        ? p.wc.nwcOp
-        : ((p.wc.nwcOp !== null && p.wcPrev.nwcOp !== null) ? (p.wc.nwcOp + p.wcPrev.nwcOp) / 2 : (p.wc.nwcOp !== null ? p.wc.nwcOp : p.wcPrev.nwcOp));
+      const arAvg = p.key === "t2" ? p.wc.arClean : (p.wc.arClean + p.wcPrev.arClean) / 2;
+      const invAvg = p.key === "t2" ? p.wc.invClean : (p.wc.invClean + p.wcPrev.invClean) / 2;
+      const apAvg = p.key === "t2" ? p.wc.apClean : (p.wc.apClean + p.wcPrev.apClean) / 2;
+      const nwcAvg = p.key === "t2" ? p.wc.nwcOp : (p.wc.nwcOp + p.wcPrev.nwcOp) / 2;
 
       let dpoDen = cogs;
-      if (STATE.is_manufacturing && STATE.has_exclusion_notes && purch !== null && purch > 0) {
+      if (STATE.is_manufacturing && STATE.has_exclusion_notes && purch > 0) {
         dpoDen = purch;
-      } else if (cogs !== null && cogs > 0) {
-        if (STATE.realDataStarted) dpoFallbackUsed = true;
+      } else {
+        dpoFallbackUsed = true;
       }
 
-      const dsoRaw = (arAvg !== null && dtt !== null && dtt > 0) ? safeDiv(arAvg, dtt) : null;
-      const dioRaw = (invAvg !== null && cogs !== null && cogs > 0) ? safeDiv(invAvg, cogs) : null;
-      const dpoRaw = (apAvg !== null && dpoDen !== null && dpoDen > 0) ? safeDiv(apAvg, dpoDen) : null;
+      const dsoRaw = safeDiv(arAvg, dtt);
+      const dioRaw = safeDiv(invAvg, cogs);
+      const dpoRaw = safeDiv(apAvg, dpoDen);
       const dso = dsoRaw !== null ? dsoRaw * p.days : null;
       const dio = dioRaw !== null ? dioRaw * p.days : null;
       const dpo = dpoRaw !== null ? dpoRaw * p.days : null;
       const ccc = (dso !== null && dio !== null && dpo !== null) ? (dio + dso - dpo) : null;
 
-      const deltaNwc = (p.key === "t2")
-        ? 0
-        : ((p.wc.nwcOp !== null && p.wcPrev.nwcOp !== null) ? (p.wc.nwcOp - p.wcPrev.nwcOp) : null);
-
-      const canComputeOcf = (lntt !== null) && (deltaNwc !== null);
-      const varOcf = canComputeOcf
-        ? (lntt + (da || 0) + (intExp || 0) - (tax || 0) - deltaNwc - (intPaid || 0))
-        : null;
-
-      const ms20DiffPct = (varOcf !== null && ms20 !== null)
-        ? (Math.abs(varOcf - ms20) / Math.max(Math.abs(ms20), 1.0)) * 100
-        : null;
-
-      const vqVld = (nwcAvg !== null && nwcAvg > 0 && dttAnn !== null) ? safeDiv(dttAnn, nwcAvg) : null;
+      const deltaNwc = p.key === "t2" ? 0 : (p.wc.nwcOp - p.wcPrev.nwcOp);
+      const varOcf = lntt + da + intExp - tax - deltaNwc - intPaid;
+      const ms20DiffPct = (Math.abs(varOcf - ms20) / Math.max(Math.abs(ms20), 1.0)) * 100;
+      const vqVld = nwcAvg > 0 ? safeDiv(dttAnn, nwcAvg) : null;
 
       metrics[k] = {
         dtt, dttAnn, cogs, cogsAnn, opex, lntt, lnst, ebit, da, intExp, tax, intPaid, deltaNwc,
         varOcf, ms20, ms20DiffPct,
         nwcOp: p.wc.nwcOp, nwcAvg, vqVld,
-        currentRatio: (ca !== null && cl !== null) ? safeDiv(ca, cl) : null,
-        quickRatio: (ca !== null && cl !== null && numValOrNull("inv_gop_" + k) !== null) ? safeDiv(ca - numValOrNull("inv_gop_" + k), cl) : null,
-        cashRatio: (cash !== null && cl !== null) ? safeDiv(cash, cl) : null,
-        ocfToCl: (varOcf !== null && cl !== null) ? safeDiv(varOcf * af, cl) : null,
-        arTurn: (dttAnn !== null && arAvg !== null && arAvg > 0) ? safeDiv(dttAnn, arAvg) : null,
-        invTurn: (cogsAnn !== null && invAvg !== null && invAvg > 0) ? safeDiv(cogsAnn, invAvg) : null,
-        apTurn: (dpoDen !== null && dpoDen > 0 && apAvg !== null && apAvg > 0) ? safeDiv(dpoDen * af, apAvg) : null,
+        currentRatio: safeDiv(ca, cl),
+        quickRatio: safeDiv(ca - numVal("inv_gop_" + k), cl),
+        cashRatio: safeDiv(cash, cl),
+        ocfToCl: safeDiv(varOcf * af, cl),
+        arTurn: safeDiv(dttAnn, arAvg),
+        invTurn: safeDiv(cogsAnn, invAvg),
+        apTurn: safeDiv(dpoDen * af, apAvg),
         dso, dio, dpo, ccc,
-        assetTurn: (dttAnn !== null && ta !== null && ta > 0) ? safeDiv(dttAnn, ta) : null,
-        grossMargin: (dtt !== null && dtt > 0 && cogs !== null) ? safeDiv((dtt - cogs) * 100, dtt) : null,
-        ebitMargin: (dtt !== null && dtt > 0 && ebit !== null) ? safeDiv(ebit * 100, dtt) : null,
-        netMargin: (dtt !== null && dtt > 0 && lnst !== null) ? safeDiv(lnst * 100, dtt) : null,
-        roa: (lnstAnn !== null && ta !== null && ta > 0) ? safeDiv(lnstAnn * 100, ta) : null,
-        roe: (lnstAnn !== null && eq !== null && eq > 0) ? safeDiv(lnstAnn * 100, eq) : null,
-        debtToAssets: (tl !== null && ta !== null && ta > 0) ? safeDiv(tl * 100, ta) : null,
-        debtToEquity: (tl !== null && eq !== null && eq > 0) ? safeDiv(tl, eq) : null,
-        icr: (ebit !== null && intExp !== null && intExp > 0) ? safeDiv(ebit, intExp) : null
+        assetTurn: safeDiv(dttAnn, ta),
+        grossMargin: safeDiv((dtt - cogs) * 100, dtt),
+        ebitMargin: safeDiv(ebit * 100, dtt),
+        netMargin: safeDiv(lnst * 100, dtt),
+        roa: safeDiv(lnstAnn * 100, ta),
+        roe: safeDiv(lnstAnn * 100, eq),
+        debtToAssets: safeDiv(tl * 100, ta),
+        debtToEquity: safeDiv(tl, eq),
+        icr: safeDiv(ebit, intExp)
       };
     });
 
     if (dpoFallbackUsed) {
       warnings.push("[ÁP DỤNG DPO FALLBACK DO THIẾU THUYẾT MINH GIÁ VỐN]: Hệ thống tự động sử dụng Giá vốn hàng bán (COGS) làm mẫu số tính DPO.");
     }
-    if (metrics.t.ms20DiffPct !== null && metrics.t.ms20DiffPct > 5.0) {
+    if (metrics.t.ms20DiffPct > 5.0) {
       warnings.push(`[RED FLAG ĐỐI SOÁT MS 20]: Chênh lệch giữa VAR_OCF (${fmtNum(metrics.t.varOcf, 2)}) và MS 20 (${fmtNum(metrics.t.ms20, 2)}) là ${fmtNum(metrics.t.ms20DiffPct, 1)}% (> 5.0%).`);
     }
 
-    const dtInclVat = numValOrNull("dt_incl_vat");
-    const cashIn112 = numValOrNull("cash_in_112");
-    const tienVeRatio = (dtInclVat !== null && dtInclVat > 0 && cashIn112 !== null) ? safeDiv(cashIn112 * 100, dtInclVat) : null;
+    const dtInclVat = numVal("dt_incl_vat");
+    const cashIn112 = numVal("cash_in_112");
+    const tienVeRatio = safeDiv(cashIn112 * 100, dtInclVat);
     $("calc_tien_ve_ratio").textContent = tienVeRatio !== null ? fmtNum(tienVeRatio, 1) + "%" : "N/A";
     if (tienVeRatio !== null && tienVeRatio < 70.0) {
       warnings.push(`[RED FLAG DÒNG TIỀN VỀ TK 112]: Tỷ lệ tiền về TK 112 / Doanh thu có VAT chỉ đạt ${fmtNum(tienVeRatio, 1)}% (< 70.0%).`);
     }
 
-    const prinDue = numValOrNull("inp_principal_due");
-    const curInt = numValOrNull("inp_current_interest");
-    const debtService = (prinDue !== null || curInt !== null) ? ((prinDue || 0) + (curInt || 0)) : null;
-    const annFactor = 365.0 / tDays;
-    const ocfTAnn = metrics.t.varOcf !== null ? (metrics.t.varOcf * annFactor) : null;
-    const varDscr = (ocfTAnn !== null && debtService !== null && debtService > 0) ? safeDiv(ocfTAnn, debtService) : null;
-    metrics.t2.dscr = (metrics.t2.varOcf !== null && debtService !== null && debtService > 0) ? safeDiv(metrics.t2.varOcf, debtService) : null;
-    metrics.t1.dscr = (metrics.t1.varOcf !== null && debtService !== null && debtService > 0) ? safeDiv(metrics.t1.varOcf, debtService) : null;
+    const prinDue = numVal("inp_principal_due");
+    const curInt = numVal("inp_current_interest");
+    const varDscr = safeDiv(metrics.t.varOcf, prinDue + curInt);
+    metrics.t2.dscr = safeDiv(metrics.t2.varOcf, prinDue + curInt);
+    metrics.t1.dscr = safeDiv(metrics.t1.varOcf, prinDue + curInt);
     metrics.t.dscr = varDscr;
 
-    // Fast-appraisal NWC_op_avg & DTT_T+1 projection when BCTC T-1 & T are provided
-    const effectiveNwcAvg = (metrics.t.nwcAvg !== null && metrics.t.nwcAvg > 0)
-      ? metrics.t.nwcAvg
-      : (STATE.fast_mode ? ((metrics.t.nwcOp !== null && metrics.t.nwcOp > 0) ? metrics.t.nwcOp : ((metrics.t1.nwcOp !== null && metrics.t1.nwcOp > 0) ? metrics.t1.nwcOp : null)) : null);
-
-    const baseRevAnn = (metrics.t.dttAnn !== null && metrics.t.dttAnn > 0)
-      ? metrics.t.dttAnn
-      : ((metrics.t1.dtt !== null && metrics.t1.dtt > 0) ? metrics.t1.dtt : null);
-
-    const effectiveVqVld = (effectiveNwcAvg !== null && effectiveNwcAvg > 0 && baseRevAnn !== null && baseRevAnn > 0)
-      ? safeDiv(baseRevAnn, effectiveNwcAvg)
-      : null;
-
-    let dttPlanT1 = numValOrNull("dtt_plan_t1");
-    let dttPlanProjected = false;
-    if ((dttPlanT1 === null || dttPlanT1 <= 0) && STATE.fast_mode && baseRevAnn !== null && baseRevAnn > 0) {
-      // Dự phóng doanh thu T+1 từ doanh thu quy chuẩn năm Kỳ T (hoặc Năm T-1 nếu chỉ có T-1)
-      if (metrics.t.dttAnn !== null && metrics.t.dttAnn > 0 && metrics.t1.dtt !== null && metrics.t1.dtt > 0) {
-        const yoy = (metrics.t.dttAnn - metrics.t1.dtt) / metrics.t1.dtt;
-        const projGrowth = Math.max(-0.20, Math.min(0.25, yoy));
-        dttPlanT1 = baseRevAnn * (1 + projGrowth);
-      } else {
-        dttPlanT1 = baseRevAnn;
-      }
-      dttPlanProjected = true;
-    }
-
+    const dttPlanT1 = numVal("dtt_plan_t1");
     const otherDebt = numVal("inp_other_debt");
-    const hmtdReq = numValOrNull("inp_hmtd_req");
+    const hmtdReq = numVal("inp_hmtd_req");
     let nhuCauT1 = null, vtcMin30 = null, dk1 = null, dk2 = null, hmtdMax = null;
 
-    if (dttPlanT1 !== null && dttPlanT1 > 0 && effectiveNwcAvg !== null && effectiveNwcAvg > 0 && effectiveVqVld !== null && effectiveVqVld > 0) {
-      nhuCauT1 = dttPlanT1 / effectiveVqVld;
+    if (metrics.t.nwcAvg > 0 && metrics.t.vqVld !== null && metrics.t.vqVld > 0) {
+      nhuCauT1 = dttPlanT1 / metrics.t.vqVld;
       vtcMin30 = 0.30 * nhuCauT1;
       dk1 = 0.70 * nhuCauT1;
       dk2 = Math.max(0, nhuCauT1 - vtcMin30 - otherDebt);
       hmtdMax = Math.max(0, Math.min(dk1, dk2));
-      if (dttPlanProjected && STATE.realDataStarted) {
-        warnings.push(`[THẨM ĐỊNH NHANH T-1 & T]: Tự động dự phóng DTT T+1 = ${fmtNum(dttPlanT1, 2)} ${STATE.unit} từ dữ liệu BCTC hiện có (nên nhập kế hoạch T+1 chính thức nếu có).`);
-      }
-    } else if (STATE.realDataStarted) {
-      warnings.push("[THIẾU DỮ LIỆU ĐẦU VÀO]: Không đủ dữ liệu BCTC (T-1 / T) để tính Trần HMTD T+1 — trả về N/A, không tự suy diễn.");
+    } else {
+      warnings.push("[CẢNH BÁO NWC_op_avg <= 0]: Vòng quay VLĐ và Trần HMTD T+1 trả về N/A, cần thẩm định theo tiến độ hợp đồng và DSCR.");
     }
 
     const rate = 0.08;
     const dttAnn = metrics.t.dttAnn;
     const cogsAnn = metrics.t.cogsAnn;
     const vqT = metrics.t.vqVld;
-    const canRunStress = (dttAnn !== null && dttAnn > 0) && (ocfTAnn !== null) && (debtService !== null && debtService > 0);
     const stressList = [
-      { code: "ST1", name: "Phải thu kéo dài +15 ngày", sf: canRunStress ? (dttAnn / 365.0) * 15.0 : null, minDscr: 1.10 },
-      { code: "ST2", name: "Vòng quay VLĐ giảm 15%", sf: (canRunStress && dttPlanT1 !== null && dttPlanT1 > 0 && vqT && vqT > 0 && metrics.t.nwcAvg !== null) ? Math.max(0, (dttPlanT1 / (vqT * 0.85)) - metrics.t.nwcAvg) : null, minDscr: 1.10 },
-      { code: "ST3", name: "Tồn kho & Công nợ tăng +30 ngày DT", sf: canRunStress ? (dttAnn / 365.0) * 30.0 : null, minDscr: 1.05 },
-      { code: "ST4", name: "Cú sốc kép (+15d DSO & +15d DIO)", sf: (canRunStress && cogsAnn !== null && cogsAnn > 0) ? (((dttAnn / 365.0) * 15.0) + ((cogsAnn / 365.0) * 15.0)) : null, minDscr: 1.00 }
+      { code: "ST1", name: "Phải thu kéo dài +15 ngày", sf: (dttAnn / 365.0) * 15.0, minDscr: 1.10 },
+      { code: "ST2", name: "Vòng quay VLĐ giảm 15%", sf: (vqT && vqT > 0) ? Math.max(0, (dttPlanT1 / (vqT * 0.85)) - metrics.t.nwcAvg) : null, minDscr: 1.10 },
+      { code: "ST3", name: "Tồn kho & Công nợ tăng +30 ngày DT", sf: (dttAnn / 365.0) * 30.0, minDscr: 1.05 },
+      { code: "ST4", name: "Cú sốc kép (+15d DSO & +15d DIO)", sf: ((dttAnn / 365.0) * 15.0) + ((cogsAnn / 365.0) * 15.0), minDscr: 1.00 }
     ].map(st => {
-      if (st.sf === null) return { ...st, deltaI: null, dscrS: null, pass: null };
+      if (st.sf === null) return { ...st, deltaI: null, dscrS: null, pass: false };
       const sfClean = Math.max(0, st.sf);
       const deltaI = sfClean * rate;
-      const dscrS = safeDiv(ocfTAnn - deltaI, debtService + deltaI);
-      const pass = dscrS !== null ? (dscrS >= st.minDscr) : null;
+      const dscrS = safeDiv(metrics.t.varOcf - deltaI, prinDue + curInt + deltaI);
+      const pass = dscrS !== null && dscrS >= st.minDscr;
       return { ...st, sf: sfClean, deltaI, dscrS, pass };
     });
 
@@ -2211,14 +1651,7 @@
       else { rank = "Hạng C"; decision = "HẠN CHẾ / CƠ CẤU LẠI"; }
     }
 
-    let hmtdApproved = null;
-    if (knockOut || rank === "Hạng D") {
-      hmtdApproved = 0;
-    } else if (hmtdMax !== null && hmtdReq !== null && hmtdReq > 0) {
-      hmtdApproved = Math.min(hmtdReq, hmtdMax);
-    } else if (hmtdMax !== null) {
-      hmtdApproved = hmtdMax;
-    }
+    const hmtdApproved = (knockOut || rank === "Hạng D" || hmtdMax === null) ? 0 : Math.min(hmtdReq, hmtdMax);
 
     return {
       warnings, metrics, tienVeRatio,
@@ -2227,29 +1660,6 @@
     };
   }
 
-  function diagnoseScenarioKB(res, m) {
-    if (m.t.dtt === null && m.t.varOcf === null) {
-      return { code: "N/A", name: "N/A (Chưa đủ dữ liệu)", diag: "Chưa đủ dữ liệu BCTC để chẩn đoán kịch bản KB1–KB5." };
-    }
-    const cMinusA = m.t.dtt - m.t.cogs;
-    const ocfPos = m.t.varOcf > 0;
-    const cccTrend = (m.t.ccc !== null && m.t1.ccc !== null) ? (m.t.ccc - m.t1.ccc) : 0;
-    const dttGrowth = m.t1.dtt > 0 ? ((m.t.dttAnn - m.t1.dtt) / m.t1.dtt) : 0;
-
-    if (cMinusA < 0 && !ocfPos) {
-      return { code: "KB4", name: "KB4: Khủng hoảng Thanh khoản", diag: "C < A và OCF âm: Biên gộp / dòng tiền chịu áp lực lớn, cần kiểm soát chặt nguồn thu và TSBĐ." };
-    }
-    if (dttGrowth < -0.10 && ocfPos && cccTrend <= 0) {
-      return { code: "KB3", name: "KB3: Thu hẹp Quy mô – Xả Kho", diag: "Thu hẹp quy mô / xả kho thu tiền: OCF dương nhờ thu hồi vốn lưu động, cần bám sát quy mô doanh thu thực tế." };
-    }
-    if (cMinusA > 0 && !ocfPos && cccTrend > 5) {
-      return { code: "KB2", name: "KB2: Tăng trưởng Nóng (Bẫy nợ & Kho)", diag: "C > A nhưng OCF âm & CCC tăng: Vốn bị neo giữ trong tồn kho/phải thu, cần kiểm soát chặt giải ngân và thu hồi nợ." };
-    }
-    if (cMinusA > 0 && ocfPos && Math.abs(cccTrend) <= 15) {
-      return { code: "KB1", name: "KB1: Tăng trưởng Bền vững", diag: "C > A và OCF > 0: Chu trình vận hành cân đối, dòng tiền tự tài trợ và khả năng trả nợ ổn định." };
-    }
-    return { code: "KB1/KB5", name: "KB1 / KB5: Theo dõi Cơ cấu Vốn & Kỳ hạn", diag: "Cần đối chiếu thêm cơ cấu nguồn vốn ngắn/dài hạn và tài sản đối ứng theo Thuyết minh TT200." };
-  }
 
   function buildInterviewQuestions(res, m, u) {
     const wcT = computeCleanWC("t");
@@ -2315,18 +1725,16 @@
     ];
   }
 
-  function renderAll(skipChecklist) {
-    if (!skipChecklist) renderChecklist();
+  function renderAll() {
+    renderChecklist();
     const res = computeModel();
     const m = res.metrics;
     const u = STATE.unit;
 
-    $("kpi-nwcop").textContent = m.t.nwcOp !== null ? `${fmtNum(m.t.nwcOp, 2)} ${u}` : "N/A";
-    $("kpi-ocf-dscr").textContent = `${m.t.varOcf !== null ? fmtNum(m.t.varOcf, 2) + " " + u : "N/A"} / ${m.t.dscr !== null ? fmtNum(m.t.dscr, 2) + "x" : "N/A"}`;
+    $("kpi-nwcop").textContent = `${fmtNum(m.t.nwcOp, 2)} ${u}`;
+    $("kpi-ocf-dscr").textContent = `${fmtNum(m.t.varOcf, 2)} ${u} / ${fmtNum(m.t.dscr, 2)}x`;
     $("kpi-hmtd-max").textContent = res.hmtdMax !== null ? `${fmtNum(res.hmtdMax, 2)} ${u}` : "N/A";
-    const reqTxt = res.hmtdReq !== null ? fmtNum(res.hmtdReq, 2) : "N/A";
-    const appTxt = res.hmtdApproved !== null ? fmtNum(res.hmtdApproved, 2) : "N/A";
-    $("kpi-hmtd-final").textContent = (res.hmtdReq === null && res.hmtdApproved === null) ? "N/A" : `${reqTxt} / ${appTxt} ${u}`;
+    $("kpi-hmtd-final").textContent = `${fmtNum(res.hmtdReq, 2)} / ${fmtNum(res.hmtdApproved, 2)} ${u}`;
     $("kpi-ews").textContent = `${fmtNum(res.ewsTotal, 2)} (${res.rank})`;
 
     $("warnings-container").innerHTML = res.warnings.map(w =>
@@ -2342,7 +1750,7 @@
         <td class="num">${r.v2}</td>
         <td class="num">${r.v1}</td>
         <td class="num" style="font-weight:700;">${r.vt}</td>
-        <td><span class="badge ${r.vt === "N/A" ? "b-blue" : (r.ok ? "b-green" : "b-amber")}">${r.vt === "N/A" ? "N/A" : (r.ok ? "Đạt chuẩn" : "Theo dõi")}</span></td>
+        <td><span class="badge ${r.ok ? "b-green" : "b-amber"}">${r.ok ? "Đạt chuẩn" : "Theo dõi"}</span></td>
       </tr>`;
     }).join("");
 
@@ -2350,13 +1758,13 @@
       ["Doanh thu thuần quy chuẩn năm (DTT_ann)", `DTT_T (${fmtNum(m.t.dtt, 2)}) × (365 / ${STATE.t_days})`, `${fmtNum(m.t.dttAnn, 2)} ${u}`],
       ["Vốn lưu động vận hành bình quân (NWC_op_avg)", `(NWC_op_T + NWC_op_T−1) / 2`, `${fmtNum(m.t.nwcAvg, 2)} ${u}`],
       ["Vòng quay VLĐ vận hành quy năm (VAR_VQ_VLD_T)", `DTT_ann / NWC_op_avg`, m.t.vqVld !== null ? `${fmtNum(m.t.vqVld, 2)} vòng` : "N/A"],
-      ["Doanh thu thuần dự phóng Năm T+1 (VAR_DT_KH_T+1)", `Theo kế hoạch kinh doanh T+1`, dttPlanT1 !== null ? `${fmtNum(dttPlanT1, 2)} ${u}${dttPlanProjected ? " (Dự phóng)" : ""}` : "N/A"],
+      ["Doanh thu thuần dự phóng Năm T+1 (VAR_DT_KH_T+1)", `Theo kế hoạch kinh doanh T+1`, `${fmtNum(numVal("dtt_plan_t1"), 2)} ${u}`],
       ["Tổng Nhu cầu VLĐ Năm T+1 (VAR_NHUCAU_T+1)", `DTT_T+1 / VAR_VQ_VLD_T`, res.nhuCauT1 !== null ? `${fmtNum(res.nhuCauT1, 2)} ${u}` : "N/A"],
       ["Vốn tự có tối thiểu tham gia 30% (VAR_VTC_MIN_30)", `30.0% × VAR_NHUCAU_T+1`, res.vtcMin30 !== null ? `${fmtNum(res.vtcMin30, 2)} ${u}` : "N/A"],
       ["Điều kiện khống chế 1 (DK1 - Tối đa 70% nhu cầu)", `70.0% × VAR_NHUCAU_T+1`, res.dk1 !== null ? `${fmtNum(res.dk1, 2)} ${u}` : "N/A"],
       ["Điều kiện khống chế 2 (DK2 - Trừ nợ ngắn hạn TCTD khác)", `max(0, Nhu cầu T+1 − VTC 30% − Nợ TCTD khác)`, res.dk2 !== null ? `${fmtNum(res.dk2, 2)} ${u}` : "N/A"],
       ["TRẦN HẠN MỨC TÍN DỤNG TỐI ĐA (VAR_HMTD_MAX)", `max(0, min(DK1, DK2))`, res.hmtdMax !== null ? `${fmtNum(res.hmtdMax, 2)} ${u}` : "N/A"],
-      ["HMTD ĐỀ XUẤT / HMTD PHÊ DUYỆT", `min(HMTD đề xuất, VAR_HMTD_MAX) theo EWS`, (res.hmtdReq === null && res.hmtdApproved === null) ? "N/A" : `${res.hmtdReq !== null ? fmtNum(res.hmtdReq, 2) : "N/A"} / ${res.hmtdApproved !== null ? fmtNum(res.hmtdApproved, 2) : "N/A"} ${u}`]
+      ["HMTD ĐỀ XUẤT / HMTD PHÊ DUYỆT", `min(HMTD đề xuất, VAR_HMTD_MAX) theo EWS`, `${fmtNum(res.hmtdReq, 2)} / ${fmtNum(res.hmtdApproved, 2)} ${u}`]
     ].map((row, idx) => `<tr class="${idx >= 8 ? "calc-row" : ""}">
       <td>${row[0]}</td><td style="font-size:11.5px;color:#475569;">${row[1]}</td><td class="num">${row[2]}</td>
     </tr>`).join("");
@@ -2368,7 +1776,7 @@
       <td class="num">${st.deltaI !== null ? fmtNum(st.deltaI, 2) + " " + u : "N/A"}</td>
       <td class="num" style="font-weight:700;">${st.dscrS !== null ? fmtNum(st.dscrS, 2) + "x" : "N/A"}</td>
       <td class="center">&ge; ${fmtNum(st.minDscr, 2)}x</td>
-      <td class="center"><span class="badge ${st.pass === null ? "b-amber" : (st.pass ? "b-green" : "b-red")}">${st.pass === null ? "N/A" : (st.pass === null ? "N/A" : (st.pass ? "Đạt (Pass)" : "Không đạt"))}</span></td>
+      <td class="center"><span class="badge ${st.pass ? "b-green" : "b-red"}">${st.pass ? "Đạt (Pass)" : "Không đạt"}</span></td>
     </tr>`).join("");
 
     const ewsDefs = [
@@ -2451,8 +1859,7 @@
 
       <div class="rep-sec">
         <div class="rep-sec-title">MỤC 2. ĐÁNH GIÁ CHẤT LƯỢNG HỒ SƠ &amp; LỌC NHIỄU BCTC THEO TT200 (AI AGENT 2)</div>
-        <div class="box-formula"><span class="tag-pill tag-blue">CÔNG THỨC LỌC NHIỄU</span> <code>VAR_AR_CLEAN = max(0, AR_Gop − max(AR_Treo, DP_TT48))</code> • <code>VAR_INV_CLEAN = max(0, INV_Gop − max(INV_UDong, DP_HTK))</code> • <code>VAR_AP_CLEAN = max(0, TK331 − AP_Treo − AP_CapEx)</code> • <code>NWC_op = (INV_Clean + AR_Clean + TSNH_VH) − (AP_Clean + Nợ_VH)</code>.</div>
-        <div class="${STATE.has_exclusion_notes ? "box-green" : "box-amber"}"><span class="tag-pill ${STATE.has_exclusion_notes ? "tag-green" : "tag-amber"}">${STATE.has_exclusion_notes ? "ĐÁNH GIÁ ĐẠT" : "CẢNH BÁO THIẾU TM"}</span> Áp dụng nguyên tắc lọc nhiễu chống trừ trùng (<code>VAR_AR_CLEAN</code>, <code>VAR_INV_CLEAN</code>, <code>VAR_AP_CLEAN</code>) và loại trừ các khoản phải thu treo, hàng tồn kho ứ đọng &gt; 180 ngày, phải trả đầu tư XDCB/CapEx để xác định Vốn lưu động vận hành ròng (<code>VAR_NWCOP</code>) qua 3 kỳ (Kỳ T: <strong>${fmtNum(m.t.nwcOp, 2)} ${u}</strong>).</div>
+        <p>Áp dụng nguyên tắc lọc nhiễu chống trừ trùng (<code>VAR_AR_CLEAN</code>, <code>VAR_INV_CLEAN</code>, <code>VAR_AP_CLEAN</code>) và loại trừ các khoản phải thu treo, hàng tồn kho ứ đọng &gt; 180 ngày, phải trả đầu tư XDCB/CapEx để xác định Vốn lưu động vận hành ròng (<code>VAR_NWCOP</code>) qua 3 kỳ:</p>
         <table>
           <thead><tr><th>Chỉ tiêu Vốn lưu động Sạch &amp; Vận hành (${u})</th><th class="num">Năm T−2</th><th class="num">Năm T−1</th><th class="num">Kỳ T (${STATE.t_days}d)</th></tr></thead>
           <tbody>
@@ -2530,12 +1937,11 @@
       </div>
 
       <div class="rep-sec">
-        <div class="rep-sec-title">MỤC 8. KIỂM ĐỊNH SỨC CHỊU ĐỰNG DÒNG TIỀN (STRESS TEST ST1 – ST4, r = 8.0%/năm) &amp; CHẨN ĐOÁN KB1–KB5</div>
-        <div class="box-formula"><span class="tag-pill tag-blue">CHẨN ĐOÁN KỊCH BẢN</span> <strong>${diagnoseScenarioKB(res, m).name}:</strong> ${diagnoseScenarioKB(res, m).diag}</div>
+        <div class="rep-sec-title">MỤC 8. KIỂM ĐỊNH SỨC CHỊU ĐỰNG DÒNG TIỀN (STRESS TEST ST1 – ST4, r = 8.0%/năm)</div>
         <table>
           <thead><tr><th>Kịch bản</th><th>Mô tả cú sốc</th><th class="num">Thiếu hụt vốn</th><th class="num">Lãi tăng thêm</th><th class="num">DSCR Stress</th><th class="center">Ngưỡng Min</th><th>Kết quả</th></tr></thead>
           <tbody>
-            ${res.stressList.map(st => `<tr><td><strong>${st.code}</strong></td><td>${st.name}</td><td class="num">${fmtNum(st.sf, 2)}</td><td class="num">${fmtNum(st.deltaI, 2)}</td><td class="num"><strong>${fmtNum(st.dscrS, 2)}x</strong></td><td class="center">&ge; ${fmtNum(st.minDscr, 2)}x</td><td>${st.pass === null ? "N/A" : (st.pass ? "Đạt (Pass)" : "Không đạt")}</td></tr>`).join("")}
+            ${res.stressList.map(st => `<tr><td><strong>${st.code}</strong></td><td>${st.name}</td><td class="num">${fmtNum(st.sf, 2)}</td><td class="num">${fmtNum(st.deltaI, 2)}</td><td class="num"><strong>${fmtNum(st.dscrS, 2)}x</strong></td><td class="center">&ge; ${fmtNum(st.minDscr, 2)}x</td><td>${st.pass ? "Đạt (Pass)" : "Không đạt"}</td></tr>`).join("")}
           </tbody>
         </table>
       </div>
@@ -2583,7 +1989,7 @@
 
       <div class="rep-sec">
         <div class="rep-sec-title">MỤC 12. NGƯỠNG QUYẾT NGHỊ &amp; PHÊ DUYỆT TÍN DỤNG (FINAL - AI AGENT 4)</div>
-        <div class="${(res.knockOut || res.rank === "Hạng D") ? "box-conclusion box-concl-red" : (res.rank === "Hạng A" || res.rank === "Hạng B" ? "box-conclusion" : "box-conclusion box-concl-amber")}">
+        <div style="background:#ECFDF5;border:1.5px solid #059669;border-radius:8px;padding:12px;">
           <div style="font-size:13.5px;font-weight:800;color:#065F46;">
             KẾT LUẬN THẨM ĐỊNH &amp; PHÊ DUYỆT: ${res.decision} (${res.rank})
           </div>
@@ -2718,54 +2124,6 @@
       return lines;
     }
 
-    function drawCalloutBox(tone, badgeText, bodyText) {
-      const palette = {
-        green:   { bg: "#ECFDF5", border: "#059669", badgeBg: "#059669", text: "#065F46" },
-        red:     { bg: "#FEF2F2", border: "#DC2626", badgeBg: "#DC2626", text: "#991B1B" },
-        amber:   { bg: "#FFFBEB", border: "#D97706", badgeBg: "#D97706", text: "#92400E" },
-        formula: { bg: "#EFF6FF", border: "#1D4ED8", badgeBg: "#1D4ED8", text: "#1E3A8A" }
-      };
-      const pal = palette[tone] || palette.formula;
-      const lineH = 22;
-      const badgeH = 24;
-      const topPad = 12;
-      const gapAfterBadge = 10;
-      const bottomPad = 12;
-
-      cur.ctx.font = "bold 13px Arial, sans-serif";
-      const bw = cur.ctx.measureText(String(badgeText)).width + 20;
-
-      cur.ctx.font = "14px Arial, sans-serif";
-      const lines = wrapTextLines(cur.ctx, bodyText, contentW - 40);
-      const textStartY = topPad + badgeH + gapAfterBadge;
-      const boxH = Math.max(66, textStartY + lines.length * lineH + bottomPad);
-      ensureSpace(boxH + 10);
-
-      cur.ctx.save();
-      cur.ctx.fillStyle = pal.bg;
-      cur.ctx.fillRect(marginX, cur.y, contentW, boxH);
-      cur.ctx.strokeStyle = pal.border;
-      cur.ctx.lineWidth = 1.4;
-      cur.ctx.strokeRect(marginX, cur.y, contentW, boxH);
-      cur.ctx.fillStyle = pal.border;
-      cur.ctx.fillRect(marginX, cur.y, 8, boxH);
-
-      cur.ctx.fillStyle = pal.badgeBg;
-      cur.ctx.fillRect(marginX + 18, cur.y + topPad, bw, badgeH);
-      cur.ctx.fillStyle = "#FFFFFF";
-      cur.ctx.font = "bold 13px Arial, sans-serif";
-      cur.ctx.fillText(String(badgeText), marginX + 28, cur.y + topPad + 16.5);
-
-      cur.ctx.fillStyle = pal.text;
-      cur.ctx.font = "14px Arial, sans-serif";
-      lines.forEach((ln, idx) => {
-        cur.ctx.fillText(ln, marginX + 20, cur.y + textStartY + idx * lineH);
-      });
-      cur.ctx.restore();
-
-      cur.y += boxH + 12;
-    }
-
     function drawParagraph(text, bold) {
       cur.ctx.font = (bold ? "bold " : "") + "14px Arial, sans-serif";
       const lines = wrapTextLines(cur.ctx, text, contentW - 12);
@@ -2858,7 +2216,6 @@
 
     // MỤC 1
     drawSectionHeader("MỤC 1. TỔNG QUAN PHÁP LÝ, MÔ HÌNH KINH DOANH & TRA CỨU CIC (AI AGENT 1)");
-    drawCalloutBox(STATE.cic_group >= 3 ? "red" : (STATE.cic_group === 2 ? "amber" : "green"), STATE.cic_group >= 3 ? "CẢNH BÁO CIC NHÓM 3–5" : (STATE.cic_group === 2 ? "THEO DÕI CIC NHÓM 2" : "ĐÁNH GIÁ CIC NHÓM 1"), `Khách hàng ${cname} (MST: ${mst}) | Nhóm CIC: ${STATE.cic_group} | Nợ ngắn hạn TCTD khác: ${fmtNum(numVal("inp_other_debt"), 2)} ${u}.`);
     drawParagraph(`Khách hàng ${cname} (MST: ${mst}) hoạt động trong lĩnh vực ${STATE.is_manufacturing ? "Sản xuất" : "Thương mại & Xây lắp"}. Quan hệ tín dụng CIC: Nhóm ${STATE.cic_group}; Dư nợ ngắn hạn TCTD khác: ${fmtNum(numVal("inp_other_debt"), 2)} ${u}; Nợ gốc dài hạn đến hạn trả: ${fmtNum(numVal("inp_principal_due"), 2)} ${u}; Chi phí lãi vay hiện tại: ${fmtNum(numVal("inp_current_interest"), 2)} ${u}/năm.`);
     drawTable(
       ["STT", "Danh mục Hồ sơ Đầu vào (13 Đầu mục)", "Trạng thái", "Tệp đính kèm & Đánh giá AI Agent 1"],
@@ -2873,8 +2230,7 @@
 
     // MỤC 2
     drawSectionHeader("MỤC 2. ĐÁNH GIÁ CHẤT LƯỢNG HỒ SƠ & LỌC NHIỄU BCTC THEO TT200 (AI AGENT 2)");
-    drawCalloutBox("formula", "CÔNG THỨC LỌC NHIỄU", "VAR_AR_CLEAN = max(0, AR_Gop - max(AR_Treo, DP_TT48)) | VAR_INV_CLEAN = max(0, INV_Gop - max(INV_UDong, DP_HTK)) | VAR_AP_CLEAN = max(0, TK331 - AP_Treo - AP_CapEx) | NWC_op = (INV_Clean + AR_Clean + TSNH_VH) - (AP_Clean + Nợ_VH).");
-    drawCalloutBox(STATE.has_exclusion_notes ? "green" : "amber", STATE.has_exclusion_notes ? "ĐÁNH GIÁ LỌC SẠCH ĐẠT" : "CẢNH BÁO THIẾU TM", `VAR_NWCOP Kỳ T = ${fmtNum(m.t.nwcOp, 2)} ${u} (Năm T-1: ${fmtNum(m.t1.nwcOp, 2)} ${u}; Năm T-2: ${fmtNum(m.t2.nwcOp, 2)} ${u}).`);
+    drawParagraph("Kết quả bóc tách loại trừ khoản treo, hàng tồn kho ứ đọng > 180 ngày và phải trả đầu tư XDCB/CapEx để xác định Vốn lưu động vận hành ròng (VAR_NWCOP) qua 3 kỳ:");
     const rNwc = ["= Vốn lưu động vận hành ròng (VAR_NWCOP)", fmtNum(m.t2.nwcOp, 2), fmtNum(m.t1.nwcOp, 2), fmtNum(m.t.nwcOp, 2)];
     rNwc._highlight = true;
     drawTable(
@@ -2943,8 +2299,6 @@
 
     // MỤC 7
     drawSectionHeader("MỤC 7. TÍNH TOÁN NHU CẦU VỐN LƯU ĐỘNG & TRẦN HẠN MỨC TÍN DỤNG (VAR_HMTD_MAX)");
-    drawCalloutBox("formula", "CÔNG THỨC TRẦN HMTD", "VAR_VQ_VLD_T = (DTT_T × 365 / T_ngày) / NWC_op_avg | VAR_NHUCAU_T+1 = DTT_T+1 / VAR_VQ_VLD_T | DK1 = 70% × Nhu cầu | DK2 = max(0, Nhu cầu - 30% VTC - Nợ TCTD khác) | VAR_HMTD_MAX = max(0, min(DK1, DK2)).");
-    drawCalloutBox(res.hmtdMax !== null && res.hmtdMax >= res.hmtdReq ? "green" : "amber", "ĐÁNH GIÁ TRẦN HMTD T+1", `Trần hạn mức tối đa VAR_HMTD_MAX = ${res.hmtdMax !== null ? fmtNum(res.hmtdMax, 2) + " " + u : "N/A"} so với HMTD đề xuất ${fmtNum(res.hmtdReq, 2)} ${u}.`);
     const rHmtdMax = ["TRẦN HẠN MỨC TÍN DỤNG TỐI ĐA (VAR_HMTD_MAX)", "max(0, min(DK1, DK2))", res.hmtdMax !== null ? `${fmtNum(res.hmtdMax, 2)} ${u}` : "N/A"];
     rHmtdMax._highlight = true;
     drawTable(
@@ -2963,8 +2317,6 @@
 
     // MỤC 8
     drawSectionHeader("MỤC 8. KIỂM ĐỊNH SỨC CHỊU ĐỰNG DÒNG TIỀN (STRESS TEST ST1 – ST4, r = 8.0%/năm)");
-    drawCalloutBox("formula", "CÔNG THỨC STRESS TEST", "ΔI = Vốn thiếu hụt × 8.0%/năm | DSCR_Stress = (VAR_OCF - ΔI) / (Nợ gốc đến hạn + Lãi vay hiện tại + ΔI).");
-    drawCalloutBox(res.stressList.every(s => s.pass) ? "green" : "amber", `ĐÁNH GIÁ STRESS (${res.stressList.filter(s => s.pass).length}/4 ĐẠT)`, res.stressList.every(s => s.pass) ? "Đạt ngưỡng DSCR tối thiểu cả 4 kịch bản ST1–ST4." : "Kịch bản chịu áp lực: " + res.stressList.filter(s => !s.pass).map(s => s.code).join(", ") + ".");
     drawTable(
       ["Kịch bản", "Mô tả cú sốc", "Thiếu hụt vốn", "Lãi tăng (ΔI)", "DSCR Stress", "Ngưỡng Min", "Kết quả"],
       [90, 340, 145, 135, 135, 130, contentW - 975],
@@ -3020,7 +2372,7 @@
     cur.ctx.fillText(`KẾT LUẬN THẨM ĐỊNH & PHÊ DUYỆT: ${res.decision} (${res.rank})`, marginX + 18, cur.y + 28);
     cur.ctx.fillStyle = "#0F294A";
     cur.ctx.font = "bold 17px Arial, sans-serif";
-    cur.ctx.fillText(`HMTD đề xuất / HMTD phê duyệt: ${res.hmtdReq !== null ? fmtNum(res.hmtdReq, 2) : "N/A"} / ${res.hmtdApproved !== null ? fmtNum(res.hmtdApproved, 2) : "N/A"} ${u}`, marginX + 18, cur.y + 54);
+    cur.ctx.fillText(`HMTD đề xuất / HMTD phê duyệt: ${fmtNum(res.hmtdReq, 2)} / ${fmtNum(res.hmtdApproved, 2)} ${u}`, marginX + 18, cur.y + 54);
     cur.ctx.fillStyle = "#334155";
     cur.ctx.font = "13.5px Arial, sans-serif";
     cur.ctx.fillText(`Trần hạn mức tối đa theo mô hình AI-Ready v7.2 (VAR_HMTD_MAX): ${res.hmtdMax !== null ? fmtNum(res.hmtdMax, 2) + " " + u : "N/A"}`, marginX + 18, cur.y + 75);
@@ -3168,12 +2520,6 @@
       const parent = btn.parentElement;
       if (parent) {
         parent.querySelectorAll(".pill-btn").forEach(b => b.classList.remove("active-blue", "active-green", "active-amber", "active-red"));
-        if (key === "appraisal_mode") {
-          STATE.appraisal_mode = val;
-          STATE.fast_mode = (val === "fast_basic");
-          $("btnFastModeOn").className = "pill-btn " + (val === "fast_basic" ? "active-green" : "");
-          $("btnFastModeOff").className = "pill-btn " + (val === "deep_full" ? "active-blue" : "");
-        }
         const cls = (key === "cic_group" && val === "3") ? "active-red" : (key === "cic_group" && val === "2") ? "active-amber" : (val === "true" || (key === "cic_group" && val === "1")) ? "active-green" : "active-blue";
         btn.classList.add(cls);
       }
@@ -3197,15 +2543,11 @@
       STATE.ews[p] = parseFloat(btn.getAttribute("data-score"));
       renderAll();
     } else if (action === "fill-sample-real") {
-      STATE.realDataStarted = true;
       Object.keys(SAMPLE_VALUES).forEach(k => { if ($(k)) $(k).value = SAMPLE_VALUES[k]; });
       renderAll();
       showToast("⚡ Đã điền dữ liệu mẫu Công ty Hoàng Nam thành số thật!");
     } else if (action === "clear-all-inputs") {
       Object.keys(SAMPLE_VALUES).forEach(k => { if ($(k)) $(k).value = ""; });
-      if ($("inp_hmtd_req")) $("inp_hmtd_req").value = "";
-      if ($("dtt_plan_t1")) $("dtt_plan_t1").value = "";
-      switchToRealDataMode();
       CHECKLIST_ITEMS.forEach(item => { STATE.checklist[item.id].files = []; STATE.checklist[item.id].note = ""; });
       STATE.parserLogs = [];
       renderAll();
@@ -3268,44 +2610,17 @@
     }
   });
 
-  function handleFieldSyncAndRecalc(target) {
-    if (!target) return;
-    if (!target.hasAttribute("data-doc-note")) {
-      switchToRealDataMode();
-    }
-    let fromQuickChecklist = false;
+  document.addEventListener("input", function(e) {
+    const target = e.target;
     if (target.hasAttribute("data-sync-target")) {
-      fromQuickChecklist = true;
       const dest = $(target.getAttribute("data-sync-target"));
       if (dest) dest.value = target.value;
-    }
-    if (target.id === "dtt_plan_t1" || target.id === "inp_hmtd_req") {
-      document.querySelectorAll(`[data-sync-target="${target.id}"]`).forEach(el => {
-        if (el !== target) el.value = target.value;
-      });
     }
     if (target.hasAttribute("data-doc-note")) {
       STATE.checklist[target.getAttribute("data-doc-note")].note = target.value;
       return;
     }
-    renderAll(fromQuickChecklist);
-  }
-
-  document.addEventListener("input", function(e) {
-    handleFieldSyncAndRecalc(e.target);
-    _lastInputSnapshot = "";
-  });
-  document.addEventListener("keyup", function(e) {
-    if (e.target && e.target.tagName === "INPUT") {
-      handleFieldSyncAndRecalc(e.target);
-      _lastInputSnapshot = "";
-    }
-  });
-
-  document.addEventListener("focusout", function(e) {
-    if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "SELECT" || e.target.tagName === "TEXTAREA")) {
-      handleFieldSyncAndRecalc(e.target);
-    }
+    renderAll();
   });
 
   document.addEventListener("change", async function(e) {
@@ -3313,31 +2628,12 @@
     if (target.id === "bulk-file-input") {
       await processUploadedFiles(target.files, null);
       target.value = "";
-      return;
     } else if (target.hasAttribute("data-upload-doc")) {
       const docId = target.getAttribute("data-upload-doc");
       await processUploadedFiles(target.files, docId);
       target.value = "";
-      return;
     }
-    handleFieldSyncAndRecalc(target);
   });
-
-  let _lastInputSnapshot = "";
-  function runAutoRecalcIfChanged() {
-    const inputs = document.querySelectorAll("#panel-inputs input, #panel-checklist input[data-sync-target]");
-    let snap = `${STATE.t_days}|${STATE.is_manufacturing}|${STATE.has_exclusion_notes}|${STATE.cic_group}|${STATE.unit}|${STATE.realDataStarted}|`;
-    for (let i = 0; i < inputs.length; i++) {
-      snap += inputs[i].value + ";";
-    }
-    if (snap !== _lastInputSnapshot) {
-      _lastInputSnapshot = snap;
-      const activeEl = document.activeElement;
-      const isTypingChecklist = activeEl && (activeEl.hasAttribute("data-sync-target") || activeEl.hasAttribute("data-doc-note"));
-      renderAll(!!isTypingChecklist);
-    }
-  }
-  setInterval(runAutoRecalcIfChanged, 250);
 
   // Boot with Mobile-First default
   setDeviceMode("mobile");
