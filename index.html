@@ -2137,29 +2137,48 @@
     }
 
     function drawTable(headers, colWidths, rows) {
-      const rowH = 26;
-      ensureSpace(rowH * 2 + 8);
+      const baseRowH = 26;
+      const lineH = 19;
+      const cellPadY = 7;
+
+      function measureRowHeight(r) {
+        if (r.length === 1) return baseRowH;
+        cur.ctx.font = (r._highlight ? "bold " : "") + "13px Arial, sans-serif";
+        let maxLines = 1;
+        r.forEach((cell, idx) => {
+          const w = colWidths[idx] - 16;
+          const wrapped = wrapTextLines(cur.ctx, String(cell), Math.max(24, w));
+          if (wrapped.length > maxLines) maxLines = wrapped.length;
+        });
+        return Math.max(baseRowH, maxLines * lineH + cellPadY * 2);
+      }
 
       function renderHeaderRow() {
         let x = marginX;
         cur.ctx.fillStyle = "#E2E8F0";
-        cur.ctx.fillRect(marginX, cur.y, contentW, rowH);
+        cur.ctx.fillRect(marginX, cur.y, contentW, baseRowH);
         cur.ctx.strokeStyle = "#94A3B8";
         cur.ctx.lineWidth = 1;
-        cur.ctx.strokeRect(marginX, cur.y, contentW, rowH);
+        cur.ctx.strokeRect(marginX, cur.y, contentW, baseRowH);
         cur.ctx.fillStyle = "#0F294A";
         cur.ctx.font = "bold 13px Arial, sans-serif";
         headers.forEach((h, idx) => {
           const w = colWidths[idx];
-          cur.ctx.fillText(String(h), x + 8, cur.y + 18);
+          let hTxt = String(h);
+          while (cur.ctx.measureText(hTxt).width > w - 14 && hTxt.length > 3) {
+            hTxt = hTxt.slice(0, -2) + "…";
+          }
+          cur.ctx.fillText(hTxt, x + 8, cur.y + 18);
           x += w;
         });
-        cur.y += rowH;
+        cur.y += baseRowH;
       }
 
+      ensureSpace(baseRowH * 2 + 8);
       renderHeaderRow();
 
       rows.forEach((r, rIdx) => {
+        const rowH = measureRowHeight(r);
         if (cur.y + rowH > bottomLimit) {
           addPage();
           renderHeaderRow();
@@ -2180,11 +2199,10 @@
           let x = marginX;
           r.forEach((cell, idx) => {
             const w = colWidths[idx];
-            let txt = String(cell);
-            while (cur.ctx.measureText(txt).width > w - 14 && txt.length > 3) {
-              txt = txt.slice(0, -2) + "…";
-            }
-            cur.ctx.fillText(txt, x + 8, cur.y + 18);
+            const wrapped = wrapTextLines(cur.ctx, String(cell), Math.max(24, w - 16));
+            wrapped.forEach((wLine, lIdx) => {
+              cur.ctx.fillText(wLine, x + 8, cur.y + cellPadY + 13 + lIdx * lineH);
+            });
             x += w;
           });
         }
@@ -2337,7 +2355,7 @@
     drawSectionHeader("CÂU HỎI PHỎNG VẤN GIÁM ĐỐC / BAN LÃNH ĐẠO (THEO DỮ LIỆU PHÂN TÍCH)");
     drawTable(
       ["Mã", "Vấn đề Trọng yếu", "Dữ liệu Phân tích", "Câu hỏi Phỏng vấn Giám đốc / Ban Lãnh đạo"],
-      [60, 230, 250, contentW - 540],
+      [54, 210, 250, contentW - 514],
       buildInterviewQuestions(res, m, u).map(item => [item.code, item.topic, item.data, item.q])
     );
 
