@@ -218,6 +218,44 @@
   }
   .sign-box { border: 1px dashed #94A3B8; border-radius: 8px; padding: 10px 8px 54px 8px; background: #F8FAFC; }
 
+  
+  .box-green {
+    background: #ECFDF5; border: 1px solid #6EE7B7; border-left: 5px solid #059669;
+    color: #065F46; border-radius: 8px; padding: 9px 12px; margin: 7px 0;
+  }
+  .box-red {
+    background: #FEF2F2; border: 1px solid #FCA5A5; border-left: 5px solid #DC2626;
+    color: #991B1B; border-radius: 8px; padding: 9px 12px; margin: 7px 0;
+  }
+  .box-amber {
+    background: #FFFBEB; border: 1px solid #FCD34D; border-left: 5px solid #D97706;
+    color: #92400E; border-radius: 8px; padding: 9px 12px; margin: 7px 0;
+  }
+  .box-formula {
+    background: #EFF6FF; border: 1px solid #93C5FD; border-left: 5px solid #1D4ED8;
+    color: #1E3A8A; border-radius: 8px; padding: 8px 12px; margin: 7px 0; font-size: 12px;
+  }
+  .box-conclusion {
+    background: #ECFDF5; border: 2px solid #059669; border-left: 7px solid #047857;
+    color: #064E3B; border-radius: 10px; padding: 12px 14px; margin: 8px 0;
+  }
+  .box-conclusion.box-concl-red {
+    background: #FEF2F2; border: 2px solid #DC2626; border-left: 7px solid #B91C1C;
+    color: #7F1D1D;
+  }
+  .box-conclusion.box-concl-amber {
+    background: #FFFBEB; border: 2px solid #D97706; border-left: 7px solid #B45309;
+    color: #78350F;
+  }
+  .tag-pill {
+    display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: 10.5px;
+    font-weight: 800; margin-right: 6px; text-transform: uppercase;
+  }
+  .tag-green { background: #059669; color: #FFFFFF; }
+  .tag-red { background: #DC2626; color: #FFFFFF; }
+  .tag-amber { background: #D97706; color: #FFFFFF; }
+  .tag-blue { background: #1D4ED8; color: #FFFFFF; }
+
   /* TOAST */
   #toast {
     position: fixed; top: 62px; right: 14px; z-index: 10000;
@@ -236,7 +274,7 @@
     .app-shell { max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
     #panel-report { display: block !important; }
     .report-sheet { border: none !important; padding: 0 !important; box-shadow: none !important; }
-    .rep-header, .rep-sec-title, th, tr.calc-row td { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .rep-header, .rep-sec-title, th, tr.calc-row td, .box-green, .box-red, .box-amber, .box-formula, .box-conclusion, .tag-pill { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     .rep-sec { page-break-inside: auto; }
     .rep-sec-title { page-break-after: avoid; }
     thead { display: table-header-group; }
@@ -1829,14 +1867,37 @@
     const lnstP1 = lnttP1 - taxP1;
     const ratioRows = getRatioRows(m);
 
+    const cicBoxCls = STATE.cic_group >= 3 ? "box-red" : (STATE.cic_group === 2 ? "box-amber" : "box-green");
+    const cicTagCls = STATE.cic_group >= 3 ? "tag-red" : (STATE.cic_group === 2 ? "tag-amber" : "tag-green");
+    const cicStatusTxt = STATE.cic_group >= 3 ? "CẢNH BÁO KNOCK-OUT (CIC NHÓM 3–5)" : (STATE.cic_group === 2 ? "THEO DÕI (CIC NHÓM 2)" : "ĐẠT CHUẨN (CIC NHÓM 1)");
+
+    const notesBoxCls = STATE.has_exclusion_notes ? "box-green" : "box-amber";
+    const notesTagCls = STATE.has_exclusion_notes ? "tag-green" : "tag-amber";
+
+    const ocfFlagRed = m.t.ms20DiffPct > 5.0;
+    const ocfBoxCls = ocfFlagRed ? "box-red" : (m.t.dscr >= 1.15 ? "box-green" : "box-amber");
+    const ocfTagCls = ocfFlagRed ? "tag-red" : (m.t.dscr >= 1.15 ? "tag-green" : "tag-amber");
+
+    const tienVeOk = res.tienVeRatio === null || res.tienVeRatio >= 70.0;
+    const tvBoxCls = tienVeOk ? "box-green" : "box-red";
+    const tvTagCls = tienVeOk ? "tag-green" : "tag-red";
+
+    const conclBoxCls = (res.knockOut || res.rank === "Hạng D")
+      ? "box-conclusion box-concl-red"
+      : (res.rank === "Hạng A" || res.rank === "Hạng B" ? "box-conclusion" : "box-conclusion box-concl-amber");
+
     const checklistSummaryRows = CHECKLIST_ITEMS.map(item => {
       const st = STATE.checklist[item.id];
-      const stLabel = st.status === "ok" ? "Đầy đủ" : st.status === "warn" ? "Thiếu TM" : "Chưa có";
+      const stBadge = st.status === "ok"
+        ? `<span class="badge b-green">Đầy đủ</span>`
+        : st.status === "warn"
+        ? `<span class="badge b-amber">Thiếu TM</span>`
+        : `<span class="badge b-red">Chưa có</span>`;
       const fileNames = st.files.length ? st.files.map(f => f.name).join(", ") : "Bản cứng / Kê khai chuẩn";
       return `<tr>
         <td class="center">${item.code}</td>
         <td>${item.title}</td>
-        <td class="center">${stLabel}</td>
+        <td class="center">${stBadge}</td>
         <td>${fileNames}${st.note ? " — " + st.note : ""}</td>
       </tr>`;
     }).join("");
@@ -1850,16 +1911,26 @@
 
       <div class="rep-sec">
         <div class="rep-sec-title">MỤC 1. TỔNG QUAN PHÁP LÝ, MÔ HÌNH KINH DOANH &amp; TRA CỨU CIC (AI AGENT 1)</div>
-        <p>Khách hàng <strong>${cname}</strong> (MST: <strong>${mst}</strong>) hoạt động trong lĩnh vực <strong>${STATE.is_manufacturing ? "Sản xuất" : "Thương mại & Xây lắp"}</strong>. Tình trạng quan hệ tín dụng trên CIC: <strong>Nhóm ${STATE.cic_group}</strong>; Dư nợ ngắn hạn tại TCTD khác: <strong>${fmtNum(numVal("inp_other_debt"), 2)} ${u}</strong>; Nợ gốc dài hạn đến hạn trả: <strong>${fmtNum(numVal("inp_principal_due"), 2)} ${u}</strong>; Chi phí lãi vay hiện tại: <strong>${fmtNum(numVal("inp_current_interest"), 2)} ${u}/năm</strong>.</p>
+        <div class="${cicBoxCls}">
+          <span class="tag-pill ${cicTagCls}">${cicStatusTxt}</span>
+          <strong>Nhận xét Pháp lý &amp; CIC:</strong> Khách hàng <strong>${cname}</strong> (MST: <strong>${mst}</strong>) hoạt động trong lĩnh vực <strong>${STATE.is_manufacturing ? "Sản xuất" : "Thương mại & Xây lắp"}</strong>. Quan hệ tín dụng CIC: <strong>Nhóm ${STATE.cic_group}</strong>; Dư nợ ngắn hạn TCTD khác: <strong>${fmtNum(numVal("inp_other_debt"), 2)} ${u}</strong>; Nợ gốc dài hạn đến hạn trả: <strong>${fmtNum(numVal("inp_principal_due"), 2)} ${u}</strong>; Chi phí lãi vay hiện tại: <strong>${fmtNum(numVal("inp_current_interest"), 2)} ${u}/năm</strong>.
+        </div>
         <table>
-          <thead><tr><th style="width:45px;">STT</th><th>Danh mục Hồ sơ Đầu vào (13 Đầu mục)</th><th style="width:90px;">Trạng thái</th><th>Tệp đính kèm &amp; Đánh giá AI Agent 1</th></tr></thead>
+          <thead><tr><th style="width:45px;">STT</th><th>Danh mục Hồ sơ Đầu vào (13 Đầu mục)</th><th style="width:95px;">Trạng thái</th><th>Tệp đính kèm &amp; Đánh giá AI Agent 1</th></tr></thead>
           <tbody>${checklistSummaryRows}</tbody>
         </table>
       </div>
 
       <div class="rep-sec">
         <div class="rep-sec-title">MỤC 2. ĐÁNH GIÁ CHẤT LƯỢNG HỒ SƠ &amp; LỌC NHIỄU BCTC THEO TT200 (AI AGENT 2)</div>
-        <p>Áp dụng nguyên tắc lọc nhiễu chống trừ trùng (<code>VAR_AR_CLEAN</code>, <code>VAR_INV_CLEAN</code>, <code>VAR_AP_CLEAN</code>) và loại trừ các khoản phải thu treo, hàng tồn kho ứ đọng &gt; 180 ngày, phải trả đầu tư XDCB/CapEx để xác định Vốn lưu động vận hành ròng (<code>VAR_NWCOP</code>) qua 3 kỳ:</p>
+        <div class="box-formula">
+          <span class="tag-pill tag-blue">CÔNG THỨC LỌC NHIỄU</span>
+          <code>VAR_AR_CLEAN = max(0, AR_Gop − max(AR_Treo, DP_TT48))</code> • <code>VAR_INV_CLEAN = max(0, INV_Gop − max(INV_UDong, DP_HTK))</code> • <code>VAR_AP_CLEAN = max(0, TK331 − AP_Treo − AP_CapEx)</code> • <code>NWC_op = (INV_Clean + AR_Clean + TSNH_VH) − (AP_Clean + Nợ_VH)</code>.
+        </div>
+        <div class="${notesBoxCls}">
+          <span class="tag-pill ${notesTagCls}">${STATE.has_exclusion_notes ? "ĐÁNH GIÁ ĐẠT" : "CẢNH BÁO THIẾU TM"}</span>
+          <strong>Nhận xét Lọc nhiễu Kỳ T:</strong> Vốn lưu động vận hành ròng (<code>VAR_NWCOP</code>) đạt <strong>${fmtNum(m.t.nwcOp, 2)} ${u}</strong> (so với <strong>${fmtNum(m.t1.nwcOp, 2)} ${u}</strong> năm T−1 và <strong>${fmtNum(m.t2.nwcOp, 2)} ${u}</strong> năm T−2). ${STATE.has_exclusion_notes ? "Đã bóc tách đầy đủ các khoản nợ treo và đầu tư XDCB/CapEx." : "Thiếu thuyết minh bóc tách chi tiết nên khoản loại trừ tạm gán = 0 theo nguyên tắc thận trọng."}
+        </div>
         <table>
           <thead><tr><th>Chỉ tiêu Vốn lưu động Sạch &amp; Vận hành (${u})</th><th class="num">Năm T−2</th><th class="num">Năm T−1</th><th class="num">Kỳ T (${STATE.t_days}d)</th></tr></thead>
           <tbody>
@@ -1876,12 +1947,20 @@
 
       <div class="rep-sec">
         <div class="rep-sec-title">MỤC 3. PHÂN TÍCH CHU TRÌNH TIỀN – HÀNG – TIỀN &amp; 19 CHỈ SỐ TÀI CHÍNH (AI AGENT 3)</div>
+        <div class="box-formula">
+          <span class="tag-pill tag-blue">CÔNG THỨC CHU KỲ TIỀN</span>
+          <code>DSO = (AR_Clean_BQ / DTT) × T_ngày</code> • <code>DIO = (INV_Clean_BQ / GVHB) × T_ngày</code> • <code>DPO = (AP_Clean_BQ / Mẫu_số_DPO) × T_ngày</code> • <code>CCC = DIO + DSO − DPO</code> (Chu kỳ T: <strong>${fmtNum(m.t.ccc, 1)} ngày</strong>).
+        </div>
+        <div class="${m.t.ccc <= 110 && m.t.grossMargin >= 12 ? "box-green" : "box-amber"}">
+          <span class="tag-pill ${m.t.ccc <= 110 && m.t.grossMargin >= 12 ? "tag-green" : "tag-amber"}">ĐÁNH GIÁ VẬN HÀNH &amp; SINH LỜI</span>
+          <strong>Nhận xét Chu kỳ Tiền – Hàng – Tiền:</strong> Biên lợi nhuận gộp kỳ T đạt <strong>${fmtNum(m.t.grossMargin, 1)}%</strong>, biên lợi nhuận ròng đạt <strong>${fmtNum(m.t.netMargin, 1)}%</strong>, vòng quay VLĐ vận hành quy năm đạt <strong>${fmtNum(m.t.vqVld, 2)} vòng</strong>.
+        </div>
         <table>
           <thead><tr><th>Nhóm / Chỉ tiêu Tài chính</th><th>Công thức</th><th class="num">Năm T−2</th><th class="num">Năm T−1</th><th class="num">Kỳ T (Quy năm)</th><th>Đánh giá</th></tr></thead>
           <tbody>
             ${ratioRows.map(r => r.grp
               ? `<tr class="calc-row"><td colspan="6">${r.grp}</td></tr>`
-              : `<tr><td>${r.name}</td><td style="font-size:10.5px;">${r.f}</td><td class="num">${r.v2}</td><td class="num">${r.v1}</td><td class="num">${r.vt}</td><td>${r.ok ? "Đạt chuẩn" : "Theo dõi"}</td></tr>`
+              : `<tr><td>${r.name}</td><td style="font-size:10.5px;">${r.f}</td><td class="num">${r.v2}</td><td class="num">${r.v1}</td><td class="num">${r.vt}</td><td><span class="badge ${r.ok ? "b-green" : "b-amber"}">${r.ok ? "Đạt chuẩn" : "Theo dõi"}</span></td></tr>`
             ).join("")}
           </tbody>
         </table>
@@ -1889,6 +1968,14 @@
 
       <div class="rep-sec">
         <div class="rep-sec-title">MỤC 4. LƯU CHUYỂN TIỀN TỆ CHUẨN VAS 24 &amp; KHẢ NĂNG TRẢ NỢ (DSCR)</div>
+        <div class="box-formula">
+          <span class="tag-pill tag-blue">CÔNG THỨC VAS 24 &amp; DSCR</span>
+          <code>VAR_OCF = LNTT + Khấu hao + Chi phí lãi vay − Thuế TNDN − ΔNWC_op − Lãi vay đã trả</code> • <code>VAR_DSCR = VAR_OCF / (Nợ gốc đến hạn + Lãi vay hiện tại)</code>.
+        </div>
+        <div class="${ocfBoxCls}">
+          <span class="tag-pill ${ocfTagCls}">${ocfFlagRed ? "RED FLAG LỆCH MS 20 > 5%" : (m.t.dscr >= 1.15 ? "DÒNG TIỀN TÍCH CỰC" : "CẦN THEO DÕI DSCR")}</span>
+          <strong>Nhận xét Dòng tiền VAS 24:</strong> <code>VAR_OCF</code> kỳ T đạt <strong>${fmtNum(m.t.varOcf, 2)} ${u}</strong>, đối chiếu MS 20 trên B03-DN (<strong>${fmtNum(m.t.ms20, 2)} ${u}</strong>) có độ lệch <strong>${fmtNum(m.t.ms20DiffPct, 1)}%</strong>; hệ số <code>VAR_DSCR = ${fmtNum(m.t.dscr, 2)}x</code>.
+        </div>
         <table>
           <thead><tr><th>Chỉ tiêu Dòng tiền VAS 24 (${u})</th><th class="num">Năm T−2</th><th class="num">Năm T−1</th><th class="num">Kỳ T (${STATE.t_days}d)</th></tr></thead>
           <tbody>
@@ -1904,11 +1991,18 @@
 
       <div class="rep-sec">
         <div class="rep-sec-title">MỤC 5. ĐỐI SOÁT DOANH THU TỜ KHAI VAT – SỔ 511 – DÒNG TIỀN TK 112</div>
-        <p>Doanh thu thuần trên Sổ 511 kỳ T đạt <strong>${fmtNum(m.t.dtt, 2)} ${u}</strong>; Doanh thu chịu thuế trên Tờ khai VAT đạt <strong>${fmtNum(numVal("dt_vat"), 2)} ${u}</strong>; Doanh thu quy đổi có VAT đạt <strong>${fmtNum(numVal("dt_incl_vat"), 2)} ${u}</strong>. Tổng tiền hàng thực thu qua tài khoản ngân hàng TK 112 đạt <strong>${fmtNum(numVal("cash_in_112"), 2)} ${u}</strong>, tương ứng tỷ lệ tiền về đạt <strong>${res.tienVeRatio !== null ? fmtNum(res.tienVeRatio, 1) + "%" : "N/A"}</strong> (${res.tienVeRatio !== null && res.tienVeRatio >= 70 ? "Đạt ngưỡng an toàn >= 70.0%" : "Cảnh báo < 70.0%"}).</p>
+        <div class="${tvBoxCls}">
+          <span class="tag-pill ${tvTagCls}">${tienVeOk ? "TIỀN VỀ ĐẠT CHUẨN" : "RED FLAG TIỀN VỀ < 70%"}</span>
+          <strong>Nhận xét Đối soát Dòng tiền:</strong> Doanh thu thuần Sổ 511 kỳ T: <strong>${fmtNum(m.t.dtt, 2)} ${u}</strong> | Doanh thu chịu thuế VAT: <strong>${fmtNum(numVal("dt_vat"), 2)} ${u}</strong> | Doanh thu có VAT: <strong>${fmtNum(numVal("dt_incl_vat"), 2)} ${u}</strong>. Tiền hàng thực thu qua TK 112 đạt <strong>${fmtNum(numVal("cash_in_112"), 2)} ${u}</strong>, tỷ lệ tiền về: <strong>${res.tienVeRatio !== null ? fmtNum(res.tienVeRatio, 1) + "%" : "N/A"}</strong>.
+        </div>
       </div>
 
       <div class="rep-sec">
         <div class="rep-sec-title">MỤC 6. ĐÁNH GIÁ KẾ HOẠCH KINH DOANH NĂM T+1</div>
+        <div class="${lnttP1 >= 0 ? "box-green" : "box-red"}">
+          <span class="tag-pill ${lnttP1 >= 0 ? "tag-green" : "tag-red"}">${lnttP1 >= 0 ? "KẾ HOẠCH CÓ LÃI" : "KẾ HOẠCH ÂM LỢI NHUẬN"}</span>
+          <strong>Nhận xét Kế hoạch T+1:</strong> Doanh thu thuần dự phóng T+1 (<code>VAR_DT_KH_T+1</code>) là <strong>${fmtNum(dttP1, 2)} ${u}</strong>, lợi nhuận trước thuế / sau thuế dự phóng lần lượt đạt <strong>${fmtNum(lnttP1, 2)} ${u}</strong> và <strong>${fmtNum(lnstP1, 2)} ${u}</strong>.
+        </div>
         <table>
           <thead><tr><th>Chỉ tiêu Kế hoạch Năm T+1 (${u})</th><th class="num">Giá trị Dự phóng</th><th>Ghi chú Thẩm định</th></tr></thead>
           <tbody>
@@ -1922,6 +2016,14 @@
 
       <div class="rep-sec">
         <div class="rep-sec-title">MỤC 7. TÍNH TOÁN NHU CẦU VỐN LƯU ĐỘNG &amp; TRẦN HẠN MỨC TÍN DỤNG (VAR_HMTD_MAX)</div>
+        <div class="box-formula">
+          <span class="tag-pill tag-blue">CÔNG THỨC TRẦN HMTD</span>
+          <code>VAR_VQ_VLD_T = (DTT_T × 365 / T_ngày) / NWC_op_avg</code> • <code>VAR_NHUCAU_T+1 = DTT_T+1 / VAR_VQ_VLD_T</code> • <code>DK1 = 70% × Nhu cầu</code> • <code>DK2 = max(0, Nhu cầu − 30% VTC − Nợ TCTD khác)</code> • <code>VAR_HMTD_MAX = max(0, min(DK1, DK2))</code>.
+        </div>
+        <div class="${res.hmtdMax !== null && res.hmtdMax >= res.hmtdReq ? "box-green" : "box-amber"}">
+          <span class="tag-pill ${res.hmtdMax !== null && res.hmtdMax >= res.hmtdReq ? "tag-green" : "tag-amber"}">ĐÁNH GIÁ TRẦN HẠN MỨC</span>
+          <strong>Nhận xét Hạn mức T+1:</strong> Trần hạn mức tối đa theo mô hình (<code>VAR_HMTD_MAX</code>) đạt <strong>${res.hmtdMax !== null ? fmtNum(res.hmtdMax, 2) + " " + u : "N/A"}</strong> so với mức đề xuất <strong>${fmtNum(res.hmtdReq, 2)} ${u}</strong>.
+        </div>
         <table>
           <thead><tr><th>Tham số &amp; Điều kiện Khống chế</th><th>Công thức Chuẩn v7.2</th><th class="num">Giá trị</th></tr></thead>
           <tbody>
@@ -1929,8 +2031,8 @@
             <tr><td>Vốn lưu động vận hành bình quân (NWC_op_avg)</td><td>(NWC_op_T + NWC_op_T−1) / 2</td><td class="num">${fmtNum(m.t.nwcAvg, 2)} ${u}</td></tr>
             <tr><td>Vòng quay VLĐ vận hành quy năm (VAR_VQ_VLD_T)</td><td>DTT_ann / NWC_op_avg</td><td class="num">${m.t.vqVld !== null ? fmtNum(m.t.vqVld, 2) + " vòng" : "N/A"}</td></tr>
             <tr><td>Tổng Nhu cầu VLĐ Năm T+1 (VAR_NHUCAU_T+1)</td><td>DTT_T+1 / VAR_VQ_VLD_T</td><td class="num">${res.nhuCauT1 !== null ? fmtNum(res.nhuCauT1, 2) + " " + u : "N/A"}</td></tr>
-            <tr><td>Vốn tự có tối thiểu tham gia 30% (VAR_VTC_MIN_30)</td><td>30.0% × VAR_NHUCAU_T+1</td><td class="num">${res.vtcMin30 !== null ? fmtNum(res.vtcMin30, 2) + " " + u : "N/A"}</td></tr>
-            <tr><td>Điều kiện khống chế 1 (DK1) &amp; Điều kiện 2 (DK2)</td><td>min(70% Nhu cầu; Nhu cầu − VTC 30% − Nợ TCTD khác)</td><td class="num">${res.dk1 !== null ? fmtNum(res.dk1, 2) : "N/A"} / ${res.dk2 !== null ? fmtNum(res.dk2, 2) : "N/A"} ${u}</td></tr>
+            <tr><td>Vốn tự có tối thiểu tham gia 30% &amp; DK1 (70% Nhu cầu)</td><td>30% &amp; 70% × VAR_NHUCAU_T+1</td><td class="num">${res.vtcMin30 !== null ? fmtNum(res.vtcMin30, 2) : "N/A"} / ${res.dk1 !== null ? fmtNum(res.dk1, 2) : "N/A"} ${u}</td></tr>
+            <tr><td>Điều kiện khống chế 2 (DK2 - Trừ nợ TCTD khác)</td><td>Nhu cầu − VTC 30% − ${fmtNum(numVal("inp_other_debt"), 2)} ${u}</td><td class="num">${res.dk2 !== null ? fmtNum(res.dk2, 2) : "N/A"} ${u}</td></tr>
             <tr class="calc-row"><td>TRẦN HẠN MỨC TÍN DỤNG TỐI ĐA (VAR_HMTD_MAX)</td><td>max(0, min(DK1, DK2))</td><td class="num">${res.hmtdMax !== null ? fmtNum(res.hmtdMax, 2) + " " + u : "N/A"}</td></tr>
           </tbody>
         </table>
@@ -1938,21 +2040,44 @@
 
       <div class="rep-sec">
         <div class="rep-sec-title">MỤC 8. KIỂM ĐỊNH SỨC CHỊU ĐỰNG DÒNG TIỀN (STRESS TEST ST1 – ST4, r = 8.0%/năm)</div>
+        <div class="box-formula">
+          <span class="tag-pill tag-blue">CÔNG THỨC STRESS TEST</span>
+          <code>ΔI = Vốn thiếu hụt × 8.0%/năm</code> • <code>DSCR_Stress = (VAR_OCF − ΔI) / (Nợ gốc đến hạn + Lãi vay hiện tại + ΔI)</code>.
+        </div>
+        <div class="${res.stressList.every(s => s.pass) ? "box-green" : "box-amber"}">
+          <span class="tag-pill ${res.stressList.every(s => s.pass) ? "tag-green" : "tag-amber"}">ĐÁNH GIÁ SỨC CHỊU ĐỰNG (${res.stressList.filter(s => s.pass).length}/4 ĐẠT)</span>
+          <strong>Nhận xét Stress Test:</strong> ${res.stressList.every(s => s.pass) ? "Doanh nghiệp đạt ngưỡng DSCR tối thiểu ở cả 4 kịch bản ST1–ST4." : "Một số kịch bản (" + res.stressList.filter(s => !s.pass).map(s => s.code).join(", ") + ") có DSCR chịu áp lực dưới ngưỡng tối thiểu, cần kiểm soát chặt dòng tiền thu hồi công nợ."}
+        </div>
         <table>
           <thead><tr><th>Kịch bản</th><th>Mô tả cú sốc</th><th class="num">Thiếu hụt vốn</th><th class="num">Lãi tăng thêm</th><th class="num">DSCR Stress</th><th class="center">Ngưỡng Min</th><th>Kết quả</th></tr></thead>
           <tbody>
-            ${res.stressList.map(st => `<tr><td><strong>${st.code}</strong></td><td>${st.name}</td><td class="num">${fmtNum(st.sf, 2)}</td><td class="num">${fmtNum(st.deltaI, 2)}</td><td class="num"><strong>${fmtNum(st.dscrS, 2)}x</strong></td><td class="center">&ge; ${fmtNum(st.minDscr, 2)}x</td><td>${st.pass ? "Đạt (Pass)" : "Không đạt"}</td></tr>`).join("")}
+            ${res.stressList.map(st => `<tr>
+              <td><strong>${st.code}</strong></td>
+              <td>${st.name}</td>
+              <td class="num">${fmtNum(st.sf, 2)}</td>
+              <td class="num">${fmtNum(st.deltaI, 2)}</td>
+              <td class="num"><strong>${fmtNum(st.dscrS, 2)}x</strong></td>
+              <td class="center">&ge; ${fmtNum(st.minDscr, 2)}x</td>
+              <td><span class="badge ${st.pass ? "b-green" : "b-red"}">${st.pass ? "Đạt (Pass)" : "Không đạt"}</span></td>
+            </tr>`).join("")}
           </tbody>
         </table>
       </div>
 
       <div class="rep-sec">
         <div class="rep-sec-title">MỤC 9. PHÂN TÍCH TÀI SẢN BẢO ĐẢM &amp; BIỆN PHÁP BẢO ĐẢM TIỀN VAY</div>
-        <p>Tài sản bảo đảm đề xuất thế chấp: <strong>${strVal("col_desc")}</strong>. Tổng giá trị định giá: <strong>${fmtNum(colVal, 2)} ${u}</strong>. Tỷ lệ Dư nợ phê duyệt / Giá trị TSBĐ (LTV): <strong>${fmtNum(ltv, 1)}%</strong>.</p>
+        <div class="${ltv <= 80 && colVal > 0 ? "box-green" : "box-amber"}">
+          <span class="tag-pill ${ltv <= 80 && colVal > 0 ? "tag-green" : "tag-amber"}">ĐÁNH GIÁ TSBĐ (LTV ${fmtNum(ltv, 1)}%)</span>
+          <strong>Nhận xét Tài sản Bảo đảm:</strong> Tài sản bảo đảm đề xuất thế chấp: <strong>${strVal("col_desc")}</strong>. Tổng giá trị định giá: <strong>${fmtNum(colVal, 2)} ${u}</strong>. Tỷ lệ Dư nợ phê duyệt / Giá trị TSBĐ (LTV): <strong>${fmtNum(ltv, 1)}%</strong>.
+        </div>
       </div>
 
       <div class="rep-sec">
         <div class="rep-sec-title">MỤC 10. CHẤM ĐIỂM HỆ THỐNG CẢNH BÁO SỚM (EWS) &amp; XẾP HẠNG RỦI RO (AI AGENT 4)</div>
+        <div class="box-formula">
+          <span class="tag-pill tag-blue">CÔNG THỨC EWS</span>
+          <code>VAR_EWS_SCORE = (Điểm_TC × 0.30) + (Điểm_VLĐ × 0.20) + (Điểm_QLTN_CIC × 0.25) + (Điểm_TSBĐ_Ngành × 0.25)</code>.
+        </div>
         <table>
           <thead><tr><th>Trụ cột Đánh giá EWS</th><th class="center">Trọng số</th><th class="num">Điểm gốc (0–10)</th><th class="num">Điểm quy đổi</th></tr></thead>
           <tbody>
@@ -1967,9 +2092,12 @@
 
       <div class="rep-sec">
         <div class="rep-sec-title">MỤC 11. CÁC ĐIỀU KIỆN TIÊN QUYẾT &amp; KIỂM SOÁT SAU VAY</div>
-        <p>1. <strong>Kiểm tra thực địa &amp; Thận trọng BCTC thuế TT200:</strong> Kiểm tra thực địa kho bãi, nhà xưởng, đối chiếu xác nhận công nợ trọng yếu trước giải ngân.<br>
-        2. <strong>Kiểm soát dòng tiền chuyên thu:</strong> Mở tài khoản chuyên thu tại Ngân hàng và cam kết chuyển tối thiểu tỷ trọng doanh thu tương ứng hạn mức cấp tín dụng.<br>
-        3. <strong>Hoàn thiện pháp lý TSBĐ:</strong> Đăng ký giao dịch bảo đảm, công chứng hợp đồng thế chấp và mua bảo hiểm tài sản theo quy định hiện hành.</p>
+        <div class="box-amber">
+          <span class="tag-pill tag-amber">ĐIỀU KIỆN KIỂM SOÁT</span>
+          <strong>1. Kiểm tra thực địa &amp; Thận trọng BCTC thuế TT200:</strong> Kiểm tra thực địa kho bãi, nhà xưởng, đối chiếu xác nhận công nợ trọng yếu trước giải ngân.<br>
+          <strong>2. Kiểm soát dòng tiền chuyên thu:</strong> Mở tài khoản chuyên thu tại Ngân hàng và cam kết chuyển tối thiểu tỷ trọng doanh thu tương ứng hạn mức cấp tín dụng.<br>
+          <strong>3. Hoàn thiện pháp lý TSBĐ:</strong> Đăng ký giao dịch bảo đảm, công chứng hợp đồng thế chấp và mua bảo hiểm tài sản theo quy định hiện hành.
+        </div>
       </div>
 
       <div class="rep-sec">
@@ -1989,15 +2117,15 @@
 
       <div class="rep-sec">
         <div class="rep-sec-title">MỤC 12. NGƯỠNG QUYẾT NGHỊ &amp; PHÊ DUYỆT TÍN DỤNG (FINAL - AI AGENT 4)</div>
-        <div style="background:#ECFDF5;border:1.5px solid #059669;border-radius:8px;padding:12px;">
-          <div style="font-size:13.5px;font-weight:800;color:#065F46;">
+        <div class="${conclBoxCls}">
+          <div style="font-size:13.5px;font-weight:800;">
             KẾT LUẬN THẨM ĐỊNH &amp; PHÊ DUYỆT: ${res.decision} (${res.rank})
           </div>
           <div style="font-size:14.5px;font-weight:800;color:#0F294A;margin-top:6px;">
             HMTD đề xuất / HMTD phê duyệt: <span style="color:#1D4ED8;">${fmtNum(res.hmtdReq, 2)}</span> / <span style="color:#059669;">${fmtNum(res.hmtdApproved, 2)} ${u}</span>
           </div>
-          <div style="font-size:12px;color:#334155;margin-top:4px;">
-            Trần hạn mức tối đa theo mô hình AI-Ready v7.2 (VAR_HMTD_MAX): <strong>${res.hmtdMax !== null ? fmtNum(res.hmtdMax, 2) + " " + u : "N/A"}</strong>.
+          <div style="font-size:12px;margin-top:4px;">
+            Trần hạn mức tối đa theo mô hình AI-Ready v7.2 (VAR_HMTD_MAX): <strong>${res.hmtdMax !== null ? fmtNum(res.hmtdMax, 2) + " " + u : "N/A"}</strong> • Điểm EWS: <strong>${fmtNum(res.ewsTotal, 2)} / 10.00 (${res.rank})</strong>.
           </div>
         </div>
         <div class="sign-grid">
@@ -2124,6 +2252,44 @@
       return lines;
     }
 
+    // Tone: 'green' | 'red' | 'amber' | 'formula'
+    function drawCalloutBox(tone, badgeText, bodyText) {
+      const palette = {
+        green:   { bg: "#ECFDF5", border: "#059669", badgeBg: "#059669", text: "#065F46" },
+        red:     { bg: "#FEF2F2", border: "#DC2626", badgeBg: "#DC2626", text: "#991B1B" },
+        amber:   { bg: "#FFFBEB", border: "#D97706", badgeBg: "#D97706", text: "#92400E" },
+        formula: { bg: "#EFF6FF", border: "#1D4ED8", badgeBg: "#1D4ED8", text: "#1E3A8A" }
+      };
+      const pal = palette[tone] || palette.formula;
+      cur.ctx.font = "13.5px Arial, sans-serif";
+      const lines = wrapTextLines(cur.ctx, bodyText, contentW - 36);
+      const lineH = 20;
+      const boxH = Math.max(40, lines.length * lineH + 18);
+      ensureSpace(boxH + 8);
+
+      cur.ctx.fillStyle = pal.bg;
+      cur.ctx.fillRect(marginX, cur.y, contentW, boxH);
+      cur.ctx.strokeStyle = pal.border;
+      cur.ctx.lineWidth = 1.2;
+      cur.ctx.strokeRect(marginX, cur.y, contentW, boxH);
+      cur.ctx.fillStyle = pal.border;
+      cur.ctx.fillRect(marginX, cur.y, 7, boxH);
+
+      cur.ctx.font = "bold 11.5px Arial, sans-serif";
+      const bw = cur.ctx.measureText(badgeText).width + 16;
+      cur.ctx.fillStyle = pal.badgeBg;
+      cur.ctx.fillRect(marginX + 16, cur.y + 8, bw, 20);
+      cur.ctx.fillStyle = "#FFFFFF";
+      cur.ctx.fillText(badgeText, marginX + 24, cur.y + 22);
+
+      cur.ctx.fillStyle = pal.text;
+      cur.ctx.font = "13.5px Arial, sans-serif";
+      lines.forEach((ln, idx) => {
+        cur.ctx.fillText(ln, marginX + 20, cur.y + 42 + idx * lineH);
+      });
+      cur.y += boxH + 10;
+    }
+
     function drawParagraph(text, bold) {
       cur.ctx.font = (bold ? "bold " : "") + "14px Arial, sans-serif";
       const lines = wrapTextLines(cur.ctx, text, contentW - 12);
@@ -2211,12 +2377,16 @@
       cur.y += 10;
     }
 
-    // Start building all 12 sections
     addPage();
 
     // MỤC 1
     drawSectionHeader("MỤC 1. TỔNG QUAN PHÁP LÝ, MÔ HÌNH KINH DOANH & TRA CỨU CIC (AI AGENT 1)");
-    drawParagraph(`Khách hàng ${cname} (MST: ${mst}) hoạt động trong lĩnh vực ${STATE.is_manufacturing ? "Sản xuất" : "Thương mại & Xây lắp"}. Quan hệ tín dụng CIC: Nhóm ${STATE.cic_group}; Dư nợ ngắn hạn TCTD khác: ${fmtNum(numVal("inp_other_debt"), 2)} ${u}; Nợ gốc dài hạn đến hạn trả: ${fmtNum(numVal("inp_principal_due"), 2)} ${u}; Chi phí lãi vay hiện tại: ${fmtNum(numVal("inp_current_interest"), 2)} ${u}/năm.`);
+    const cicTone = STATE.cic_group >= 3 ? "red" : (STATE.cic_group === 2 ? "amber" : "green");
+    drawCalloutBox(
+      cicTone,
+      STATE.cic_group >= 3 ? "CẢNH BÁO CIC NHÓM 3–5" : (STATE.cic_group === 2 ? "THEO DÕI CIC NHÓM 2" : "ĐÁNH GIÁ CIC NHÓM 1"),
+      `Khách hàng ${cname} (MST: ${mst}) | Ngành: ${STATE.is_manufacturing ? "Sản xuất" : "Thương mại & Xây lắp"} | Nợ ngắn hạn TCTD khác: ${fmtNum(numVal("inp_other_debt"), 2)} ${u} | Gốc đến hạn: ${fmtNum(numVal("inp_principal_due"), 2)} ${u} | Lãi vay: ${fmtNum(numVal("inp_current_interest"), 2)} ${u}/năm.`
+    );
     drawTable(
       ["STT", "Danh mục Hồ sơ Đầu vào (13 Đầu mục)", "Trạng thái", "Tệp đính kèm & Đánh giá AI Agent 1"],
       [55, 450, 120, contentW - 625],
@@ -2230,7 +2400,16 @@
 
     // MỤC 2
     drawSectionHeader("MỤC 2. ĐÁNH GIÁ CHẤT LƯỢNG HỒ SƠ & LỌC NHIỄU BCTC THEO TT200 (AI AGENT 2)");
-    drawParagraph("Kết quả bóc tách loại trừ khoản treo, hàng tồn kho ứ đọng > 180 ngày và phải trả đầu tư XDCB/CapEx để xác định Vốn lưu động vận hành ròng (VAR_NWCOP) qua 3 kỳ:");
+    drawCalloutBox(
+      "formula",
+      "CÔNG THỨC LỌC NHIỄU",
+      "VAR_AR_CLEAN = max(0, AR_Gop - max(AR_Treo, DP_TT48)) | VAR_INV_CLEAN = max(0, INV_Gop - max(INV_UDong, DP_HTK)) | VAR_AP_CLEAN = max(0, TK331 - AP_Treo - AP_CapEx) | NWC_op = (INV_Clean + AR_Clean + TSNH_VH) - (AP_Clean + Nợ_VH)."
+    );
+    drawCalloutBox(
+      STATE.has_exclusion_notes ? "green" : "amber",
+      STATE.has_exclusion_notes ? "ĐÁNH GIÁ LỌC SẠCH ĐẠT" : "CẢNH BÁO THIẾU TM",
+      `VAR_NWCOP Kỳ T = ${fmtNum(m.t.nwcOp, 2)} ${u} (Năm T-1: ${fmtNum(m.t1.nwcOp, 2)} ${u}; Năm T-2: ${fmtNum(m.t2.nwcOp, 2)} ${u}). ${STATE.has_exclusion_notes ? "Đã bóc tách đầy đủ các khoản treo và CapEx." : "Thiếu thuyết minh bóc tách, khoản loại trừ tạm gán = 0."}`
+    );
     const rNwc = ["= Vốn lưu động vận hành ròng (VAR_NWCOP)", fmtNum(m.t2.nwcOp, 2), fmtNum(m.t1.nwcOp, 2), fmtNum(m.t.nwcOp, 2)];
     rNwc._highlight = true;
     drawTable(
@@ -2249,6 +2428,16 @@
 
     // MỤC 3 (ALL 19 RATIOS)
     drawSectionHeader("MỤC 3. PHÂN TÍCH CHU TRÌNH TIỀN – HÀNG – TIỀN & 19 CHỈ SỐ TÀI CHÍNH (AI AGENT 3)");
+    drawCalloutBox(
+      "formula",
+      "CÔNG THỨC CHU KỲ TIỀN",
+      `DSO = (AR_Clean_BQ / DTT) × T_ngày | DIO = (INV_Clean_BQ / GVHB) × T_ngày | DPO = (AP_Clean_BQ / Mẫu_số_DPO) × T_ngày | CCC = DIO + DSO - DPO = ${fmtNum(m.t.ccc, 1)} ngày (Kỳ T).`
+    );
+    drawCalloutBox(
+      m.t.ccc <= 110 && m.t.grossMargin >= 12 ? "green" : "amber",
+      "NHẬN XÉT SINH LỜI & VẬN HÀNH",
+      `Biên LN gộp Kỳ T: ${fmtNum(m.t.grossMargin, 1)}% | Biên LN ròng: ${fmtNum(m.t.netMargin, 1)}% | Vòng quay VLĐ vận hành quy năm (VAR_VQ_VLD_T): ${fmtNum(m.t.vqVld, 2)} vòng | D/E: ${fmtNum(m.t.debtToEquity, 2)}x.`
+    );
     const ratioTableRows = getRatioRows(m).map(r => {
       if (r.grp) return [r.grp];
       return [r.name, r.v2, r.v1, r.vt, r.ok ? "Đạt chuẩn" : "Theo dõi"];
@@ -2261,6 +2450,17 @@
 
     // MỤC 4
     drawSectionHeader("MỤC 4. LƯU CHUYỂN TIỀN TỆ CHUẨN VAS 24 & KHẢ NĂNG TRẢ NỢ (DSCR)");
+    drawCalloutBox(
+      "formula",
+      "CÔNG THỨC VAS 24 & DSCR",
+      "VAR_OCF = LNTT + Khấu hao + Chi phí lãi vay - Thuế TNDN - ΔNWC_op - Lãi vay đã trả | VAR_DSCR = VAR_OCF / (Nợ gốc đến hạn + Lãi vay hiện tại)."
+    );
+    const ocfRed = m.t.ms20DiffPct > 5.0;
+    drawCalloutBox(
+      ocfRed ? "red" : (m.t.dscr >= 1.15 ? "green" : "amber"),
+      ocfRed ? "RED FLAG LỆCH MS 20 > 5%" : "ĐÁNH GIÁ DÒNG TIỀN & DSCR",
+      `VAR_OCF Kỳ T = ${fmtNum(m.t.varOcf, 2)} ${u} | MS 20 (B03-DN) = ${fmtNum(m.t.ms20, 2)} ${u} (Lệch ${fmtNum(m.t.ms20DiffPct, 1)}%) | VAR_DSCR = ${fmtNum(m.t.dscr, 2)}x.`
+    );
     const rOcf = ["= Dòng tiền thuần HĐKD chuẩn VAS 24 (VAR_OCF)", fmtNum(m.t2.varOcf, 2), fmtNum(m.t1.varOcf, 2), fmtNum(m.t.varOcf, 2)];
     rOcf._highlight = true;
     const rDscr = ["= Hệ số Khả năng trả nợ (VAR_DSCR)", fmtNum(m.t2.dscr, 2)+"x", fmtNum(m.t1.dscr, 2)+"x", fmtNum(m.t.dscr, 2)+"x"];
@@ -2280,10 +2480,20 @@
 
     // MỤC 5
     drawSectionHeader("MỤC 5. ĐỐI SOÁT DOANH THU TỜ KHAI VAT – SỔ 511 – DÒNG TIỀN TK 112");
-    drawParagraph(`Doanh thu thuần Sổ 511 kỳ T: ${fmtNum(m.t.dtt, 2)} ${u} | Doanh thu chịu thuế Tờ khai VAT: ${fmtNum(numVal("dt_vat"), 2)} ${u} | Doanh thu quy đổi có VAT: ${fmtNum(numVal("dt_incl_vat"), 2)} ${u}. Tổng tiền hàng thực thu qua tài khoản ngân hàng TK 112 đạt ${fmtNum(numVal("cash_in_112"), 2)} ${u}, tương ứng tỷ lệ tiền về đạt ${res.tienVeRatio !== null ? fmtNum(res.tienVeRatio, 1) + "%" : "N/A"}.`);
+    const tvOk = res.tienVeRatio === null || res.tienVeRatio >= 70.0;
+    drawCalloutBox(
+      tvOk ? "green" : "red",
+      tvOk ? "ĐÁNH GIÁ TIỀN VỀ ĐẠT CHUẨN" : "RED FLAG TIỀN VỀ < 70%",
+      `DTT Sổ 511 Kỳ T: ${fmtNum(m.t.dtt, 2)} ${u} | DT chịu thuế VAT: ${fmtNum(numVal("dt_vat"), 2)} ${u} | DT có VAT: ${fmtNum(numVal("dt_incl_vat"), 2)} ${u} | Tiền về TK 112: ${fmtNum(numVal("cash_in_112"), 2)} ${u} (${res.tienVeRatio !== null ? fmtNum(res.tienVeRatio, 1) + "%" : "N/A"}).`
+    );
 
     // MỤC 6
     drawSectionHeader("MỤC 6. ĐÁNH GIÁ KẾ HOẠCH KINH DOANH NĂM T+1");
+    drawCalloutBox(
+      lnttP1 >= 0 ? "green" : "red",
+      lnttP1 >= 0 ? "NHẬN XÉT KẾ HOẠCH T+1" : "CẢNH BÁO LNTT T+1 ÂM",
+      `Doanh thu thuần dự phóng T+1 (VAR_DT_KH_T+1): ${fmtNum(dttP1, 2)} ${u} | Giá vốn: ${fmtNum(cogsP1, 2)} ${u} | LNTT dự phóng: ${fmtNum(lnttP1, 2)} ${u} | LNST dự phóng: ${fmtNum(lnstP1, 2)} ${u}.`
+    );
     const rPlanLn = ["Lợi nhuận trước thuế / Sau thuế dự phóng T+1", `${fmtNum(lnttP1, 2)} / ${fmtNum(lnstP1, 2)} ${u}`, "Bổ sung nguồn vốn tự có T+1"];
     rPlanLn._highlight = true;
     drawTable(
@@ -2299,6 +2509,16 @@
 
     // MỤC 7
     drawSectionHeader("MỤC 7. TÍNH TOÁN NHU CẦU VỐN LƯU ĐỘNG & TRẦN HẠN MỨC TÍN DỤNG (VAR_HMTD_MAX)");
+    drawCalloutBox(
+      "formula",
+      "CÔNG THỨC TRẦN HMTD",
+      "VAR_VQ_VLD_T = (DTT_T × 365 / T_ngày) / NWC_op_avg | VAR_NHUCAU_T+1 = DTT_T+1 / VAR_VQ_VLD_T | DK1 = 70% × Nhu cầu | DK2 = max(0, Nhu cầu - 30% VTC - Nợ TCTD khác) | VAR_HMTD_MAX = max(0, min(DK1, DK2))."
+    );
+    drawCalloutBox(
+      res.hmtdMax !== null && res.hmtdMax >= res.hmtdReq ? "green" : "amber",
+      "ĐÁNH GIÁ TRẦN HMTD T+1",
+      `Nhu cầu VLĐ T+1: ${fmtNum(res.nhuCauT1, 2)} ${u} | VTC 30%: ${fmtNum(res.vtcMin30, 2)} ${u} | DK1: ${fmtNum(res.dk1, 2)} ${u} | DK2: ${fmtNum(res.dk2, 2)} ${u} => VAR_HMTD_MAX = ${res.hmtdMax !== null ? fmtNum(res.hmtdMax, 2) + " " + u : "N/A"}.`
+    );
     const rHmtdMax = ["TRẦN HẠN MỨC TÍN DỤNG TỐI ĐA (VAR_HMTD_MAX)", "max(0, min(DK1, DK2))", res.hmtdMax !== null ? `${fmtNum(res.hmtdMax, 2)} ${u}` : "N/A"];
     rHmtdMax._highlight = true;
     drawTable(
@@ -2309,7 +2529,7 @@
         ["Vốn lưu động vận hành bình quân (NWC_op_avg)", "(NWC_op_T + NWC_op_T−1) / 2", `${fmtNum(m.t.nwcAvg, 2)} ${u}`],
         ["Vòng quay VLĐ vận hành quy năm (VAR_VQ_VLD_T)", "DTT_ann / NWC_op_avg", m.t.vqVld !== null ? `${fmtNum(m.t.vqVld, 2)} vòng` : "N/A"],
         ["Tổng Nhu cầu VLĐ Năm T+1 (VAR_NHUCAU_T+1)", "DTT_T+1 / VAR_VQ_VLD_T", res.nhuCauT1 !== null ? `${fmtNum(res.nhuCauT1, 2)} ${u}` : "N/A"],
-        ["Vốn tự có tối thiểu 30% & DK1 (70% Nhu cầu)", "30% & 70% × VAR_NHUCAU_T+1", `${res.vtcMin30 !== null ? fmtNum(res.vtcMin30, 2) : "N/A"} / ${res.dk1 !== null ? fmtNum(res.dk1, 2) : "N/A"} ${u}`],
+        ["Vốn tự có tối thiểu tham gia 30% & DK1 (70% Nhu cầu)", "30% & 70% × VAR_NHUCAU_T+1", `${res.vtcMin30 !== null ? fmtNum(res.vtcMin30, 2) : "N/A"} / ${res.dk1 !== null ? fmtNum(res.dk1, 2) : "N/A"} ${u}`],
         ["Điều kiện khống chế 2 (DK2 - Trừ nợ TCTD khác)", `Nhu cầu − VTC 30% − ${fmtNum(numVal("inp_other_debt"), 2)} ${u}`, res.dk2 !== null ? `${fmtNum(res.dk2, 2)} ${u}` : "N/A"],
         rHmtdMax
       ]
@@ -2317,6 +2537,18 @@
 
     // MỤC 8
     drawSectionHeader("MỤC 8. KIỂM ĐỊNH SỨC CHỊU ĐỰNG DÒNG TIỀN (STRESS TEST ST1 – ST4, r = 8.0%/năm)");
+    drawCalloutBox(
+      "formula",
+      "CÔNG THỨC STRESS TEST",
+      "ΔI = Vốn thiếu hụt × 8.0%/năm | DSCR_Stress = (VAR_OCF - ΔI) / (Nợ gốc đến hạn + Lãi vay hiện tại + ΔI)."
+    );
+    drawCalloutBox(
+      res.stressList.every(s => s.pass) ? "green" : "amber",
+      `ĐÁNH GIÁ STRESS (${res.stressList.filter(s => s.pass).length}/4 ĐẠT)`,
+      res.stressList.every(s => s.pass)
+        ? "Đạt chuẩn DSCR tối thiểu ở toàn bộ 4 kịch bản ST1–ST4."
+        : "Các kịch bản chưa đạt ngưỡng: " + res.stressList.filter(s => !s.pass).map(s => s.code).join(", ") + " — cần kiểm soát chặt dòng tiền thu hồi công nợ."
+    );
     drawTable(
       ["Kịch bản", "Mô tả cú sốc", "Thiếu hụt vốn", "Lãi tăng (ΔI)", "DSCR Stress", "Ngưỡng Min", "Kết quả"],
       [90, 340, 145, 135, 135, 130, contentW - 975],
@@ -2327,10 +2559,19 @@
 
     // MỤC 9
     drawSectionHeader("MỤC 9. PHÂN TÍCH TÀI SẢN BẢO ĐẢM & BIỆN PHÁP BẢO ĐẢM TIỀN VAY");
-    drawParagraph(`Tài sản bảo đảm: ${strVal("col_desc")} — Giá trị định giá: ${fmtNum(colVal, 2)} ${u} — Tỷ lệ Dư nợ phê duyệt / Giá trị TSBĐ (LTV): ${fmtNum(ltv, 1)}%.`);
+    drawCalloutBox(
+      ltv <= 80 && colVal > 0 ? "green" : "amber",
+      `ĐÁNH GIÁ TSBĐ (LTV ${fmtNum(ltv, 1)}%)`,
+      `Tài sản bảo đảm: ${strVal("col_desc")} — Định giá: ${fmtNum(colVal, 2)} ${u} — Tỷ lệ Dư nợ phê duyệt / Giá trị TSBĐ (LTV): ${fmtNum(ltv, 1)}%.`
+    );
 
     // MỤC 10
     drawSectionHeader("MỤC 10. CHẤM ĐIỂM HỆ THỐNG CẢNH BÁO SỚM (EWS) & XẾP HẠNG RỦI RO (AI AGENT 4)");
+    drawCalloutBox(
+      "formula",
+      "CÔNG THỨC EWS",
+      "VAR_EWS_SCORE = (Điểm_TC × 0.30) + (Điểm_VLĐ × 0.20) + (Điểm_QLTN_CIC × 0.25) + (Điểm_TSBĐ_Ngành × 0.25)."
+    );
     const rEwsSum = ["TỔNG ĐIỂM EWS (VAR_EWS_SCORE) & XẾP HẠNG RỦI RO", "100.0%", "10.00", `${fmtNum(res.ewsTotal, 2)} — ${res.rank}`];
     rEwsSum._highlight = true;
     drawTable(
@@ -2347,9 +2588,11 @@
 
     // MỤC 11
     drawSectionHeader("MỤC 11. CÁC ĐIỀU KIỆN TIÊN QUYẾT & KIỂM SOÁT SAU VAY");
-    drawParagraph("1. Kiểm tra thực địa kho bãi, nhà xưởng và đối chiếu xác nhận công nợ trọng yếu trước giải ngân (lưu ý giới hạn thận trọng của BCTC thuế TT200).");
-    drawParagraph("2. Mở tài khoản chuyên thu tại Ngân hàng và cam kết chuyển tối thiểu tỷ trọng doanh thu tương ứng hạn mức cấp tín dụng.");
-    drawParagraph("3. Hoàn tất đăng ký giao dịch bảo đảm TSBĐ và mua bảo hiểm tài sản theo quy định hiện hành.");
+    drawCalloutBox(
+      "amber",
+      "ĐIỀU KIỆN KIỂM SOÁT SAU VAY",
+      "1. Kiểm tra thực địa kho bãi, nhà xưởng & xác nhận công nợ trọng yếu (lưu ý thận trọng BCTC thuế TT200). 2. Mở tài khoản chuyên thu tại Ngân hàng & cam kết tỷ trọng tiền về. 3. Đăng ký giao dịch bảo đảm & mua bảo hiểm TSBĐ."
+    );
 
     // BẢNG CÂU HỎI PHỎNG VẤN GIÁM ĐỐC / BAN LÃNH ĐẠO
     drawSectionHeader("CÂU HỎI PHỎNG VẤN GIÁM ĐỐC / BAN LÃNH ĐẠO (THEO DỮ LIỆU PHÂN TÍCH)");
@@ -2361,24 +2604,14 @@
 
     // MỤC 12 + SIGNATURE BLOCK
     drawSectionHeader("MỤC 12. NGƯỠNG QUYẾT NGHỊ & PHÊ DUYỆT TÍN DỤNG (FINAL - AI AGENT 4)");
-    ensureSpace(190);
-    cur.ctx.fillStyle = "#ECFDF5";
-    cur.ctx.fillRect(marginX, cur.y, contentW, 84);
-    cur.ctx.strokeStyle = "#059669";
-    cur.ctx.lineWidth = 2;
-    cur.ctx.strokeRect(marginX, cur.y, contentW, 84);
-    cur.ctx.fillStyle = "#065F46";
-    cur.ctx.font = "bold 16px Arial, sans-serif";
-    cur.ctx.fillText(`KẾT LUẬN THẨM ĐỊNH & PHÊ DUYỆT: ${res.decision} (${res.rank})`, marginX + 18, cur.y + 28);
-    cur.ctx.fillStyle = "#0F294A";
-    cur.ctx.font = "bold 17px Arial, sans-serif";
-    cur.ctx.fillText(`HMTD đề xuất / HMTD phê duyệt: ${fmtNum(res.hmtdReq, 2)} / ${fmtNum(res.hmtdApproved, 2)} ${u}`, marginX + 18, cur.y + 54);
-    cur.ctx.fillStyle = "#334155";
-    cur.ctx.font = "13.5px Arial, sans-serif";
-    cur.ctx.fillText(`Trần hạn mức tối đa theo mô hình AI-Ready v7.2 (VAR_HMTD_MAX): ${res.hmtdMax !== null ? fmtNum(res.hmtdMax, 2) + " " + u : "N/A"}`, marginX + 18, cur.y + 75);
-    cur.y += 100;
+    const conclTone = (res.knockOut || res.rank === "Hạng D") ? "red" : (res.rank === "Hạng A" || res.rank === "Hạng B" ? "green" : "amber");
+    ensureSpace(200);
+    drawCalloutBox(
+      conclTone,
+      `KẾT LUẬN: ${res.decision} (${res.rank})`,
+      `HMTD đề xuất / HMTD phê duyệt: ${fmtNum(res.hmtdReq, 2)} / ${fmtNum(res.hmtdApproved, 2)} ${u} | Trần VAR_HMTD_MAX: ${res.hmtdMax !== null ? fmtNum(res.hmtdMax, 2) + " " + u : "N/A"} | Điểm EWS: ${fmtNum(res.ewsTotal, 2)}/10 (${res.rank}).`
+    );
 
-    // Signature boxes
     const boxW = (contentW - 32) / 3;
     const signRoles = [
       ["CHUYÊN VIÊN QHKH", "(Lập đề xuất tín dụng)"],
@@ -2400,7 +2633,6 @@
       cur.ctx.fillText(sr[1], bx + 20, cur.y + 40);
     });
 
-    // Encode all canvases into multi-page PDF 1.4 binary
     const jpgPages = pages.map(pg => {
       const dataUrl = pg.c.toDataURL("image/jpeg", 0.90);
       const bin = atob(dataUrl.split(",")[1]);
@@ -2415,15 +2647,22 @@
     function pushStr(s) { const enc = new TextEncoder().encode(s); chunks.push(enc); pos += enc.length; }
     function pushBytes(b) { chunks.push(b); pos += b.length; }
 
-    pushStr("%PDF-1.4\n");
+    pushStr("%PDF-1.4
+");
     const totalObjs = 2 + jpgPages.length * 3;
     const kidsRefs = [];
     for (let i = 0; i < jpgPages.length; i++) kidsRefs.push(`${3 + i * 3} 0 R`);
 
     offsets[1] = pos;
-    pushStr("1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n");
+    pushStr("1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+");
     offsets[2] = pos;
-    pushStr(`2 0 obj\n<< /Type /Pages /Kids [${kidsRefs.join(" ")}] /Count ${jpgPages.length} >>\nendobj\n`);
+    pushStr(`2 0 obj
+<< /Type /Pages /Kids [${kidsRefs.join(" ")}] /Count ${jpgPages.length} >>
+endobj
+`);
 
     jpgPages.forEach((pg, idx) => {
       const pageObj = 3 + idx * 3;
@@ -2431,24 +2670,50 @@
       const imgObj = 5 + idx * 3;
 
       offsets[pageObj] = pos;
-      pushStr(`${pageObj} 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /XObject << /Im0 ${imgObj} 0 R >> >> /Contents ${contentObj} 0 R >>\nendobj\n`);
+      pushStr(`${pageObj} 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /XObject << /Im0 ${imgObj} 0 R >> >> /Contents ${contentObj} 0 R >>
+endobj
+`);
 
-      const streamCmd = "q\n595 0 0 842 0 0 cm\n/Im0 Do\nQ\n";
+      const streamCmd = "q
+595 0 0 842 0 0 cm
+/Im0 Do
+Q
+";
       offsets[contentObj] = pos;
-      pushStr(`${contentObj} 0 obj\n<< /Length ${streamCmd.length} >>\nstream\n${streamCmd}endstream\nendobj\n`);
+      pushStr(`${contentObj} 0 obj
+<< /Length ${streamCmd.length} >>
+stream
+${streamCmd}endstream
+endobj
+`);
 
       offsets[imgObj] = pos;
-      pushStr(`${imgObj} 0 obj\n<< /Type /XObject /Subtype /Image /Width ${pg.w} /Height ${pg.h} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${pg.bytes.length} >>\nstream\n`);
+      pushStr(`${imgObj} 0 obj
+<< /Type /XObject /Subtype /Image /Width ${pg.w} /Height ${pg.h} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${pg.bytes.length} >>
+stream
+`);
       pushBytes(pg.bytes);
-      pushStr("\nendstream\nendobj\n");
+      pushStr("
+endstream
+endobj
+");
     });
 
     const xrefPos = pos;
-    pushStr(`xref\n0 ${totalObjs + 1}\n0000000000 65535 f \n`);
+    pushStr(`xref
+0 ${totalObjs + 1}
+0000000000 65535 f 
+`);
     for (let i = 1; i <= totalObjs; i++) {
-      pushStr(String(offsets[i]).padStart(10, "0") + " 00000 n \n");
+      pushStr(String(offsets[i]).padStart(10, "0") + " 00000 n 
+");
     }
-    pushStr(`trailer\n<< /Size ${totalObjs + 1} /Root 1 0 R >>\nstartxref\n${xrefPos}\n%%EOF`);
+    pushStr(`trailer
+<< /Size ${totalObjs + 1} /Root 1 0 R >>
+startxref
+${xrefPos}
+%%EOF`);
 
     const blob = new Blob(chunks, { type: "application/pdf" });
     const url = URL.createObjectURL(blob);
