@@ -489,7 +489,7 @@
               </tr>
               <tr>
                 <th>HMTD Đề xuất (VAR_HMTD_REQ)</th>
-                <td><input type="number" step="0.01" id="inp_hmtd_req" placeholder="Nhập tay HMTD đề xuất..."></td>
+                <td><input type="number" step="0.01" id="inp_hmtd_req" placeholder="45.00"></td>
                 <th>Dư nợ ngắn hạn TCTD khác</th>
                 <td><input type="number" step="0.01" id="inp_other_debt" placeholder="12.00"></td>
               </tr>
@@ -813,7 +813,7 @@
             <tbody>
               <tr style="background:#EFF6FF;">
                 <th style="width:32%;color:#1E40AF;">Doanh thu thuần dự phóng T+1 (VAR_DT_KH_T+1)</th>
-                <td><input type="number" step="0.01" id="dtt_plan_t1" placeholder="Nhập tay DTT dự phóng T+1..."></td>
+                <td><input type="number" step="0.01" id="dtt_plan_t1" placeholder="460.00"></td>
                 <th style="width:32%;">Giá vốn hàng bán kế hoạch T+1</th>
                 <td><input type="number" step="0.01" id="cogs_plan_t1" placeholder="372.00"></td>
               </tr>
@@ -1022,6 +1022,7 @@
   const SAMPLE_VALUES = {
     inp_company_name: "Công ty TNHH Thương mại & Xây lắp Hoàng Nam",
     inp_mst: "2802948175",
+    inp_hmtd_req: 45.00,
     inp_other_debt: 12.00,
     inp_principal_due: 8.50,
     inp_current_interest: 5.20,
@@ -1054,7 +1055,7 @@
     tl_t2: 115.00, tl_t1: 135.00, tl_t: 152.00,
     eq_t2: 70.00, eq_t1: 85.00, eq_t: 100.00,
     dt_vat: 292.00, dt_incl_vat: 321.20, cash_in_112: 276.00,
-    cogs_plan_t1: 372.00, opex_plan_t1: 36.00,
+    dtt_plan_t1: 460.00, cogs_plan_t1: 372.00, opex_plan_t1: 36.00,
     da_plan_t1: 8.00, int_plan_t1: 9.50, tax_plan_t1: 8.50,
     col_desc: "QSDĐ & Nhà xưởng tại KCN Lễ Môn, Thanh Hóa", col_val: 65.00
   };
@@ -1069,18 +1070,63 @@
     window._toastTimer = setTimeout(() => { t.style.display = "none"; }, 3000);
   }
 
+  STATE.realDataStarted = false;
+
+  function hasRealInputValue() {
+    const allInputs = document.querySelectorAll("#panel-inputs input[type='number'], #panel-inputs input[type='text']");
+    for (let i = 0; i < allInputs.length; i++) {
+      if (allInputs[i].value.trim() !== "") return true;
+    }
+    return false;
+  }
+
+  function isDemoSampleMode() {
+    return !STATE.realDataStarted && !hasRealInputValue();
+  }
+
+  function switchToRealDataMode(preserveExistingValues) {
+    if (STATE.realDataStarted) return;
+    STATE.realDataStarted = true;
+    // Strip all Hoàng Nam faint placeholders so unentered fields are strictly empty (N/A) and NEVER fallback to sample numbers
+    document.querySelectorAll("#panel-inputs input").forEach(inp => {
+      if (inp.id === "dtt_plan_t1") inp.placeholder = "Nhập tay DTT T+1 (trống = N/A)";
+      else if (inp.id === "inp_hmtd_req") inp.placeholder = "Nhập tay HMTD ĐX (trống = N/A)";
+      else inp.placeholder = "N/A";
+    });
+  }
+
+  function hasFieldData(id) {
+    const el = $(id);
+    if (!el) return false;
+    if (el.value.trim() !== "") return Number.isFinite(parseFloat(el.value));
+    if (isDemoSampleMode() && el.placeholder !== "") return Number.isFinite(parseFloat(el.placeholder));
+    return false;
+  }
+
   function numVal(id) {
     const el = $(id);
     if (!el) return 0;
-    const raw = el.value !== "" ? el.value : el.placeholder;
-    const v = parseFloat(raw);
-    return Number.isFinite(v) ? v : 0;
+    if (el.value.trim() !== "") {
+      const v = parseFloat(el.value);
+      return Number.isFinite(v) ? v : 0;
+    }
+    if (isDemoSampleMode() && el.placeholder !== "") {
+      const vp = parseFloat(el.placeholder);
+      return Number.isFinite(vp) ? vp : 0;
+    }
+    return 0;
+  }
+
+  function numValOrNull(id) {
+    return hasFieldData(id) ? numVal(id) : null;
   }
 
   function strVal(id, fallback) {
     const el = $(id);
     if (!el) return fallback || "";
-    return el.value.trim() !== "" ? el.value.trim() : (el.placeholder || fallback || "");
+    if (el.value.trim() !== "") return el.value.trim();
+    if (isDemoSampleMode() && el.placeholder && el.placeholder !== "N/A") return el.placeholder;
+    return fallback || "N/A (Chưa nhập tên DN)";
   }
 
   function safeDiv(num, den) {
@@ -1444,6 +1490,7 @@
     const files = Array.from(fileList || []);
     if (!files.length) return;
 
+    switchToRealDataMode();
     let totalExtracted = 0;
     const summaryLogs = [];
 
@@ -1581,12 +1628,12 @@
       } else if (item.hasPlanQuick) {
         extraQuick = `<div style="margin-top:5px;display:flex;align-items:center;gap:6px;">
           <span style="font-size:11px;font-weight:700;color:#1D4ED8;white-space:nowrap;">DTT T+1:</span>
-          <input type="number" step="0.01" value="${dttPlan}" placeholder="Nhập tay DTT T+1..." data-sync-target="dtt_plan_t1" style="padding:4px 6px;font-size:12px;">
+          <input type="number" step="0.01" value="${dttPlan}" placeholder="${isDemoSampleMode() ? "460.00 (Mẫu)" : "N/A (Nhập DTT T+1)"}" data-sync-target="dtt_plan_t1" style="padding:4px 6px;font-size:12px;">
         </div>`;
       } else if (item.hasReqQuick) {
         extraQuick = `<div style="margin-top:5px;display:flex;align-items:center;gap:6px;">
           <span style="font-size:11px;font-weight:700;color:#059669;white-space:nowrap;">HMTD ĐX:</span>
-          <input type="number" step="0.01" value="${hmtdReq}" placeholder="Nhập tay HMTD ĐX..." data-sync-target="inp_hmtd_req" style="padding:4px 6px;font-size:12px;">
+          <input type="number" step="0.01" value="${hmtdReq}" placeholder="${isDemoSampleMode() ? "45.00 (Mẫu)" : "N/A (Nhập HMTD ĐX)"}" data-sync-target="inp_hmtd_req" style="padding:4px 6px;font-size:12px;">
         </div>`;
       }
 
@@ -1779,54 +1826,67 @@
       warnings.push(`[RED FLAG ĐỐI SOÁT MS 20]: Chênh lệch giữa VAR_OCF (${fmtNum(metrics.t.varOcf, 2)}) và MS 20 (${fmtNum(metrics.t.ms20, 2)}) là ${fmtNum(metrics.t.ms20DiffPct, 1)}% (> 5.0%).`);
     }
 
-    const dtInclVat = numVal("dt_incl_vat");
-    const cashIn112 = numVal("cash_in_112");
-    const tienVeRatio = safeDiv(cashIn112 * 100, dtInclVat);
+    const hasDttT = hasFieldData("dtt_t") && numVal("dtt_t") > 0;
+    const hasArOrInvT = hasFieldData("ar_gop_t") || hasFieldData("inv_gop_t") || hasFieldData("ap_gop_t");
+    const hasOcfInputsT = hasFieldData("lntt_t") || hasFieldData("ms20_t");
+
+    if (!hasDttT || !hasArOrInvT) {
+      metrics.t.vqVld = null;
+    }
+
+    const dtInclVat = numValOrNull("dt_incl_vat");
+    const cashIn112 = numValOrNull("cash_in_112");
+    const tienVeRatio = (dtInclVat !== null && dtInclVat > 0 && cashIn112 !== null) ? safeDiv(cashIn112 * 100, dtInclVat) : null;
     $("calc_tien_ve_ratio").textContent = tienVeRatio !== null ? fmtNum(tienVeRatio, 1) + "%" : "N/A";
     if (tienVeRatio !== null && tienVeRatio < 70.0) {
       warnings.push(`[RED FLAG DÒNG TIỀN VỀ TK 112]: Tỷ lệ tiền về TK 112 / Doanh thu có VAT chỉ đạt ${fmtNum(tienVeRatio, 1)}% (< 70.0%).`);
     }
 
+    const hasPrin = hasFieldData("inp_principal_due");
+    const hasInt = hasFieldData("inp_current_interest");
     const prinDue = numVal("inp_principal_due");
     const curInt = numVal("inp_current_interest");
-    const debtService = prinDue + curInt;
+    const debtService = (hasPrin || hasInt) ? (prinDue + curInt) : null;
     const annFactor = 365.0 / tDays;
-    const ocfTAnn = metrics.t.varOcf * annFactor;
-    const varDscr = safeDiv(ocfTAnn, debtService);
-    metrics.t2.dscr = safeDiv(metrics.t2.varOcf, debtService);
-    metrics.t1.dscr = safeDiv(metrics.t1.varOcf, debtService);
+    const ocfTAnn = hasOcfInputsT ? (metrics.t.varOcf * annFactor) : null;
+    const varDscr = (ocfTAnn !== null && debtService !== null && debtService > 0) ? safeDiv(ocfTAnn, debtService) : null;
+    metrics.t2.dscr = (hasFieldData("lntt_t2") && debtService !== null && debtService > 0) ? safeDiv(metrics.t2.varOcf, debtService) : null;
+    metrics.t1.dscr = (hasFieldData("lntt_t1") && debtService !== null && debtService > 0) ? safeDiv(metrics.t1.varOcf, debtService) : null;
     metrics.t.dscr = varDscr;
 
-    const dttPlanT1 = numVal("dtt_plan_t1");
+    const dttPlanT1 = numValOrNull("dtt_plan_t1");
     const otherDebt = numVal("inp_other_debt");
-    const hmtdReq = numVal("inp_hmtd_req");
+    const hmtdReq = numValOrNull("inp_hmtd_req");
     let nhuCauT1 = null, vtcMin30 = null, dk1 = null, dk2 = null, hmtdMax = null;
 
-    if (metrics.t.nwcAvg > 0 && metrics.t.vqVld !== null && metrics.t.vqVld > 0) {
+    if (dttPlanT1 !== null && dttPlanT1 > 0 && metrics.t.nwcAvg > 0 && metrics.t.vqVld !== null && metrics.t.vqVld > 0) {
       nhuCauT1 = dttPlanT1 / metrics.t.vqVld;
       vtcMin30 = 0.30 * nhuCauT1;
       dk1 = 0.70 * nhuCauT1;
       dk2 = Math.max(0, nhuCauT1 - vtcMin30 - otherDebt);
       hmtdMax = Math.max(0, Math.min(dk1, dk2));
+    } else if (dttPlanT1 === null || dttPlanT1 <= 0) {
+      warnings.push("[CHƯA NHẬP DOANH THU DỰ PHÓNG T+1]: Nhu cầu VLĐ T+1 và Trần HMTD tối đa (VAR_HMTD_MAX) trả về N/A, không tự suy diễn.");
     } else {
-      warnings.push("[CẢNH BÁO NWC_op_avg <= 0]: Vòng quay VLĐ và Trần HMTD T+1 trả về N/A, cần thẩm định theo tiến độ hợp đồng và DSCR.");
+      warnings.push("[CẢNH BÁO NWC_op_avg <= 0 HOẶC THIẾU DỮ LIỆU KỲ T]: Vòng quay VLĐ và Trần HMTD T+1 trả về N/A.");
     }
 
     const rate = 0.08;
     const dttAnn = metrics.t.dttAnn;
     const cogsAnn = metrics.t.cogsAnn;
     const vqT = metrics.t.vqVld;
+    const canRunStress = hasDttT && ocfTAnn !== null && debtService !== null && debtService > 0;
     const stressList = [
-      { code: "ST1", name: "Phải thu kéo dài +15 ngày", sf: (dttAnn / 365.0) * 15.0, minDscr: 1.10 },
-      { code: "ST2", name: "Vòng quay VLĐ giảm 15%", sf: (vqT && vqT > 0) ? Math.max(0, (dttPlanT1 / (vqT * 0.85)) - metrics.t.nwcAvg) : null, minDscr: 1.10 },
-      { code: "ST3", name: "Tồn kho & Công nợ tăng +30 ngày DT", sf: (dttAnn / 365.0) * 30.0, minDscr: 1.05 },
-      { code: "ST4", name: "Cú sốc kép (+15d DSO & +15d DIO)", sf: ((dttAnn / 365.0) * 15.0) + ((cogsAnn / 365.0) * 15.0), minDscr: 1.00 }
+      { code: "ST1", name: "Phải thu kéo dài +15 ngày", sf: canRunStress ? (dttAnn / 365.0) * 15.0 : null, minDscr: 1.10 },
+      { code: "ST2", name: "Vòng quay VLĐ giảm 15%", sf: (canRunStress && dttPlanT1 !== null && dttPlanT1 > 0 && vqT && vqT > 0) ? Math.max(0, (dttPlanT1 / (vqT * 0.85)) - metrics.t.nwcAvg) : null, minDscr: 1.10 },
+      { code: "ST3", name: "Tồn kho & Công nợ tăng +30 ngày DT", sf: canRunStress ? (dttAnn / 365.0) * 30.0 : null, minDscr: 1.05 },
+      { code: "ST4", name: "Cú sốc kép (+15d DSO & +15d DIO)", sf: (canRunStress && hasFieldData("cogs_t")) ? (((dttAnn / 365.0) * 15.0) + ((cogsAnn / 365.0) * 15.0)) : null, minDscr: 1.00 }
     ].map(st => {
-      if (st.sf === null) return { ...st, deltaI: null, dscrS: null, pass: false };
+      if (st.sf === null) return { ...st, deltaI: null, dscrS: null, pass: null };
       const sfClean = Math.max(0, st.sf);
       const deltaI = sfClean * rate;
-      const dscrS = safeDiv(ocfTAnn - deltaI, prinDue + curInt + deltaI);
-      const pass = dscrS !== null && dscrS >= st.minDscr;
+      const dscrS = safeDiv(ocfTAnn - deltaI, debtService + deltaI);
+      const pass = dscrS !== null ? (dscrS >= st.minDscr) : null;
       return { ...st, sf: sfClean, deltaI, dscrS, pass };
     });
 
@@ -1844,7 +1904,14 @@
       else { rank = "Hạng C"; decision = "HẠN CHẾ / CƠ CẤU LẠI"; }
     }
 
-    const hmtdApproved = (knockOut || rank === "Hạng D" || hmtdMax === null) ? 0 : Math.min(hmtdReq, hmtdMax);
+    let hmtdApproved = null;
+    if (knockOut || rank === "Hạng D") {
+      hmtdApproved = 0;
+    } else if (hmtdMax !== null && hmtdReq !== null && hmtdReq > 0) {
+      hmtdApproved = Math.min(hmtdReq, hmtdMax);
+    } else if (hmtdMax !== null) {
+      hmtdApproved = hmtdMax;
+    }
 
     return {
       warnings, metrics, tienVeRatio,
@@ -1924,10 +1991,14 @@
     const m = res.metrics;
     const u = STATE.unit;
 
-    $("kpi-nwcop").textContent = `${fmtNum(m.t.nwcOp, 2)} ${u}`;
-    $("kpi-ocf-dscr").textContent = `${fmtNum(m.t.varOcf, 2)} ${u} / ${fmtNum(m.t.dscr, 2)}x`;
+    const hasNwcT = hasFieldData("ar_gop_t") || hasFieldData("inv_gop_t") || hasFieldData("ap_gop_t");
+    const hasOcfT = hasFieldData("lntt_t") || hasFieldData("ms20_t");
+    $("kpi-nwcop").textContent = hasNwcT ? `${fmtNum(m.t.nwcOp, 2)} ${u}` : "N/A";
+    $("kpi-ocf-dscr").textContent = `${hasOcfT ? fmtNum(m.t.varOcf, 2) + " " + u : "N/A"} / ${m.t.dscr !== null ? fmtNum(m.t.dscr, 2) + "x" : "N/A"}`;
     $("kpi-hmtd-max").textContent = res.hmtdMax !== null ? `${fmtNum(res.hmtdMax, 2)} ${u}` : "N/A";
-    $("kpi-hmtd-final").textContent = `${fmtNum(res.hmtdReq, 2)} / ${fmtNum(res.hmtdApproved, 2)} ${u}`;
+    const reqTxt = res.hmtdReq !== null ? fmtNum(res.hmtdReq, 2) : "N/A";
+    const appTxt = res.hmtdApproved !== null ? fmtNum(res.hmtdApproved, 2) : "N/A";
+    $("kpi-hmtd-final").textContent = (res.hmtdReq === null && res.hmtdApproved === null) ? "N/A" : `${reqTxt} / ${appTxt} ${u}`;
     $("kpi-ews").textContent = `${fmtNum(res.ewsTotal, 2)} (${res.rank})`;
 
     $("warnings-container").innerHTML = res.warnings.map(w =>
@@ -1943,7 +2014,7 @@
         <td class="num">${r.v2}</td>
         <td class="num">${r.v1}</td>
         <td class="num" style="font-weight:700;">${r.vt}</td>
-        <td><span class="badge ${r.ok ? "b-green" : "b-amber"}">${r.ok ? "Đạt chuẩn" : "Theo dõi"}</span></td>
+        <td><span class="badge ${r.vt === "N/A" ? "b-blue" : (r.ok ? "b-green" : "b-amber")}">${r.vt === "N/A" ? "N/A" : (r.ok ? "Đạt chuẩn" : "Theo dõi")}</span></td>
       </tr>`;
     }).join("");
 
@@ -1951,13 +2022,13 @@
       ["Doanh thu thuần quy chuẩn năm (DTT_ann)", `DTT_T (${fmtNum(m.t.dtt, 2)}) × (365 / ${STATE.t_days})`, `${fmtNum(m.t.dttAnn, 2)} ${u}`],
       ["Vốn lưu động vận hành bình quân (NWC_op_avg)", `(NWC_op_T + NWC_op_T−1) / 2`, `${fmtNum(m.t.nwcAvg, 2)} ${u}`],
       ["Vòng quay VLĐ vận hành quy năm (VAR_VQ_VLD_T)", `DTT_ann / NWC_op_avg`, m.t.vqVld !== null ? `${fmtNum(m.t.vqVld, 2)} vòng` : "N/A"],
-      ["Doanh thu thuần dự phóng Năm T+1 (VAR_DT_KH_T+1)", `Theo kế hoạch kinh doanh T+1`, `${fmtNum(numVal("dtt_plan_t1"), 2)} ${u}`],
+      ["Doanh thu thuần dự phóng Năm T+1 (VAR_DT_KH_T+1)", `Theo kế hoạch kinh doanh T+1`, hasFieldData("dtt_plan_t1") ? `${fmtNum(numVal("dtt_plan_t1"), 2)} ${u}` : "N/A"],
       ["Tổng Nhu cầu VLĐ Năm T+1 (VAR_NHUCAU_T+1)", `DTT_T+1 / VAR_VQ_VLD_T`, res.nhuCauT1 !== null ? `${fmtNum(res.nhuCauT1, 2)} ${u}` : "N/A"],
       ["Vốn tự có tối thiểu tham gia 30% (VAR_VTC_MIN_30)", `30.0% × VAR_NHUCAU_T+1`, res.vtcMin30 !== null ? `${fmtNum(res.vtcMin30, 2)} ${u}` : "N/A"],
       ["Điều kiện khống chế 1 (DK1 - Tối đa 70% nhu cầu)", `70.0% × VAR_NHUCAU_T+1`, res.dk1 !== null ? `${fmtNum(res.dk1, 2)} ${u}` : "N/A"],
       ["Điều kiện khống chế 2 (DK2 - Trừ nợ ngắn hạn TCTD khác)", `max(0, Nhu cầu T+1 − VTC 30% − Nợ TCTD khác)`, res.dk2 !== null ? `${fmtNum(res.dk2, 2)} ${u}` : "N/A"],
       ["TRẦN HẠN MỨC TÍN DỤNG TỐI ĐA (VAR_HMTD_MAX)", `max(0, min(DK1, DK2))`, res.hmtdMax !== null ? `${fmtNum(res.hmtdMax, 2)} ${u}` : "N/A"],
-      ["HMTD ĐỀ XUẤT / HMTD PHÊ DUYỆT", `min(HMTD đề xuất, VAR_HMTD_MAX) theo EWS`, `${fmtNum(res.hmtdReq, 2)} / ${fmtNum(res.hmtdApproved, 2)} ${u}`]
+      ["HMTD ĐỀ XUẤT / HMTD PHÊ DUYỆT", `min(HMTD đề xuất, VAR_HMTD_MAX) theo EWS`, (res.hmtdReq === null && res.hmtdApproved === null) ? "N/A" : `${res.hmtdReq !== null ? fmtNum(res.hmtdReq, 2) : "N/A"} / ${res.hmtdApproved !== null ? fmtNum(res.hmtdApproved, 2) : "N/A"} ${u}`]
     ].map((row, idx) => `<tr class="${idx >= 8 ? "calc-row" : ""}">
       <td>${row[0]}</td><td style="font-size:11.5px;color:#475569;">${row[1]}</td><td class="num">${row[2]}</td>
     </tr>`).join("");
@@ -1969,7 +2040,7 @@
       <td class="num">${st.deltaI !== null ? fmtNum(st.deltaI, 2) + " " + u : "N/A"}</td>
       <td class="num" style="font-weight:700;">${st.dscrS !== null ? fmtNum(st.dscrS, 2) + "x" : "N/A"}</td>
       <td class="center">&ge; ${fmtNum(st.minDscr, 2)}x</td>
-      <td class="center"><span class="badge ${st.pass ? "b-green" : "b-red"}">${st.pass ? "Đạt (Pass)" : "Không đạt"}</span></td>
+      <td class="center"><span class="badge ${st.pass === null ? "b-amber" : (st.pass ? "b-green" : "b-red")}">${st.pass === null ? "N/A" : (st.pass === null ? "N/A" : (st.pass ? "Đạt (Pass)" : "Không đạt"))}</span></td>
     </tr>`).join("");
 
     const ewsDefs = [
@@ -2135,7 +2206,7 @@
         <table>
           <thead><tr><th>Kịch bản</th><th>Mô tả cú sốc</th><th class="num">Thiếu hụt vốn</th><th class="num">Lãi tăng thêm</th><th class="num">DSCR Stress</th><th class="center">Ngưỡng Min</th><th>Kết quả</th></tr></thead>
           <tbody>
-            ${res.stressList.map(st => `<tr><td><strong>${st.code}</strong></td><td>${st.name}</td><td class="num">${fmtNum(st.sf, 2)}</td><td class="num">${fmtNum(st.deltaI, 2)}</td><td class="num"><strong>${fmtNum(st.dscrS, 2)}x</strong></td><td class="center">&ge; ${fmtNum(st.minDscr, 2)}x</td><td>${st.pass ? "Đạt (Pass)" : "Không đạt"}</td></tr>`).join("")}
+            ${res.stressList.map(st => `<tr><td><strong>${st.code}</strong></td><td>${st.name}</td><td class="num">${fmtNum(st.sf, 2)}</td><td class="num">${fmtNum(st.deltaI, 2)}</td><td class="num"><strong>${fmtNum(st.dscrS, 2)}x</strong></td><td class="center">&ge; ${fmtNum(st.minDscr, 2)}x</td><td>${st.pass === null ? "N/A" : (st.pass ? "Đạt (Pass)" : "Không đạt")}</td></tr>`).join("")}
           </tbody>
         </table>
       </div>
@@ -2620,7 +2691,7 @@
     cur.ctx.fillText(`KẾT LUẬN THẨM ĐỊNH & PHÊ DUYỆT: ${res.decision} (${res.rank})`, marginX + 18, cur.y + 28);
     cur.ctx.fillStyle = "#0F294A";
     cur.ctx.font = "bold 17px Arial, sans-serif";
-    cur.ctx.fillText(`HMTD đề xuất / HMTD phê duyệt: ${fmtNum(res.hmtdReq, 2)} / ${fmtNum(res.hmtdApproved, 2)} ${u}`, marginX + 18, cur.y + 54);
+    cur.ctx.fillText(`HMTD đề xuất / HMTD phê duyệt: ${res.hmtdReq !== null ? fmtNum(res.hmtdReq, 2) : "N/A"} / ${res.hmtdApproved !== null ? fmtNum(res.hmtdApproved, 2) : "N/A"} ${u}`, marginX + 18, cur.y + 54);
     cur.ctx.fillStyle = "#334155";
     cur.ctx.font = "13.5px Arial, sans-serif";
     cur.ctx.fillText(`Trần hạn mức tối đa theo mô hình AI-Ready v7.2 (VAR_HMTD_MAX): ${res.hmtdMax !== null ? fmtNum(res.hmtdMax, 2) + " " + u : "N/A"}`, marginX + 18, cur.y + 75);
@@ -2791,11 +2862,15 @@
       STATE.ews[p] = parseFloat(btn.getAttribute("data-score"));
       renderAll();
     } else if (action === "fill-sample-real") {
+      STATE.realDataStarted = true;
       Object.keys(SAMPLE_VALUES).forEach(k => { if ($(k)) $(k).value = SAMPLE_VALUES[k]; });
       renderAll();
       showToast("⚡ Đã điền dữ liệu mẫu Công ty Hoàng Nam thành số thật!");
     } else if (action === "clear-all-inputs") {
       Object.keys(SAMPLE_VALUES).forEach(k => { if ($(k)) $(k).value = ""; });
+      if ($("inp_hmtd_req")) $("inp_hmtd_req").value = "";
+      if ($("dtt_plan_t1")) $("dtt_plan_t1").value = "";
+      switchToRealDataMode();
       CHECKLIST_ITEMS.forEach(item => { STATE.checklist[item.id].files = []; STATE.checklist[item.id].note = ""; });
       STATE.parserLogs = [];
       renderAll();
@@ -2860,6 +2935,9 @@
 
   function handleFieldSyncAndRecalc(target) {
     if (!target) return;
+    if (!target.hasAttribute("data-doc-note")) {
+      switchToRealDataMode();
+    }
     let fromQuickChecklist = false;
     if (target.hasAttribute("data-sync-target")) {
       fromQuickChecklist = true;
