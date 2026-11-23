@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-<title>Hệ thống Thẩm định Tín dụng KHDN • 4 AI Agents v7.2.8 (Standalone Release)</title>
+<title>Hệ thống Thẩm định Tín dụng KHDN • 4 AI Agents v7.2 (Production-Ready)</title>
 <style>
   :root {
     --navy: #0F294A;
@@ -218,44 +218,6 @@
   }
   .sign-box { border: 1px dashed #94A3B8; border-radius: 8px; padding: 10px 8px 54px 8px; background: #F8FAFC; }
 
-
-  .box-green {
-    background: #ECFDF5; border: 1px solid #6EE7B7; border-left: 5px solid #059669;
-    color: #065F46; border-radius: 8px; padding: 9px 12px; margin: 7px 0;
-  }
-  .box-red {
-    background: #FEF2F2; border: 1px solid #FCA5A5; border-left: 5px solid #DC2626;
-    color: #991B1B; border-radius: 8px; padding: 9px 12px; margin: 7px 0;
-  }
-  .box-amber {
-    background: #FFFBEB; border: 1px solid #FCD34D; border-left: 5px solid #D97706;
-    color: #92400E; border-radius: 8px; padding: 9px 12px; margin: 7px 0;
-  }
-  .box-formula {
-    background: #EFF6FF; border: 1px solid #93C5FD; border-left: 5px solid #1D4ED8;
-    color: #1E3A8A; border-radius: 8px; padding: 8px 12px; margin: 7px 0; font-size: 12px;
-  }
-  .box-conclusion {
-    background: #ECFDF5; border: 2px solid #059669; border-left: 7px solid #047857;
-    color: #064E3B; border-radius: 10px; padding: 12px 14px; margin: 8px 0;
-  }
-  .box-conclusion.box-concl-red {
-    background: #FEF2F2; border: 2px solid #DC2626; border-left: 7px solid #B91C1C;
-    color: #7F1D1D;
-  }
-  .box-conclusion.box-concl-amber {
-    background: #FFFBEB; border: 2px solid #D97706; border-left: 7px solid #B45309;
-    color: #78350F;
-  }
-  .tag-pill {
-    display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: 10.5px;
-    font-weight: 800; margin-right: 6px; text-transform: uppercase;
-  }
-  .tag-green { background: #059669; color: #FFFFFF; }
-  .tag-red { background: #DC2626; color: #FFFFFF; }
-  .tag-amber { background: #D97706; color: #FFFFFF; }
-  .tag-blue { background: #1D4ED8; color: #FFFFFF; }
-
   /* TOAST */
   #toast {
     position: fixed; top: 62px; right: 14px; z-index: 10000;
@@ -274,7 +236,7 @@
     .app-shell { max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
     #panel-report { display: block !important; }
     .report-sheet { border: none !important; padding: 0 !important; box-shadow: none !important; }
-    .rep-header, .rep-sec-title, th, tr.calc-row td, .box-green, .box-red, .box-amber, .box-formula, .box-conclusion, .tag-pill { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .rep-header, .rep-sec-title, th, tr.calc-row td { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     .rep-sec { page-break-inside: auto; }
     .rep-sec-title { page-break-after: avoid; }
     thead { display: table-header-group; }
@@ -1897,8 +1859,7 @@
 
       <div class="rep-sec">
         <div class="rep-sec-title">MỤC 2. ĐÁNH GIÁ CHẤT LƯỢNG HỒ SƠ &amp; LỌC NHIỄU BCTC THEO TT200 (AI AGENT 2)</div>
-        <div class="box-formula"><span class="tag-pill tag-blue">CÔNG THỨC LỌC NHIỄU</span> <code>VAR_AR_CLEAN = max(0, AR_Gop − max(AR_Treo, DP_TT48))</code> • <code>VAR_INV_CLEAN = max(0, INV_Gop − max(INV_UDong, DP_HTK))</code> • <code>VAR_AP_CLEAN = max(0, TK331 − AP_Treo − AP_CapEx)</code> • <code>NWC_op = (INV_Clean + AR_Clean + TSNH_VH) − (AP_Clean + Nợ_VH)</code>.</div>
-        <div class="${STATE.has_exclusion_notes ? "box-green" : "box-amber"}"><span class="tag-pill ${STATE.has_exclusion_notes ? "tag-green" : "tag-amber"}">${STATE.has_exclusion_notes ? "ĐÁNH GIÁ ĐẠT" : "CẢNH BÁO THIẾU TM"}</span> Áp dụng nguyên tắc lọc nhiễu chống trừ trùng (<code>VAR_AR_CLEAN</code>, <code>VAR_INV_CLEAN</code>, <code>VAR_AP_CLEAN</code>) và loại trừ các khoản phải thu treo, hàng tồn kho ứ đọng &gt; 180 ngày, phải trả đầu tư XDCB/CapEx để xác định Vốn lưu động vận hành ròng (<code>VAR_NWCOP</code>) qua 3 kỳ (Kỳ T: <strong>${fmtNum(m.t.nwcOp, 2)} ${u}</strong>).</div>
+        <p>Áp dụng nguyên tắc lọc nhiễu chống trừ trùng (<code>VAR_AR_CLEAN</code>, <code>VAR_INV_CLEAN</code>, <code>VAR_AP_CLEAN</code>) và loại trừ các khoản phải thu treo, hàng tồn kho ứ đọng &gt; 180 ngày, phải trả đầu tư XDCB/CapEx để xác định Vốn lưu động vận hành ròng (<code>VAR_NWCOP</code>) qua 3 kỳ:</p>
         <table>
           <thead><tr><th>Chỉ tiêu Vốn lưu động Sạch &amp; Vận hành (${u})</th><th class="num">Năm T−2</th><th class="num">Năm T−1</th><th class="num">Kỳ T (${STATE.t_days}d)</th></tr></thead>
           <tbody>
@@ -2028,7 +1989,7 @@
 
       <div class="rep-sec">
         <div class="rep-sec-title">MỤC 12. NGƯỠNG QUYẾT NGHỊ &amp; PHÊ DUYỆT TÍN DỤNG (FINAL - AI AGENT 4)</div>
-        <div class="${(res.knockOut || res.rank === "Hạng D") ? "box-conclusion box-concl-red" : (res.rank === "Hạng A" || res.rank === "Hạng B" ? "box-conclusion" : "box-conclusion box-concl-amber")}">
+        <div style="background:#ECFDF5;border:1.5px solid #059669;border-radius:8px;padding:12px;">
           <div style="font-size:13.5px;font-weight:800;color:#065F46;">
             KẾT LUẬN THẨM ĐỊNH &amp; PHÊ DUYỆT: ${res.decision} (${res.rank})
           </div>
@@ -2171,33 +2132,44 @@
         formula: { bg: "#EFF6FF", border: "#1D4ED8", badgeBg: "#1D4ED8", text: "#1E3A8A" }
       };
       const pal = palette[tone] || palette.formula;
-      cur.ctx.font = "13.5px Arial, sans-serif";
-      const lines = wrapTextLines(cur.ctx, bodyText, contentW - 36);
-      const lineH = 20;
-      const boxH = Math.max(40, lines.length * lineH + 18);
-      ensureSpace(boxH + 8);
+      const lineH = 22;
+      const badgeH = 24;
+      const topPad = 12;
+      const gapAfterBadge = 10;
+      const bottomPad = 12;
 
+      cur.ctx.font = "bold 13px Arial, sans-serif";
+      const bw = cur.ctx.measureText(String(badgeText)).width + 20;
+
+      cur.ctx.font = "14px Arial, sans-serif";
+      const lines = wrapTextLines(cur.ctx, bodyText, contentW - 40);
+      const textStartY = topPad + badgeH + gapAfterBadge;
+      const boxH = Math.max(66, textStartY + lines.length * lineH + bottomPad);
+      ensureSpace(boxH + 10);
+
+      cur.ctx.save();
       cur.ctx.fillStyle = pal.bg;
       cur.ctx.fillRect(marginX, cur.y, contentW, boxH);
       cur.ctx.strokeStyle = pal.border;
-      cur.ctx.lineWidth = 1.2;
+      cur.ctx.lineWidth = 1.4;
       cur.ctx.strokeRect(marginX, cur.y, contentW, boxH);
       cur.ctx.fillStyle = pal.border;
-      cur.ctx.fillRect(marginX, cur.y, 7, boxH);
+      cur.ctx.fillRect(marginX, cur.y, 8, boxH);
 
-      cur.ctx.font = "bold 11.5px Arial, sans-serif";
-      const bw = cur.ctx.measureText(badgeText).width + 16;
       cur.ctx.fillStyle = pal.badgeBg;
-      cur.ctx.fillRect(marginX + 16, cur.y + 8, bw, 20);
+      cur.ctx.fillRect(marginX + 18, cur.y + topPad, bw, badgeH);
       cur.ctx.fillStyle = "#FFFFFF";
-      cur.ctx.fillText(badgeText, marginX + 24, cur.y + 22);
+      cur.ctx.font = "bold 13px Arial, sans-serif";
+      cur.ctx.fillText(String(badgeText), marginX + 28, cur.y + topPad + 16.5);
 
       cur.ctx.fillStyle = pal.text;
-      cur.ctx.font = "13.5px Arial, sans-serif";
+      cur.ctx.font = "14px Arial, sans-serif";
       lines.forEach((ln, idx) => {
-        cur.ctx.fillText(ln, marginX + 20, cur.y + 42 + idx * lineH);
+        cur.ctx.fillText(ln, marginX + 20, cur.y + textStartY + idx * lineH);
       });
-      cur.y += boxH + 10;
+      cur.ctx.restore();
+
+      cur.y += boxH + 12;
     }
 
     function drawParagraph(text, bold) {
@@ -2292,7 +2264,6 @@
 
     // MỤC 1
     drawSectionHeader("MỤC 1. TỔNG QUAN PHÁP LÝ, MÔ HÌNH KINH DOANH & TRA CỨU CIC (AI AGENT 1)");
-    drawCalloutBox(STATE.cic_group >= 3 ? "red" : (STATE.cic_group === 2 ? "amber" : "green"), STATE.cic_group >= 3 ? "CẢNH BÁO CIC NHÓM 3–5" : (STATE.cic_group === 2 ? "THEO DÕI CIC NHÓM 2" : "ĐÁNH GIÁ CIC NHÓM 1"), `Khách hàng ${cname} (MST: ${mst}) | Nhóm CIC: ${STATE.cic_group} | Nợ ngắn hạn TCTD khác: ${fmtNum(numVal("inp_other_debt"), 2)} ${u}.`);
     drawParagraph(`Khách hàng ${cname} (MST: ${mst}) hoạt động trong lĩnh vực ${STATE.is_manufacturing ? "Sản xuất" : "Thương mại & Xây lắp"}. Quan hệ tín dụng CIC: Nhóm ${STATE.cic_group}; Dư nợ ngắn hạn TCTD khác: ${fmtNum(numVal("inp_other_debt"), 2)} ${u}; Nợ gốc dài hạn đến hạn trả: ${fmtNum(numVal("inp_principal_due"), 2)} ${u}; Chi phí lãi vay hiện tại: ${fmtNum(numVal("inp_current_interest"), 2)} ${u}/năm.`);
     drawTable(
       ["STT", "Danh mục Hồ sơ Đầu vào (13 Đầu mục)", "Trạng thái", "Tệp đính kèm & Đánh giá AI Agent 1"],
@@ -2307,8 +2278,7 @@
 
     // MỤC 2
     drawSectionHeader("MỤC 2. ĐÁNH GIÁ CHẤT LƯỢNG HỒ SƠ & LỌC NHIỄU BCTC THEO TT200 (AI AGENT 2)");
-    drawCalloutBox("formula", "CÔNG THỨC LỌC NHIỄU", "VAR_AR_CLEAN = max(0, AR_Gop - max(AR_Treo, DP_TT48)) | VAR_INV_CLEAN = max(0, INV_Gop - max(INV_UDong, DP_HTK)) | VAR_AP_CLEAN = max(0, TK331 - AP_Treo - AP_CapEx) | NWC_op = (INV_Clean + AR_Clean + TSNH_VH) - (AP_Clean + Nợ_VH).");
-    drawCalloutBox(STATE.has_exclusion_notes ? "green" : "amber", STATE.has_exclusion_notes ? "ĐÁNH GIÁ LỌC SẠCH ĐẠT" : "CẢNH BÁO THIẾU TM", `VAR_NWCOP Kỳ T = ${fmtNum(m.t.nwcOp, 2)} ${u} (Năm T-1: ${fmtNum(m.t1.nwcOp, 2)} ${u}; Năm T-2: ${fmtNum(m.t2.nwcOp, 2)} ${u}).`);
+    drawParagraph("Kết quả bóc tách loại trừ khoản treo, hàng tồn kho ứ đọng > 180 ngày và phải trả đầu tư XDCB/CapEx để xác định Vốn lưu động vận hành ròng (VAR_NWCOP) qua 3 kỳ:");
     const rNwc = ["= Vốn lưu động vận hành ròng (VAR_NWCOP)", fmtNum(m.t2.nwcOp, 2), fmtNum(m.t1.nwcOp, 2), fmtNum(m.t.nwcOp, 2)];
     rNwc._highlight = true;
     drawTable(
@@ -2377,8 +2347,6 @@
 
     // MỤC 7
     drawSectionHeader("MỤC 7. TÍNH TOÁN NHU CẦU VỐN LƯU ĐỘNG & TRẦN HẠN MỨC TÍN DỤNG (VAR_HMTD_MAX)");
-    drawCalloutBox("formula", "CÔNG THỨC TRẦN HMTD", "VAR_VQ_VLD_T = (DTT_T × 365 / T_ngày) / NWC_op_avg | VAR_NHUCAU_T+1 = DTT_T+1 / VAR_VQ_VLD_T | DK1 = 70% × Nhu cầu | DK2 = max(0, Nhu cầu - 30% VTC - Nợ TCTD khác) | VAR_HMTD_MAX = max(0, min(DK1, DK2)).");
-    drawCalloutBox(res.hmtdMax !== null && res.hmtdMax >= res.hmtdReq ? "green" : "amber", "ĐÁNH GIÁ TRẦN HMTD T+1", `Trần hạn mức tối đa VAR_HMTD_MAX = ${res.hmtdMax !== null ? fmtNum(res.hmtdMax, 2) + " " + u : "N/A"} so với HMTD đề xuất ${fmtNum(res.hmtdReq, 2)} ${u}.`);
     const rHmtdMax = ["TRẦN HẠN MỨC TÍN DỤNG TỐI ĐA (VAR_HMTD_MAX)", "max(0, min(DK1, DK2))", res.hmtdMax !== null ? `${fmtNum(res.hmtdMax, 2)} ${u}` : "N/A"];
     rHmtdMax._highlight = true;
     drawTable(
@@ -2397,8 +2365,6 @@
 
     // MỤC 8
     drawSectionHeader("MỤC 8. KIỂM ĐỊNH SỨC CHỊU ĐỰNG DÒNG TIỀN (STRESS TEST ST1 – ST4, r = 8.0%/năm)");
-    drawCalloutBox("formula", "CÔNG THỨC STRESS TEST", "ΔI = Vốn thiếu hụt × 8.0%/năm | DSCR_Stress = (VAR_OCF - ΔI) / (Nợ gốc đến hạn + Lãi vay hiện tại + ΔI).");
-    drawCalloutBox(res.stressList.every(s => s.pass) ? "green" : "amber", `ĐÁNH GIÁ STRESS (${res.stressList.filter(s => s.pass).length}/4 ĐẠT)`, res.stressList.every(s => s.pass) ? "Đạt ngưỡng DSCR tối thiểu cả 4 kịch bản ST1–ST4." : "Kịch bản chịu áp lực: " + res.stressList.filter(s => !s.pass).map(s => s.code).join(", ") + ".");
     drawTable(
       ["Kịch bản", "Mô tả cú sốc", "Thiếu hụt vốn", "Lãi tăng (ΔI)", "DSCR Stress", "Ngưỡng Min", "Kết quả"],
       [90, 340, 145, 135, 135, 130, contentW - 975],
