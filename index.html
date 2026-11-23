@@ -218,6 +218,44 @@
   }
   .sign-box { border: 1px dashed #94A3B8; border-radius: 8px; padding: 10px 8px 54px 8px; background: #F8FAFC; }
 
+
+  .box-green {
+    background: #ECFDF5; border: 1px solid #6EE7B7; border-left: 5px solid #059669;
+    color: #065F46; border-radius: 8px; padding: 9px 12px; margin: 7px 0;
+  }
+  .box-red {
+    background: #FEF2F2; border: 1px solid #FCA5A5; border-left: 5px solid #DC2626;
+    color: #991B1B; border-radius: 8px; padding: 9px 12px; margin: 7px 0;
+  }
+  .box-amber {
+    background: #FFFBEB; border: 1px solid #FCD34D; border-left: 5px solid #D97706;
+    color: #92400E; border-radius: 8px; padding: 9px 12px; margin: 7px 0;
+  }
+  .box-formula {
+    background: #EFF6FF; border: 1px solid #93C5FD; border-left: 5px solid #1D4ED8;
+    color: #1E3A8A; border-radius: 8px; padding: 8px 12px; margin: 7px 0; font-size: 12px;
+  }
+  .box-conclusion {
+    background: #ECFDF5; border: 2px solid #059669; border-left: 7px solid #047857;
+    color: #064E3B; border-radius: 10px; padding: 12px 14px; margin: 8px 0;
+  }
+  .box-conclusion.box-concl-red {
+    background: #FEF2F2; border: 2px solid #DC2626; border-left: 7px solid #B91C1C;
+    color: #7F1D1D;
+  }
+  .box-conclusion.box-concl-amber {
+    background: #FFFBEB; border: 2px solid #D97706; border-left: 7px solid #B45309;
+    color: #78350F;
+  }
+  .tag-pill {
+    display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: 10.5px;
+    font-weight: 800; margin-right: 6px; text-transform: uppercase;
+  }
+  .tag-green { background: #059669; color: #FFFFFF; }
+  .tag-red { background: #DC2626; color: #FFFFFF; }
+  .tag-amber { background: #D97706; color: #FFFFFF; }
+  .tag-blue { background: #1D4ED8; color: #FFFFFF; }
+
   /* TOAST */
   #toast {
     position: fixed; top: 62px; right: 14px; z-index: 10000;
@@ -236,7 +274,7 @@
     .app-shell { max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
     #panel-report { display: block !important; }
     .report-sheet { border: none !important; padding: 0 !important; box-shadow: none !important; }
-    .rep-header, .rep-sec-title, th, tr.calc-row td { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .rep-header, .rep-sec-title, th, tr.calc-row td, .box-green, .box-red, .box-amber, .box-formula, .box-conclusion, .tag-pill { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     .rep-sec { page-break-inside: auto; }
     .rep-sec-title { page-break-after: avoid; }
     thead { display: table-header-group; }
@@ -1089,6 +1127,7 @@
       const c = obj.company_info;
       setIf("inp_company_name", c.name);
       setIf("inp_mst", c.mst);
+      setIf("inp_hmtd_req", c.hmtd_req);
       if (typeof c.is_manufacturing === "boolean") STATE.is_manufacturing = c.is_manufacturing;
       if (typeof c.has_exclusion_notes === "boolean") STATE.has_exclusion_notes = c.has_exclusion_notes;
     }
@@ -1119,13 +1158,58 @@
         dtt_ytd: "dtt_t", cogs_ytd: "cogs_t", purchases_ytd: "purch_t",
         lntt_ytd: "lntt_t", da_ytd: "da_t", interest_exp_ytd: "int_exp_t",
         tax_paid_ytd: "tax_t", interest_paid_ytd: "int_paid_t",
-        ms_20_ytd: "ms20_t",
+        ms_20_ytd: "ms20_t", dtt_plan_t1: "dtt_plan_t1",
         cash_collected_112: "cash_in_112", dt_vat_incl_tax: "dt_incl_vat"
       };
       Object.keys(mapF).forEach(k => { if (f[k] !== undefined && f[k] !== null) setIf(mapF[k], f[k]); });
     }
     Object.keys(SAMPLE_VALUES).forEach(k => { if (obj[k] !== undefined) setIf(k, obj[k]); });
     return count;
+  }
+
+  function isSummaryTotalRowText(rowText) {
+    if (!rowText) return false;
+    const norm = String(rowText).trim().toLowerCase().replace(/\s+/g, " ");
+    return /^(tổng\s*cộng|tổng\s*số|tổng\s*phát\s*sinh|tổng\s*tiền|tổng\s*doanh\s*thu|cộng\s*phát\s*sinh|cộng\s*lũy\s*kế|lũy\s*kế\s*cuối\s*kỳ|tổng\s*hợp|total|grand\s*total|sub\s*total)\b/i.test(norm)
+      || /\b(tổng\s*cộng\s*phát\s*sinh|cộng\s*số\s*phát\s*sinh|tổng\s*cộng\s*cuối\s*kỳ|tổng\s*cộng\s*sổ)\b/i.test(norm);
+  }
+
+  function filterSummaryRowsFromCsvOrLines(rawText) {
+    return String(rawText || "")
+      .split(/\r?\n/)
+      .filter(ln => !isSummaryTotalRowText(ln.replace(/[,;\t|]/g, " ")))
+      .join("\n");
+  }
+
+  function sumLedgerDetailRows(rawText) {
+    const lines = String(rawText || "").split(/\r?\n/).filter(l => l.trim().length > 0);
+    if (lines.length < 3) return null;
+    let sumAmt = 0, detailRowCount = 0, skippedSummaryCount = 0;
+    for (let i = 0; i < lines.length; i++) {
+      const ln = lines[i];
+      if (isSummaryTotalRowText(ln.replace(/[,;\t|]/g, " "))) {
+        skippedSummaryCount++;
+        continue;
+      }
+      const cols = ln.includes("\t") ? ln.split("\t") : ln.split(/[;,]/);
+      if (cols.length < 2) continue;
+      const nums = [];
+      for (const c of cols) {
+        const clean = c.trim();
+        if (/^\d{1,2}[\/-]\d{1,2}[\/-]\d{2,4}$/.test(clean)) continue;
+        if (/^(111|112|131|141|151|152|153|154|155|156|331|333|511|632|641|642)$/.test(clean)) continue;
+        const v = parseNumberSmart(clean);
+        if (v !== null && Math.abs(v) > 0) nums.push(v);
+      }
+      if (nums.length > 0) {
+        detailRowCount++;
+        const posVals = nums.filter(x => x > 0);
+        if (posVals.length > 0) sumAmt += posVals[posVals.length - 1];
+      }
+    }
+    if (detailRowCount < 2) return null;
+    const scale = (v) => (Math.abs(v) >= 1000000 ? v / 1e9 : (Math.abs(v) >= 10000 ? v / 1e3 : v));
+    return { detailRowCount, skippedSummaryCount, total: scale(sumAmt) };
   }
 
   function mapExtractedTextToTT200(text, targetDoc) {
@@ -1161,7 +1245,6 @@
       return num;
     };
 
-    // Row-by-row TT200 parser (handles both 1-column interim BCTC and 2-column Closing/Opening BCTC tables)
     const rowRules = [
       { re: /(?:Doanh thu thuần về bán hàng|Doanh thu thuần\b|\bMS\s*10\b|\bMã số\s*10\b)/i, cur: "dtt_t", prev: "dtt_t1", label: "DTT(MS10)" },
       { re: /(?:Giá vốn hàng bán|\bMS\s*11\b|\bMã số\s*11\b)/i, cur: "cogs_t", prev: "cogs_t1", label: "GVHB(MS11)" },
@@ -1191,11 +1274,10 @@
       { re: /(?:Tiền về TK 112|Tiền thực thu qua TK 112)/i, cur: "cash_in_112", prev: null, label: "Tiền TK112" }
     ];
 
-    const opexAccum = { opex_t: 0, opex_t1: 0 };
+    const opexAccum = { opex_t: 0, opex_t1: 0, opex_t2: 0 };
     const lines = text.split(/\r?\n/);
 
     lines.forEach(ln => {
-      // Direct key=value support (excluding manual fields dtt_plan_t1 / inp_hmtd_req unless explicitly in JSON)
       const kvParts = ln.split(/[,;\t=:]/).map(s => s.trim());
       if (kvParts.length >= 2 && SAMPLE_VALUES[kvParts[0]] !== undefined && kvParts[0] !== "dtt_plan_t1" && kvParts[0] !== "inp_hmtd_req") {
         const val = parseNumberSmart(kvParts[1]);
@@ -1212,7 +1294,6 @@
 
       for (const rule of rowRules) {
         if (!rule.re.test(ln)) continue;
-        // Extract numeric cells in this row, ignoring TT200 line codes (10, 11, 20, 23, 25, 26, 50, 51, 100, 110, 131, 137, 141, 149, 270, 300, 310, 311, 400)
         const numCells = [];
         cells.forEach((c, idx) => {
           if (idx === 0 && !/^[\d.,()-]+$/.test(c)) return;
@@ -1224,7 +1305,6 @@
         if (numCells.length > 0) {
           const valCur = numCells[0];
           const valPrev = numCells.length >= 2 ? numCells[1] : null;
-          // If file was uploaded to Mục 3.1 (BCTC Năm T-1), map first column to T-1 and second column to T-2!
           const targetCur = (targetDoc === "doc_3_1" && rule.prev) ? rule.prev : rule.cur;
           const targetPrev = (targetDoc === "doc_3_1" && rule.prev) ? rule.cur.replace("_t", "_t2") : rule.prev;
 
@@ -1247,73 +1327,6 @@
     });
 
     return { mappedCount, notes };
-  }
-
-  function isSummaryTotalRowText(rowText) {
-    if (!rowText) return false;
-    const norm = String(rowText).trim().toLowerCase().replace(/\s+/g, " ");
-    // Exclude summary / total rows at the bottom of Excel ledgers/statements to prevent 2x double-counting
-    return /^(tổng\s*cộng|tổng\s*số|tổng\s*phát\s*sinh|tổng\s*tiền|tổng\s*doanh\s*thu|cộng\s*phát\s*sinh|cộng\s*lũy\s*kế|lũy\s*kế\s*cuối\s*kỳ|tổng\s*hợp|total|grand\s*total|sub\s*total)\b/i.test(norm)
-      || /\b(tổng\s*cộng\s*phát\s*sinh|cộng\s*số\s*phát\s*sinh|tổng\s*cộng\s*cuối\s*kỳ|tổng\s*cộng\s*sổ)\b/i.test(norm);
-  }
-
-  function filterSummaryRowsFromCsvOrLines(rawText) {
-    return String(rawText || "")
-      .split(/\r?\n/)
-      .filter(ln => !isSummaryTotalRowText(ln.replace(/[,;\t|]/g, " ")))
-      .join("\n");
-  }
-
-  function sumLedgerDetailRows(rawText, docBucket) {
-    // When user uploads a bank statement (doc_5 / doc_10) or sales ledger (doc_4) in Excel/CSV,
-    // sum ONLY detail transaction rows and strictly skip summary/total rows at the bottom to prevent 2x double-counting!
-    const lines = String(rawText || "").split(/\r?\n/).filter(l => l.trim().length > 0);
-    if (lines.length < 3) return null;
-
-    let sumCredit112 = 0;
-    let sumSales511 = 0;
-    let detailRowCount = 0;
-    let skippedSummaryCount = 0;
-
-    for (let i = 0; i < lines.length; i++) {
-      const ln = lines[i];
-      if (isSummaryTotalRowText(ln.replace(/[,;\t|]/g, " "))) {
-        skippedSummaryCount++;
-        continue;
-      }
-      // Split columns by tab or comma/semicolon
-      const cols = ln.includes("\t") ? ln.split("\t") : ln.split(/[;,]/);
-      if (cols.length < 2) continue;
-      // Extract numeric values in the row (ignore date/account code columns)
-      const nums = [];
-      for (const c of cols) {
-        const clean = c.trim();
-        if (/^\d{1,2}[\/-]\d{1,2}[\/-]\d{2,4}$/.test(clean)) continue;
-        if (/^(111|112|131|141|151|152|153|154|155|156|331|333|511|632|641|642)$/.test(clean)) continue;
-        const v = parseNumberSmart(clean);
-        if (v !== null && Math.abs(v) > 0) nums.push(v);
-      }
-      if (nums.length > 0) {
-        detailRowCount++;
-        // Take largest positive transaction amount in the detail row (or credit column)
-        const posVals = nums.filter(x => x > 0);
-        if (posVals.length > 0) {
-          const rowAmt = posVals[posVals.length - 1];
-          sumCredit112 += rowAmt;
-          sumSales511 += rowAmt;
-        }
-      }
-    }
-
-    if (detailRowCount < 2) return null;
-    // Scale raw VND to Tỷ đồng if needed
-    const scale = (v) => (Math.abs(v) >= 1000000 ? v / 1e9 : (Math.abs(v) >= 10000 ? v / 1e3 : v));
-    return {
-      detailRowCount,
-      skippedSummaryCount,
-      sum112: scale(sumCredit112),
-      sum511: scale(sumSales511)
-    };
   }
 
   async function extractTextFromXlsx(arrayBuffer) {
@@ -1352,7 +1365,6 @@
       }
     }
 
-    // Parse sharedStrings.xml so cell text labels ("Tổng cộng", "Cộng phát sinh", "Mã số 10"...) are resolved accurately!
     const sharedStrings = [];
     const ssKey = Object.keys(xmlFiles).find(k => k.includes("sharedStrings"));
     if (ssKey) {
@@ -1364,7 +1376,6 @@
       });
     }
 
-    // Parse rows (<row>...</row>) per worksheet and SKIP any summary/total row at the bottom (Tổng cộng, Cộng phát sinh, Total...)
     const sheetKeys = Object.keys(xmlFiles).filter(k => k.includes("worksheets/sheet")).sort();
     const cleanRowLines = [];
     let skippedTotalRows = 0;
@@ -1393,13 +1404,11 @@
         });
 
         if (cells.length === 0) return;
-        const rowJoined = cells.join("\t");
-        // Strictly exclude bottom summary/total rows (Tổng cộng, Tổng phát sinh, Cộng lũy kế, Total...) so numbers are NEVER doubled (x2)!
         if (isSummaryTotalRowText(cells.join(" "))) {
           skippedTotalRows++;
           return;
         }
-        cleanRowLines.push(rowJoined);
+        cleanRowLines.push(cells.join("\t"));
       });
     });
 
@@ -1456,16 +1465,13 @@
           continue;
         } else if (ext === "csv" || ext === "txt" || ext === "xml") {
           STATE._lastXlsxSkippedTotalRows = 0;
-          const rawCsv = await f.text();
-          extractedText = filterSummaryRowsFromCsvOrLines(rawCsv);
+          extractedText = filterSummaryRowsFromCsvOrLines(await f.text());
         } else if (ext === "xlsx") {
           STATE._lastXlsxSkippedTotalRows = 0;
-          const buf = await f.arrayBuffer();
-          extractedText = await extractTextFromXlsx(buf);
+          extractedText = await extractTextFromXlsx(await f.arrayBuffer());
         } else if (ext === "pdf") {
           STATE._lastXlsxSkippedTotalRows = 0;
-          const buf = await f.arrayBuffer();
-          extractedText = extractTextFromPdfBytes(buf);
+          extractedText = extractTextFromPdfBytes(await f.arrayBuffer());
         }
       } catch (err) {
         summaryLogs.push(`⚠️ <strong>${f.name}</strong>: Đã lưu chứng từ (cần kiểm tra nhập tay nếu là PDF scan ảnh).`);
@@ -1473,18 +1479,17 @@
 
       if (extractedText && extractedText.length > 5) {
         const res = mapExtractedTextToTT200(extractedText, targetDoc);
-        // If file is a bank statement (doc_5 / doc_10) or sales ledger (doc_4) and didn't match BCTC line codes, sum detail rows (excluding bottom total rows)
         if (res.mappedCount === 0 && (targetDoc === "doc_5" || targetDoc === "doc_10" || targetDoc === "doc_4")) {
-          const ledgerSum = sumLedgerDetailRows(extractedText, targetDoc);
+          const ledgerSum = sumLedgerDetailRows(extractedText);
           if (ledgerSum) {
             if (targetDoc === "doc_5" || targetDoc === "doc_10") {
-              $("cash_in_112").value = ledgerSum.sum112.toFixed(2);
+              $("cash_in_112").value = ledgerSum.total.toFixed(2);
               res.mappedCount++;
-              res.notes.push(`Tiền về TK 112=${ledgerSum.sum112.toFixed(2)} (đã loại ${ledgerSum.skippedSummaryCount} dòng tổng)`);
+              res.notes.push(`Tiền về TK 112=${ledgerSum.total.toFixed(2)} (loại ${ledgerSum.skippedSummaryCount} dòng tổng)`);
             } else if (targetDoc === "doc_4") {
-              $("dtt_t").value = ledgerSum.sum511.toFixed(2);
+              $("dtt_t").value = ledgerSum.total.toFixed(2);
               res.mappedCount++;
-              res.notes.push(`Sổ 511=${ledgerSum.sum511.toFixed(2)} (đã loại ${ledgerSum.skippedSummaryCount} dòng tổng)`);
+              res.notes.push(`Sổ 511=${ledgerSum.total.toFixed(2)} (loại ${ledgerSum.skippedSummaryCount} dòng tổng)`);
             }
           }
         }
@@ -2047,7 +2052,8 @@
 
       <div class="rep-sec">
         <div class="rep-sec-title">MỤC 2. ĐÁNH GIÁ CHẤT LƯỢNG HỒ SƠ &amp; LỌC NHIỄU BCTC THEO TT200 (AI AGENT 2)</div>
-        <p>Áp dụng nguyên tắc lọc nhiễu chống trừ trùng (<code>VAR_AR_CLEAN</code>, <code>VAR_INV_CLEAN</code>, <code>VAR_AP_CLEAN</code>) và loại trừ các khoản phải thu treo, hàng tồn kho ứ đọng &gt; 180 ngày, phải trả đầu tư XDCB/CapEx để xác định Vốn lưu động vận hành ròng (<code>VAR_NWCOP</code>) qua 3 kỳ:</p>
+        <div class="box-formula"><span class="tag-pill tag-blue">CÔNG THỨC LỌC NHIỄU</span> <code>VAR_AR_CLEAN = max(0, AR_Gop − max(AR_Treo, DP_TT48))</code> • <code>VAR_INV_CLEAN = max(0, INV_Gop − max(INV_UDong, DP_HTK))</code> • <code>VAR_AP_CLEAN = max(0, TK331 − AP_Treo − AP_CapEx)</code> • <code>NWC_op = (INV_Clean + AR_Clean + TSNH_VH) − (AP_Clean + Nợ_VH)</code>.</div>
+        <div class="${STATE.has_exclusion_notes ? "box-green" : "box-amber"}"><span class="tag-pill ${STATE.has_exclusion_notes ? "tag-green" : "tag-amber"}">${STATE.has_exclusion_notes ? "ĐÁNH GIÁ ĐẠT" : "CẢNH BÁO THIẾU TM"}</span> Áp dụng nguyên tắc lọc nhiễu chống trừ trùng (<code>VAR_AR_CLEAN</code>, <code>VAR_INV_CLEAN</code>, <code>VAR_AP_CLEAN</code>) và loại trừ các khoản phải thu treo, hàng tồn kho ứ đọng &gt; 180 ngày, phải trả đầu tư XDCB/CapEx để xác định Vốn lưu động vận hành ròng (<code>VAR_NWCOP</code>) qua 3 kỳ (Kỳ T: <strong>${fmtNum(m.t.nwcOp, 2)} ${u}</strong>).</div>
         <table>
           <thead><tr><th>Chỉ tiêu Vốn lưu động Sạch &amp; Vận hành (${u})</th><th class="num">Năm T−2</th><th class="num">Năm T−1</th><th class="num">Kỳ T (${STATE.t_days}d)</th></tr></thead>
           <tbody>
@@ -2177,7 +2183,7 @@
 
       <div class="rep-sec">
         <div class="rep-sec-title">MỤC 12. NGƯỠNG QUYẾT NGHỊ &amp; PHÊ DUYỆT TÍN DỤNG (FINAL - AI AGENT 4)</div>
-        <div style="background:#ECFDF5;border:1.5px solid #059669;border-radius:8px;padding:12px;">
+        <div class="${(res.knockOut || res.rank === "Hạng D") ? "box-conclusion box-concl-red" : (res.rank === "Hạng A" || res.rank === "Hạng B" ? "box-conclusion" : "box-conclusion box-concl-amber")}">
           <div style="font-size:13.5px;font-weight:800;color:#065F46;">
             KẾT LUẬN THẨM ĐỊNH &amp; PHÊ DUYỆT: ${res.decision} (${res.rank})
           </div>
@@ -2452,6 +2458,7 @@
 
     // MỤC 1
     drawSectionHeader("MỤC 1. TỔNG QUAN PHÁP LÝ, MÔ HÌNH KINH DOANH & TRA CỨU CIC (AI AGENT 1)");
+    drawCalloutBox(STATE.cic_group >= 3 ? "red" : (STATE.cic_group === 2 ? "amber" : "green"), STATE.cic_group >= 3 ? "CẢNH BÁO CIC NHÓM 3–5" : (STATE.cic_group === 2 ? "THEO DÕI CIC NHÓM 2" : "ĐÁNH GIÁ CIC NHÓM 1"), `Khách hàng ${cname} (MST: ${mst}) | Nhóm CIC: ${STATE.cic_group} | Nợ ngắn hạn TCTD khác: ${fmtNum(numVal("inp_other_debt"), 2)} ${u}.`);
     drawParagraph(`Khách hàng ${cname} (MST: ${mst}) hoạt động trong lĩnh vực ${STATE.is_manufacturing ? "Sản xuất" : "Thương mại & Xây lắp"}. Quan hệ tín dụng CIC: Nhóm ${STATE.cic_group}; Dư nợ ngắn hạn TCTD khác: ${fmtNum(numVal("inp_other_debt"), 2)} ${u}; Nợ gốc dài hạn đến hạn trả: ${fmtNum(numVal("inp_principal_due"), 2)} ${u}; Chi phí lãi vay hiện tại: ${fmtNum(numVal("inp_current_interest"), 2)} ${u}/năm.`);
     drawTable(
       ["STT", "Danh mục Hồ sơ Đầu vào (13 Đầu mục)", "Trạng thái", "Tệp đính kèm & Đánh giá AI Agent 1"],
@@ -2466,7 +2473,8 @@
 
     // MỤC 2
     drawSectionHeader("MỤC 2. ĐÁNH GIÁ CHẤT LƯỢNG HỒ SƠ & LỌC NHIỄU BCTC THEO TT200 (AI AGENT 2)");
-    drawParagraph("Kết quả bóc tách loại trừ khoản treo, hàng tồn kho ứ đọng > 180 ngày và phải trả đầu tư XDCB/CapEx để xác định Vốn lưu động vận hành ròng (VAR_NWCOP) qua 3 kỳ:");
+    drawCalloutBox("formula", "CÔNG THỨC LỌC NHIỄU", "VAR_AR_CLEAN = max(0, AR_Gop - max(AR_Treo, DP_TT48)) | VAR_INV_CLEAN = max(0, INV_Gop - max(INV_UDong, DP_HTK)) | VAR_AP_CLEAN = max(0, TK331 - AP_Treo - AP_CapEx) | NWC_op = (INV_Clean + AR_Clean + TSNH_VH) - (AP_Clean + Nợ_VH).");
+    drawCalloutBox(STATE.has_exclusion_notes ? "green" : "amber", STATE.has_exclusion_notes ? "ĐÁNH GIÁ LỌC SẠCH ĐẠT" : "CẢNH BÁO THIẾU TM", `VAR_NWCOP Kỳ T = ${fmtNum(m.t.nwcOp, 2)} ${u} (Năm T-1: ${fmtNum(m.t1.nwcOp, 2)} ${u}; Năm T-2: ${fmtNum(m.t2.nwcOp, 2)} ${u}).`);
     const rNwc = ["= Vốn lưu động vận hành ròng (VAR_NWCOP)", fmtNum(m.t2.nwcOp, 2), fmtNum(m.t1.nwcOp, 2), fmtNum(m.t.nwcOp, 2)];
     rNwc._highlight = true;
     drawTable(
@@ -2535,6 +2543,8 @@
 
     // MỤC 7
     drawSectionHeader("MỤC 7. TÍNH TOÁN NHU CẦU VỐN LƯU ĐỘNG & TRẦN HẠN MỨC TÍN DỤNG (VAR_HMTD_MAX)");
+    drawCalloutBox("formula", "CÔNG THỨC TRẦN HMTD", "VAR_VQ_VLD_T = (DTT_T × 365 / T_ngày) / NWC_op_avg | VAR_NHUCAU_T+1 = DTT_T+1 / VAR_VQ_VLD_T | DK1 = 70% × Nhu cầu | DK2 = max(0, Nhu cầu - 30% VTC - Nợ TCTD khác) | VAR_HMTD_MAX = max(0, min(DK1, DK2)).");
+    drawCalloutBox(res.hmtdMax !== null && res.hmtdMax >= res.hmtdReq ? "green" : "amber", "ĐÁNH GIÁ TRẦN HMTD T+1", `Trần hạn mức tối đa VAR_HMTD_MAX = ${res.hmtdMax !== null ? fmtNum(res.hmtdMax, 2) + " " + u : "N/A"} so với HMTD đề xuất ${fmtNum(res.hmtdReq, 2)} ${u}.`);
     const rHmtdMax = ["TRẦN HẠN MỨC TÍN DỤNG TỐI ĐA (VAR_HMTD_MAX)", "max(0, min(DK1, DK2))", res.hmtdMax !== null ? `${fmtNum(res.hmtdMax, 2)} ${u}` : "N/A"];
     rHmtdMax._highlight = true;
     drawTable(
@@ -2553,6 +2563,8 @@
 
     // MỤC 8
     drawSectionHeader("MỤC 8. KIỂM ĐỊNH SỨC CHỊU ĐỰNG DÒNG TIỀN (STRESS TEST ST1 – ST4, r = 8.0%/năm)");
+    drawCalloutBox("formula", "CÔNG THỨC STRESS TEST", "ΔI = Vốn thiếu hụt × 8.0%/năm | DSCR_Stress = (VAR_OCF - ΔI) / (Nợ gốc đến hạn + Lãi vay hiện tại + ΔI).");
+    drawCalloutBox(res.stressList.every(s => s.pass) ? "green" : "amber", `ĐÁNH GIÁ STRESS (${res.stressList.filter(s => s.pass).length}/4 ĐẠT)`, res.stressList.every(s => s.pass) ? "Đạt ngưỡng DSCR tối thiểu cả 4 kịch bản ST1–ST4." : "Kịch bản chịu áp lực: " + res.stressList.filter(s => !s.pass).map(s => s.code).join(", ") + ".");
     drawTable(
       ["Kịch bản", "Mô tả cú sốc", "Thiếu hụt vốn", "Lãi tăng (ΔI)", "DSCR Stress", "Ngưỡng Min", "Kết quả"],
       [90, 340, 145, 135, 135, 130, contentW - 975],
@@ -2891,7 +2903,6 @@
     handleFieldSyncAndRecalc(target);
   });
 
-  // Safety heartbeat: detect any value change in DOM inputs and refresh KPI banner + all tables automatically
   let _lastInputSnapshot = "";
   setInterval(function() {
     const inputs = document.querySelectorAll("#panel-inputs input, #panel-checklist input[data-sync-target]");
